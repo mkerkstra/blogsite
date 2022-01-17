@@ -4,7 +4,9 @@ import Footer from './footer';
 
 const classes = {
   layout: `
-    h-screen
+    h-full
+    w-full
+    fixed
   `,
   main: `flex 
   flex-col 
@@ -12,7 +14,7 @@ const classes = {
   justify-center 
   overflow-auto
   w-full 
-  h-[80vh]
+  h-[80%]
   px-3
   bg-[#FFFFFF] 
   dark:bg-[#2C2C40] 

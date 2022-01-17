@@ -3,7 +3,7 @@ import Socials from './socials';
 const classes = {
   footer: `
     flex  flex-col
-    relative h-[10vh] 
+    relative h-[10%] 
     bottom-0
     items-center
     justify-center

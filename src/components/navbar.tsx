@@ -3,7 +3,7 @@ import DarkModeSwitch from './DarkModeSwitch';
 import AriaLink from '../components/ariaLink';
 
 const classes = {
-  nav: `relative w-screen h-[10vh] py-5 flex items-center place-content-around
+  nav: `relative w-screen h-[10%] py-5 flex items-center place-content-around
  border-b 
   dark:bg-[#FFFFFF] bg-[#2C2C40] 
   dark:text-black text-white`,
