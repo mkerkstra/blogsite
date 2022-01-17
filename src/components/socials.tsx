@@ -8,8 +8,8 @@ import TwitterDark from '../../public/socials/twitterDark.svg';
 import TwitterLight from '../../public/socials/twitterLight.svg';
 import DiscordDark from '../../public/socials/discordDark.svg';
 import DiscordLight from '../../public/socials/discordLight.svg';
-import YtDark from '../../public/socials/YtDark.png';
-import YtLight from '../../public/socials/YtLight.png';
+import YtDark from '../../public/socials/ytDark.png';
+import YtLight from '../../public/socials/ytLight.png';
 
 const classes = {
   container: `
