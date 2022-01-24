@@ -1,6 +1,10 @@
 /* eslint-disable max-len */
 import React from 'react';
 
+
+const professionalExperienceClasses = {
+  container: ``,
+};
 /**
  * @param {args} args - Array of professional experience, broken into company information, role, growth, and accolades.
  * @param {args.company} args.company - includes name, a url to the about section of the company's website, and a quick overview that'll be rendered in a tooltip.
@@ -35,7 +39,7 @@ const professionalExperience = (args: {
   }[];
 }[]): JSX.Element => {
   return (
-    <ul>
+    <ul className={professionalExperienceClasses.container}>
       {args.map(({company, role, growthPoints, accolades}) => (
         <li key={company.name}>
           <h3>{company.name}</h3>
@@ -118,12 +122,17 @@ const devToolbox = (args: ({
 
 // };
 
+const classes = {
+  header: `
+    inline-block text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight dark:text-slate-200
+  `,
+};
+
 export default function Resume() {
   return (
     <div className='h-100% overflow-auto'>
-      <h1>Resume</h1>
       <section>
-        <h2>Where I&aposve Worked</h2>
+        <h2 className={classes.header}>Where I&apos;ve Worked</h2>
         {professionalExperience([{
           company: {
             name: 'Reynolds and Reynolds',
@@ -142,15 +151,46 @@ export default function Resume() {
             type: 'cultural',
             point: '',
             details: [''],
+          }, {
+            type: 'technical',
+            point: '',
+            details: [''],
           }],
           accolades: [{
             name: 'Rising Star',
             description: 'Earned for accepting responsibilities as a technical lead on a challenging project soon after onboarding.',
           }],
+        }, {
+          company: {
+            name: 'Hotel Engine',
+            link: 'https://www.hotelengine.com/about-us/',
+            quickOverview: 'Hotel Engine is a hotel booking platform and lodging performance network.',
+          },
+          role: {
+            title: 'Software Engineer',
+            time: {
+              start: '07/2021',
+            },
+            overview: '',
+          },
+          growthPoints: [{
+            type: 'cultural',
+            point: '',
+            details: [''],
+          },
+          {
+            type: 'technical',
+            point: '',
+            details: [''],
+          }],
+          accolades: [{
+            name: 'Technical of the month',
+            description: '',
+          }],
         }])}
       </section>
       <section>
-        <h2>Tools I Love to Work With</h2>
+        <h2 className={classes.header}>Tools I Love to Work With</h2>
         {devToolbox([{
           name: 'TypeScript',
           kind: 'technical',
@@ -178,7 +218,7 @@ export default function Resume() {
         }])}
       </section>
       <section>
-        <h2>People I love to learn with:</h2>
+        <h2 className={classes.header}>People I love to learn from:</h2>
       </section>
     </div>
   );
