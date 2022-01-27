@@ -32,7 +32,7 @@ const Socials = () => {
         className={classes.socialLink}
       >
         <Image
-          src={!darkMode ? GhDark : GhLight}
+          src={darkMode ? GhDark : GhLight}
           alt="GitHub"
         />
         <span className='sr-only'>github</span>
@@ -44,7 +44,7 @@ const Socials = () => {
         className={classes.socialLink}
       >
         <Image
-          src={!darkMode ? TwitterDark : TwitterLight}
+          src={darkMode ? TwitterDark : TwitterLight}
           alt="twitter"
         />
         <span className='sr-only'>twitter</span>
@@ -68,7 +68,7 @@ const Socials = () => {
         className={classes.socialLink}
       >
         <Image
-          src={!darkMode ? YtDark : YtLight}
+          src={darkMode ? YtDark : YtLight}
           alt="YouTube"
         />
         <span className='sr-only'>youtube</span>
@@ -80,7 +80,7 @@ const Socials = () => {
         className={classes.socialLink}
       >
         <Image
-          src={!darkMode ? DiscordDark : DiscordLight}
+          src={darkMode ? DiscordDark : DiscordLight}
           alt="Discord"
         />
         <span className='sr-only'>discord</span>

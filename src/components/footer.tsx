@@ -9,9 +9,9 @@ const classes = {
     justify-center
     w-screen 
     border-t 
-    dark:bg-[#FFFFFF] bg-[#2C2C40]
+    dark:bg-black bg-white
   `,
-  span: `flex items-center justify-center dark:text-black text-white`,
+  span: `flex items-center justify-center dark:text-white text-black`,
 };
 
 const Footer = () => {
