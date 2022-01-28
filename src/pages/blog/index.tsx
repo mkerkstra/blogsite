@@ -1,9 +1,19 @@
+type blogEntry = {
+  title: string;
+  content: JSX.Element | string;
+  meta: {
+    date: Date;
+    tags: string[];
+    slug: string;
+  }
+}
 
 const classes = {
   container: `flex flex-col 
     items-center justify-center 
     py-2`,
 };
+
 export default function blog() {
   return (
     <div className={classes.container}>

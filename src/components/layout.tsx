@@ -10,8 +10,7 @@ const classes = {
   `,
   main: `flex 
     flex-col 
-    items-center 
-    justify-center 
+    m-4
     overflow-auto
     w-full 
     h-[80%]

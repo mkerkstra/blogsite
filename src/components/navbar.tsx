@@ -10,6 +10,9 @@ const classes = {
   dark:text-white text-black`,
   links: `
     my-auto
+    hover:underline
+    disabled:opacity-50
+    disabled:no-underline
   `,
 };
 
@@ -26,21 +29,21 @@ const Navbar = () => {
       <AriaLink
         disabled={router.pathname === routes.home}
         href={routes.home}
-        className={`${classes.links} ${router.pathname === routes.home && 'text-gray-700 opacity-50'}`}
+        className={classes.links}
       >
         home
       </AriaLink>
       <AriaLink
         disabled={router.pathname === routes.blog}
         href={routes.blog}
-        className={`${classes.links} ${router.pathname === routes.blog && 'text-gray-700 opacity-50'}`}
+        className={classes.links}
       >
         blog
       </AriaLink>
       <AriaLink
         disabled={router.pathname === routes.resume}
         href={routes.resume}
-        className={`${classes.links} ${router.pathname === routes.resume && 'text-gray-700'}`}
+        className={classes.links}
       >
         resume
       </AriaLink>
