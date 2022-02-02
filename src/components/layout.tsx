@@ -12,7 +12,6 @@ const classes = {
     flex-col 
     m-4
     overflow-auto
-    w-full 
     h-[80%]
     px-3
     dark:bg-black bg-white
