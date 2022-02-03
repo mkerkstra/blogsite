@@ -3,7 +3,7 @@ import {Link as ChakraLink} from '@chakra-ui/react';
 
 export default function AriaLink(args: {
   disabled?: boolean; className?: string
-} & Parameters<typeof Link>[number]
+} & Parameters<typeof Link>[number],
 ) {
   const {disabled, className, ...LinkArgs} = args;
   return (
@@ -25,5 +25,5 @@ export default function AriaLink(args: {
       </ChakraLink>
     </Link>
   );
-};
+}
 

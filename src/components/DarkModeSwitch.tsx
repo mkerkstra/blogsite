@@ -126,5 +126,5 @@ export default function DarkModeSwitch() {
             transform ring-0 transition ease-in-out duration-200`}/> */}
     </Switch>
   );
-};
+}
 
