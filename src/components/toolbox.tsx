@@ -3,33 +3,20 @@ import {Table, Tr,
   Thead, Th,
   Tbody, Td,
 } from '@chakra-ui/react';
+import {myToolbox} from '../data/myToolbox';
 
 const classNames = {
   table: `rounded outline outline-offset-2 outline-2 my-4`,
 } as const;
+
 /**
  * @param {args} args - An array of soft and technical tools I consider vital to my job performance.
  * @return {JSX.Element} a section summarizing my development toolbox.
  */
-export const devToolbox = (args: ({
-  name: string;
-} & ({
-  kind: 'soft';
-  /** what quality or trait of this soft skill provides value? */
-  trait: string;
-  /** occurence/anecdote demonstrating posession of quality/trait and how it benefited your team */
-  anecdote: string;
-} | {
-  kind: 'technical';
-  /**  */
-  tool: 'language' | 'framework' | 'library' | 'database' | 'platform' | 'ide' | 'standard';
-  link: string;
-  experience: string;
-  why: string;
-}))[]): JSX.Element => {
+export const Toolbox = (): JSX.Element => {
   const softSkillsRows: JSX.Element[] =[];
   const technicalSkillsRows: JSX.Element[] = [];
-  args.forEach((skill) => {
+  myToolbox.forEach((skill) => {
     if (skill.kind === 'soft') {
       softSkillsRows.push(
           <Tr key={skill.name}>
