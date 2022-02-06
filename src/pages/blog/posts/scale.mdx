@@ -1,0 +1,28 @@
+---
+title: scale
+date: '2022-02-06'
+description: 'Devs as advocates for the codebase.'
+thumbnailUrl: '/scale.jpg'
+tags: [architecture, product]
+---
+  
+<div>
+  Just like compliance or translation, the costs to solve issues of scale increase over the lifespan of your product.
+</div>
+
+<br/>
+
+### Scale
+This project involved migrating from a relational database to one that's document based.
+  The SQL 2008 database we were migrating from was already having performance issues.
+  Partly because of the 20 or so years of data sitting on it, partly because of neglect/feature creep.
+  Those two facts plus having to switch to an archaic database language made this project quite the hat trick.
+  
+  The approach was to:
+  1. Revisit the problem this product was solving.
+    - Do customers actually use X piece of this product or was it a one-off asked by a customer long since gone?
+    - If similar subdomains are used in similar ways, how do we bridge the gap between them?
+  2. When dealing with some tables having records in the low 9 figures and in a stack where calls to the BE are always synchronous and the FE dumps after a call lasts longer than 15-20 seconds,
+    you can only do so much before you start relying on cron jobs and queues.
+    We did what we could before reaching that point since maintaining cron jobs and queues can introduce bugs that are a bit more slack.
+  3. Finally - negotiate retention with stakeholders and bake those into a post-process of the migration tests/staging data.

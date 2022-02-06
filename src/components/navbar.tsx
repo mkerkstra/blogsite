@@ -1,6 +1,7 @@
 import {useRouter} from 'next/router';
-import DarkModeSwitch from './DarkModeSwitch';
+import DarkModeSwitch from './darkModeSwitch';
 import AriaLink from '../components/ariaLink';
+import {Text} from '@chakra-ui/react';
 
 const classes = {
   nav: `
@@ -31,7 +32,7 @@ const Navbar = () => {
         href={routes.home}
         className={classes.links}
       >
-        home
+        <Text>Matthew Kerkstra</Text>
       </AriaLink>
       <AriaLink
         disabled={router.pathname === routes.blog}

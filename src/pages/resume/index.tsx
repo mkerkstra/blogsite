@@ -3,7 +3,6 @@ import {
   Container, Text,
   Tabs, TabList, TabPanels, Tab, TabPanel,
   Table, Tbody, Td, Tr,
-  Drawer, DrawerCloseButton, DrawerHeader, DrawerContent,
 } from '@chakra-ui/react';
 import {RequireAtLeastOne} from 'type-fest';
 
@@ -44,20 +43,16 @@ const professionalExperience = (args: {
       details: string;
     }[];
   }[],
-  accolades: {
-    shortName: string;
-    description: string;
-  }[];
 }[]): JSX.Element => {
   return (
-    <Container centerContent isFitted maxW='container.lg' className={`mt-2`}>
+    <Container centerContent maxW='container.lg' className={`mt-2`}>
       <Tabs variant='solid-rounded' orientation='vertical' size='lg' colorScheme='gray'>
         <TabList>
           {args.map(({company}) => (
             <Tab key={company?.name ?? company.quickOverview}>{company?.name ?? company.quickOverview}</Tab>
           ))}
           <TabPanels>
-            {args.map(({company, role, projects, accolades}, index) => (
+            {args.map(({company, role, projects}, index) => (
               <TabPanel key={index}>
                 <Tabs key={index} size='md'>
                   <TabList>
@@ -119,22 +114,6 @@ const professionalExperience = (args: {
                           ))}
                         </TabPanels>
                       </Tabs>
-                    </TabPanel>
-                    <TabPanel>
-                      <Table>
-                        {accolades.map(({shortName, description}) => (
-                          <>
-                            <Tr>
-                              <Td><Text>name: </Text></Td>
-                              <Td><Text>description: </Text></Td>
-                            </Tr>
-                            <Tr>
-                              <Td><Text>{shortName}</Text></Td>
-                              <Td><Text>{description}</Text></Td>
-                            </Tr>
-                          </>
-                        ))}
-                      </Table>
                     </TabPanel>
                   </TabPanels>
                 </Tabs>
@@ -199,6 +178,7 @@ const devToolbox = (args: ({
 const myExperience = professionalExperience([{
   company: {
     name: `Reynolds and Reynolds`,
+    link: `https://www.reyrey.com/company`,
     quickOverview: 'An industry leader in automotive technology and digitization.',
     size: `Privately-held medium-size (4,300 employees) company`,
   },
@@ -234,6 +214,26 @@ const myExperience = professionalExperience([{
           we reached the conclusion the direction of the version control & distribution 
           would be problematic at scale. Building up support and laying out 
           the options to tackle our concerns was a great learning experience.`,
+      }, {
+        type: 'technical',
+        point: `Just like compliance or translation, 
+          the costs to solve issues of scale increase over the lifespan of your product.`,
+        details: `This project involved migrating from a 
+          relational database to one that's document based.
+          The SQL 2008 database we were migrating from was already having performance issues.
+          Partly because of the 20 or so years of data sitting on it, partly because of neglect/feature creep.
+          Those two facts plus having to switch to an archaic database language made this project quite the hat trick.
+          The approach was to:
+          #. Revisit the problem this product was solving.
+            • Do customers actually use X piece of this product or was it a one-off asked by a customer long since gone?
+            • If similar subdomains are used in similar ways, how do we bridge the gap between them?
+          #. When dealing with some tables having records in the low 9 figures and in a stack where calls to the
+            BE are always synchronous and the FE dumps after a call lasts longer than 15-20 seconds
+            you can only do so much before you start relying on cron jobs and queues.
+            We did what we could before reaching that point since maintaining cron jobs and
+            queues can introduce bugs that are a bit more slack.
+          #. Finally - negotiate retention with stakeholders and bake those
+            into a post-process of the migration tests/staging data.`,
       }],
     },
     {
@@ -257,22 +257,11 @@ const myExperience = professionalExperience([{
       }],
     },
   ],
-  accolades: [
-    {
-      shortName: 'Rising Star',
-      description: `Earned for accepting responsibilities as a technical 
-        lead on a challenging project soon after onboarding.`,
-    },
-    {
-      shortName: 'Employee',
-      description: `Earned for accepting responsibilities as a 
-        technical lead on a challenging project soon after onboarding.`,
-    },
-  ],
 },
 {
   company: {
     name: `Hotel Engine`,
+    link: `https://www.hotelengine.com/about-us/`,
     quickOverview: 'A hotel booking platform and lodging performance network.',
     size: 'Series B Scaleup/unicorn - 400 employees',
   },
@@ -371,39 +360,38 @@ const myExperience = professionalExperience([{
         },
       ],
     },
-  ],
-  accolades: [
     {
-      shortName: 'Tech team member of the month',
-      description: `This was earned in a month where we had a 
-        perfect storm of newly onboarded folks and the impending exit of the 
-        key techncial voices in the frontend piece of the stack. 
-        I wound up spending the month onboarding, 
-        acting as a technical PM for some tech debt, and jumping into critical issues.`,
-    },
-    {
-      shortName: 'Company-wide "Kudos"',
-      description: `Most of these revolved around me filling in the void between 
-      dev and a technical PM to build support and strategies around paying 
-      down some of our more critical technical debt. 
-      Some for diving into the FE piece of ACH integration as my first epic`,
+      title: `Migrating class-based API calls to React-Query custom hooks`,
+      overview: `Led an initiative to move our main product's API calls to React-Query custom hooks.`,
+      growth: [
+        {
+          type: 'technical',
+          point: ``,
+          details: ``,
+        },
+        {
+          type: 'cultural',
+          point: `Large-scale standard and pushes to pay down technical 
+            debt within an active product on a team that is very rapidly scaling
+            is only possible with patience, diligence, and, most importantly,
+            by making it an improvement for the DX as much as it is for the performance or scalability of the product.`,
+          details: `The trick to improving standard ain't identifying the issue and 
+            providing options or a direction to address it. It's adoption. 
+            I started with a bit more cowboy code process, realized that wasn't going to work,
+            and switched up the approach to one that first focused on
+            improving the DX to lower the threshhold required for adoption within in-flight tickets or feature work.
+            This began with creating utilities around our custom hooks, building up our types and 
+            constants like route definitions etc to shepherd folks towards the newer patterns.
+            Then, for our dedicated tickets, the first subtask was to beef up our
+            integration tests around a component we were going to migrate. To make that easier,
+            we migrated our tests from Nock to a pretty slick MSW pattern inspired by some of the features in PollyJS.
+            The endpoints mocked out by MSW were built to mirror the patterns used for our react-query custom hooks
+            to guide folks away from the deprecated API calls.`,
+        },
+      ],
     },
   ],
 }]);
-
-function Outline() {
-  return (
-    <Drawer
-      isOpen={true}
-      onClose={() => null}
-    >
-      <DrawerContent>
-        <DrawerCloseButton/>
-        <DrawerHeader>Create your account</DrawerHeader>
-      </DrawerContent>
-    </Drawer>
-  );
-}
 
 const classes = {
   container: `max-w-3xl mx-auto`,
@@ -416,7 +404,6 @@ const classes = {
 export default function Resume() {
   return (
     <div className={classes.container}>
-      {Outline}
       <section className={classes.section}>
         <h2 className={classes.header}>Where I&apos;ve Worked</h2>
         {myExperience}
@@ -428,7 +415,7 @@ export default function Resume() {
           kind: 'technical',
           tool: 'language',
           link: 'https://www.typescriptlang.org/',
-          experience: 'JS - 2012, TS - 2019',
+          experience: 'TS - 2019',
           why: `It allows separating business logic from implementation details to be baked into your design patterns. 
             If a product has the good fortune of lasting through the lifecycle of a framework, good static typing will 
             allow devs to make a stronger, more confident case.`,
@@ -441,6 +428,21 @@ export default function Resume() {
           why: `GraphQL - and in particular, GrapQL written in a 
           TypeScript environment solve a lot of the complains we have with REST.`,
         }, {
+          name: 'Document Databases',
+          kind: 'technical',
+          tool: 'standard',
+          link: 'https://hostingdata.co.uk/nosql-database/',
+          experience: 'PickBasic/AQL - 2019, MongoDB - 2020',
+          why: ``,
+        }, {
+          name: 'Relational Databases',
+          kind: 'technical',
+          tool: 'standard',
+          link: 'https://dl.acm.org/doi/10.1145/362384.362685',
+          experience: 'SQL 2008 - 2019, PostGres - 2021',
+          why: 'Joins. Joins. Joins.',
+        },
+        {
           name: 'Research',
           kind: 'soft',
           trait: `Being able to read through really dense code or vague compliance requirements`,

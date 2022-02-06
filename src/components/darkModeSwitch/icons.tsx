@@ -1,7 +1,4 @@
-import {Switch} from '@headlessui/react';
-import {useDarkMode} from '../utilities/useDarkMode';
-
-const darkModeIcon = () => (
+export const darkModeIcon = () => (
   <div className={`
     group
     flex
@@ -32,7 +29,7 @@ const darkModeIcon = () => (
   </div>
 );
 
-const lightModeStyles = {
+export const lightModeStyles = {
   button: `
     relative h-full w-full
     hover:animate-[spin_2s_linear_infinite]
@@ -59,7 +56,7 @@ const lightModeStyles = {
   `,
 };
 
-const lightModeIcon = () => (
+export const lightModeIcon = () => (
   <div className={lightModeStyles.button}>
     <div className={lightModeStyles.rayContainer}>
       <hr className={lightModeStyles.rays}/>
@@ -83,18 +80,3 @@ const lightModeIcon = () => (
     <div className={lightModeStyles.sun}/>
   </div>
 );
-
-export default function DarkModeSwitch() {
-  const [darkMode, switchDarkMode] = useDarkMode();
-  return (
-    <Switch
-      checked={darkMode}
-      onChange={switchDarkMode}
-      className={`h-[2rem] w-[2rem] `}
-    >
-      {
-        darkMode ? darkModeIcon() : lightModeIcon()
-      }
-    </Switch>
-  );
-}

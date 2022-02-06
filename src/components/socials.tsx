@@ -1,13 +1,18 @@
 import Image from 'next/image';
 import React from 'react';
-import {useDarkMode} from '../utilities/useDarkMode';
+import {useDarkMode} from '../hooks/useDarkMode';
+
 import GhDark from '../../public/socials/ghDark.png';
 import GhLight from '../../public/socials/ghLight.png';
+
 import LinkedIn from '../../public/socials/LinkedIn.png';
+
 import TwitterDark from '../../public/socials/twitterDark.svg';
 import TwitterLight from '../../public/socials/twitterLight.svg';
+
 import DiscordDark from '../../public/socials/discordDark.svg';
 import DiscordLight from '../../public/socials/discordLight.svg';
+
 import YtDark from '../../public/socials/ytDark.png';
 import YtLight from '../../public/socials/ytLight.png';
 
