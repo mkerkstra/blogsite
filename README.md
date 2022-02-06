@@ -5,4 +5,5 @@ Spun off the Next.JS + Tailwind CSS Example
 
 ## Deployed via Vercel to:
 [kerkstra.dev](https://kerkstra.dev)
+
 [preview.kerkstra.dev](https://preview.kerkstra.dev)
