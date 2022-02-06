@@ -1,4 +1,5 @@
 import Socials from './socials';
+import {Text} from '@chakra-ui/react';
 
 const classes = {
   footer: `
@@ -9,15 +10,15 @@ const classes = {
     justify-center
     w-screen 
     border-t 
-    dark:bg-[#FFFFFF] bg-[#2C2C40]
+    dark:bg-black bg-white
   `,
-  span: `flex items-center justify-center dark:text-black text-white`,
+  span: `flex items-center justify-center dark:text-white text-black`,
 };
 
 const Footer = () => {
   return (
     <footer className={classes.footer}>
-      <span className={classes.span}>matt kerkstra</span>
+      <Text className={classes.span}>matt kerkstra</Text>
       <Socials/>
     </footer>
   );

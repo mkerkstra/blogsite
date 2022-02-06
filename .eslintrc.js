@@ -6,6 +6,19 @@ module.exports = {
     'no-cond-assign': 'off',
     'no-irregular-whitespace': 'error',
     'no-unexpected-multiline': 'error',
+    'eqeqeq': 'error',
+    'block-scoped-var': 'error',
+    'no-restricted-properties': [
+      'error',
+      {
+        'object': 'describe',
+        'property': 'only',
+      },
+      {
+        'object': 'it',
+        'property': 'only',
+      },
+    ],
     'valid-jsdoc': [
       'error',
       {
@@ -27,7 +40,7 @@ module.exports = {
     'no-throw-literal': 'error',
     'no-with': 'error',
     'prefer-promise-reject-errors': 'error',
-    'no-unused-vars': ['error', {args: 'none'}],
+    'no-unused-vars': 'off',
     'array-bracket-newline': 'off',
     'array-bracket-spacing': ['error', 'never'],
     'array-element-newline': 'off',
@@ -67,7 +80,7 @@ module.exports = {
     'max-len': [
       'error',
       {
-        code: 80,
+        code: 120,
         tabWidth: 2,
         ignoreUrls: true,
       },
@@ -117,4 +130,31 @@ module.exports = {
     'rest-spread-spacing': 'error',
     'yield-star-spacing': ['error', 'after'],
   },
+  overrides: [
+    {
+      files: ['**/*.ts', '**/*.tsx'],
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        project: './tsconfig.json',
+      },
+      extends: [
+        'plugin:@typescript-eslint/recommended',
+      ],
+      rules: {
+        '@typescript-eslint/no-floating-promises': ['error'],
+        '@typescript-eslint/no-non-null-assertion': 'off',
+        '@typescript-eslint/no-use-before-define': 'off',
+        '@typescript-eslint/no-warning-comments': 'off',
+        '@typescript-eslint/no-empty-function': 'off',
+        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-unused-vars': ['error', {args: 'none'}],
+        '@typescript-eslint/explicit-function-return-type': 'off',
+        '@typescript-eslint/explicit-module-boundary-types': 'off',
+        '@typescript-eslint/ban-types': 'off',
+        '@typescript-eslint/camelcase': 'off',
+        'no-dupe-class-members': 'off',
+        'require-atomic-updates': 'off',
+      },
+    },
+  ],
 };

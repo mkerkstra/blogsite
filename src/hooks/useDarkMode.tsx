@@ -28,7 +28,7 @@ export const DarkModeProvider = (props: { children?: React.ReactNode }) => {
   React.useEffect(() => {
     dispatchDarkMode(Boolean(JSON.parse(
         globalThis.window?.localStorage.getItem('dark') || 'false') ||
-    globalThis.window?.document.body['className'] == 'dark' ||
+    globalThis.window?.document.body['className'] === 'dark' ||
     false));
   }, []);
 

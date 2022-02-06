@@ -1,4 +1,5 @@
 import React from 'react';
+import Head from 'next/head';
 import Navbar from './navbar';
 import Footer from './footer';
 
@@ -9,23 +10,26 @@ const classes = {
     fixed
   `,
   main: `flex 
-  flex-col 
-  items-center 
-  justify-center 
-  overflow-auto
-  w-full 
-  h-[80%]
-  px-3
-  bg-[#FFFFFF] 
-  dark:bg-[#2C2C40] 
-  dark:text-white
-`};
+    flex-col 
+    overflow-auto
+    h-[80%]
+    p-4
+    dark:bg-black bg-white
+    dark:text-white
+  `,
+};
 
 const Layout = (props: { children?: React.ReactNode }) => {
   return (
     <div className={classes.layout}>
+      <Head>
+        <title>Matt Kerkstra</title>
+        <link rel='icon' href='/favicon.ico' />
+      </Head>
       <Navbar />
-      <main className={classes.main}>{props?.children}</main>
+      <main className={classes.main}>
+        {props?.children}
+      </main>
       <Footer />
     </div>
   );
