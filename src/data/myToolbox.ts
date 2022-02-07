@@ -21,7 +21,7 @@ export const myToolbox: ({
   kind: 'technical',
   tool: 'language',
   link: 'https://www.typescriptlang.org/',
-  experience: 'TS - 2019',
+  experience: 'JS - 2013, TS - 2019',
   why: `It allows separating business logic from implementation details to be baked into your design patterns. 
             If a product has the good fortune of lasting through the lifecycle of a framework, good static typing will 
             allow devs to make a stronger, more confident case.`,
@@ -38,7 +38,7 @@ export const myToolbox: ({
   kind: 'technical',
   tool: 'standard',
   link: 'https://hostingdata.co.uk/nosql-database/',
-  experience: 'PickBasic/AQL - 2019, MongoDB - 2020',
+  experience: `PickBasic/AQL - 2019, MongoDB - 2020`,
   why: `Speed of development`,
 }, {
   name: 'Relational Databases',

@@ -1,15 +1,13 @@
-import Link from 'next/link';
-import {Link as ChakraLink} from '@chakra-ui/react';
+import NextLink from 'next/link';
 
-export default function AriaLink(args: {
+export default function Link(args: {
   disabled?: boolean; className?: string
-} & Parameters<typeof Link>[number],
+} & Parameters<typeof NextLink>[number],
 ) {
   const {disabled, className, ...LinkArgs} = args;
   return (
-    <Link {...LinkArgs}>
-      <ChakraLink
-        disabled={disabled}
+    <NextLink {...LinkArgs}>
+      <a
         aria-disabled={disabled ?? undefined}
         tabIndex={disabled ? -1 : undefined}
         className={className}
@@ -22,8 +20,8 @@ export default function AriaLink(args: {
         >
           {args.children}
         </button>
-      </ChakraLink>
-    </Link>
+      </a>
+    </NextLink>
   );
 }
 

@@ -11,7 +11,7 @@ const classes = {
   `,
   main: `flex 
     flex-col 
-    overflow-auto
+    overflow-y-auto
     h-[80%]
     p-4
     dark:bg-black bg-white

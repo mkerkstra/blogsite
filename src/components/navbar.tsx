@@ -1,6 +1,6 @@
 import {useRouter} from 'next/router';
 import DarkModeSwitch from './darkModeSwitch';
-import AriaLink from '../components/ariaLink';
+import Link from './link';
 
 const classes = {
   nav: `
@@ -25,20 +25,20 @@ const Navbar = () => {
   const router = useRouter();
   return (
     <nav className={classes.nav}>
-      <AriaLink
+      <Link
         disabled={router.pathname === routes.home}
         href={routes.home}
         className={classes.links}
       >
         blog
-      </AriaLink>
-      <AriaLink
+      </Link>
+      <Link
         disabled={router.pathname === routes.resume}
         href={routes.resume}
         className={classes.links}
       >
         resume
-      </AriaLink>
+      </Link>
       <div className=''>
         <DarkModeSwitch/>
       </div>

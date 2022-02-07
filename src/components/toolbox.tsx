@@ -1,76 +1,71 @@
-import {Link} from '@chakra-ui/react';
-import {Table, Tr,
-  Thead, Th,
-  Tbody, Td,
-} from '@chakra-ui/react';
+import React from 'react';
 import {myToolbox} from '../data/myToolbox';
-
-const classNames = {
-  table: `rounded outline outline-offset-2 outline-2 my-4`,
+const classes = {
+  container: `
+    flex
+    flex-wrap
+    my-4
+  `,
+  skillCard: `
+    w-1/4
+    h-1/4
+    rounded
+    outline outline-offset-2 outline-2
+    m-4
+  `,
+  name: `
+    text-lg
+    font-bold
+  `,
 } as const;
 
-/**
- * @param {args} args - An array of soft and technical tools I consider vital to my job performance.
- * @return {JSX.Element} a section summarizing my development toolbox.
- */
-export const Toolbox = (): JSX.Element => {
-  const softSkillsRows: JSX.Element[] =[];
-  const technicalSkillsRows: JSX.Element[] = [];
-  myToolbox.forEach((skill) => {
-    if (skill.kind === 'soft') {
-      softSkillsRows.push(
-          <Tr key={skill.name}>
-            <Td>{skill.name}</Td>
-            <Td>{skill.trait}</Td>
-            <Td>{skill.anecdote}</Td>
-          </Tr>
-      );
-    } else {
-      technicalSkillsRows.push(
-          <Tr key={skill.name}>
-            <Td>
-              <Link
-                href={skill.link}
-                target='_blank'
-                rel='noopener noreferrer'
-              >{skill.name}</Link>
-            </Td>
-            <Td>{skill.tool}</Td>
-            <Td>{skill.experience}</Td>
-            <Td>{skill.why}</Td>
-          </Tr>
-      );
-    }
-  });
+export const Toolbox = () =>
+  <div className={classes.container}>
+    {myToolbox.map((skill) => skill.kind === 'technical' ?
+      <TechnicalSkillCard key={skill.name} skill={skill}/> :
+      <SoftSkillCard key={skill.name} skill={skill}/>
+    )}
+  </div>;
+
+const TechnicalSkillCard = ({skill}: {skill: typeof myToolbox[number] & {kind: 'technical'}}) => {
+  const [expanded, setExpanded] = React.useState(false);
   return (
-    <>
-      {technicalSkillsRows && (
-        <Table className={classNames.table}>
-          <Thead>
-            <Tr>
-              <Th>name</Th>
-              <Th>type</Th>
-              <Th>experience</Th>
-              <Th>why</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {technicalSkillsRows}
-          </Tbody>
-        </Table>)}
-      {softSkillsRows && (
-        <Table className={classNames.table}>
-          <Thead>
-            <Tr>
-              <Th>name</Th>
-              <Th>trait</Th>
-              <Th>anecdote</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {softSkillsRows}
-          </Tbody>
-        </Table>)}
-    </>
+    <div
+      className={`${classes.skillCard} ${!expanded ? 'truncate ...' : ''}`}
+      onClick={() => setExpanded(!expanded)}
+    >
+      <h1 className={classes.name}>
+        <a
+          href={skill.link}
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          {skill.name} <ion-icon name="open-outline" size="small" color="inherit"/>
+        </a>
+      </h1>
+      <p>{skill.experience}</p>
+      {expanded && (
+        <p>
+          {skill.why}
+        </p>
+      )}
+    </div>
+  );
+};
+
+const SoftSkillCard = ({skill}: {skill: typeof myToolbox[number] & {kind: 'soft'}}) => {
+  const [expanded, setExpanded] = React.useState(false);
+  return (
+    <div className={classes.skillCard}
+      onClick={() => setExpanded(!expanded)}
+    >
+      <h1 className={classes.name}>{skill.name}</h1>
+      {expanded && (
+        <>
+          <p>{skill.trait}</p>
+          <p>{skill.anecdote}</p>
+        </>
+      )}
+    </div>
   );
 };

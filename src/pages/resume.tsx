@@ -1,10 +1,10 @@
 import React from 'react';
+import {AboutMe} from '../components/aboutMe';
 import {Experience} from '../components/experience';
 import {Toolbox} from '../components/toolbox';
 
-
 const classes = {
-  container: `max-w-3xl mx-auto`,
+  container: `max-w-full mx-auto`,
   section: `w-full relative mx-auto my-4`,
   header: `
     text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight dark:text-slate-200
@@ -17,6 +17,7 @@ export default function Resume() {
       <section className={`
         ${classes.section}`
       }>
+        <div><AboutMe/></div>
         <h2 className={classes.header}>Where I&apos;ve Worked</h2>
         <div className={`rounded border-2`}>
           <Experience/>
