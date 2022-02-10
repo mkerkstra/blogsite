@@ -21,7 +21,7 @@ export const myToolbox: ({
   kind: 'technical',
   tool: 'language',
   link: 'https://www.typescriptlang.org/',
-  experience: 'JS - 2013, TS - 2019',
+  experience: '3Y',
   why: `It allows separating business logic from implementation details to be baked into your design patterns. 
             If a product has the good fortune of lasting through the lifecycle of a framework, good static typing will 
             allow devs to make a stronger, more confident case.`,
@@ -30,23 +30,33 @@ export const myToolbox: ({
   kind: 'technical',
   tool: 'standard',
   link: 'https://graphql.org/',
-  experience: '2019',
+  experience: '3Y',
   why: `GraphQL - and in particular, GrapQL written in a 
           TypeScript environment solve a lot of the complains we have with REST.`,
 }, {
-  name: 'Document Databases',
+  name: 'React-Query',
+  kind: 'technical',
+  tool: 'library',
+  link: 'https://react-query.tanstack.com/',
+  experience: '1Y',
+  why: ``,
+},
+{
+  name: 'NoSQL',
   kind: 'technical',
   tool: 'standard',
   link: 'https://hostingdata.co.uk/nosql-database/',
-  experience: `PickBasic/AQL - 2019, MongoDB - 2020`,
-  why: `Speed of development`,
+  experience: `3Y`,
+  why: `NoSQL gives a faster ramp up time from the product perspective. 
+    Particularly with typescript/react, it's easier to think in terms of objects rather than tables.`,
 }, {
-  name: 'Relational Databases',
+  name: 'Relational',
   kind: 'technical',
   tool: 'standard',
   link: 'https://dl.acm.org/doi/10.1145/362384.362685',
-  experience: 'SQL 2008 - 2019, PostGres - 2021',
-  why: 'Joins',
+  experience: '3Y',
+  why: `Relational databases can  give a lot more flexibility/introperability 
+  than NoSQL when dealing with well-structured data.`,
 },
 {
   name: 'Research',

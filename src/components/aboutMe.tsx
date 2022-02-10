@@ -5,14 +5,17 @@ const classees = {
   location: ``,
 };
 
-export const AboutMe = () =>
-  <section>
-    <h1 className={classees.name}>{myAboutMe.name}</h1>
-    <div>
-      <p>{myAboutMe.title} - {myAboutMe.stack}</p>
-      <p className={`
+export default function AboutMe() {
+  return (
+    <section>
+      <h1 className={classees.name}>{myAboutMe.name}</h1>
+      <div>
+        <p>{myAboutMe.title} - {myAboutMe.stack}</p>
+        <p className={`
         sm
       `}>{myAboutMe.location}</p>
-    </div>
-    <p>{myAboutMe.blurb}</p>
-  </section>;
+      </div>
+      <p>{myAboutMe.blurb}</p>
+    </section>)
+  ;
+}

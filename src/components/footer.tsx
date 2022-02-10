@@ -2,9 +2,11 @@ import Socials from './socials';
 
 const classes = {
   footer: `
+    static
     flex  flex-col
-    relative h-[10%] 
+    h-[10%] 
     bottom-0
+    p-4
     items-center
     justify-center
     w-screen 

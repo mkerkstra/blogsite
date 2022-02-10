@@ -7,65 +7,102 @@ const classes = {
     my-4
   `,
   skillCard: `
-    w-1/4
+    flex
+    flex-col
     h-1/4
     rounded
     outline outline-offset-2 outline-2
     m-4
+    p-2
+    pb-0
   `,
-  name: `
-    text-lg
+  name: ` 
+    text-4xl
     font-bold
+  `,
+  detailedInfo: `
+    p-2
+    mt-1
+  `,
+  iconButton: `
+    inline-flex
+    p-0.5
+    mt-2
+    mb-1
+    -mr-1 
+    ml-auto
+    no-ssr
+    rounded-full
+    border-1
+    bg-gray-600
+    text-white
+    dark:bg-white
+    dark:text-black
   `,
 } as const;
 
-export const Toolbox = () =>
-  <div className={classes.container}>
-    {myToolbox.map((skill) => skill.kind === 'technical' ?
-      <TechnicalSkillCard key={skill.name} skill={skill}/> :
-      <SoftSkillCard key={skill.name} skill={skill}/>
-    )}
-  </div>;
-
 const TechnicalSkillCard = ({skill}: {skill: typeof myToolbox[number] & {kind: 'technical'}}) => {
   const [expanded, setExpanded] = React.useState(false);
+  const detailedStyle = expanded ? classes.detailedInfo : 'hidden';
   return (
     <div
       className={`${classes.skillCard} ${!expanded ? 'truncate ...' : ''}`}
-      onClick={() => setExpanded(!expanded)}
     >
-      <h1 className={classes.name}>
+      <div className={`flex flex-nowrap`}>
+        <h1 className={classes.name}>{skill.name}</h1>
         <a
           href={skill.link}
           target='_blank'
           rel='noopener noreferrer'
         >
-          {skill.name} <ion-icon name="open-outline" size="small" color="inherit"/>
+          <ion-icon name="open-outline" size="small" color="inherit"/>
         </a>
-      </h1>
-      <p>{skill.experience}</p>
-      {expanded && (
-        <p>
-          {skill.why}
-        </p>
-      )}
+      </div>
+      <p className={detailedStyle}>
+        {skill.why}
+      </p>
+      <button
+        className={classes.iconButton}
+        aria-hidden
+        onClick={() => setExpanded(!expanded)}
+      >
+        {expanded ? <ion-icon name="chevron-up-outline" />:
+        <ion-icon name="chevron-down-outline"/>
+        }
+      </button>
     </div>
   );
 };
 
 const SoftSkillCard = ({skill}: {skill: typeof myToolbox[number] & {kind: 'soft'}}) => {
   const [expanded, setExpanded] = React.useState(false);
+  const detailedStyle = expanded ? classes.detailedInfo : 'hidden';
   return (
     <div className={classes.skillCard}
       onClick={() => setExpanded(!expanded)}
     >
       <h1 className={classes.name}>{skill.name}</h1>
-      {expanded && (
-        <>
-          <p>{skill.trait}</p>
-          <p>{skill.anecdote}</p>
-        </>
-      )}
+      <p className={detailedStyle}>{skill.trait}</p>
+      <p className={detailedStyle}>{skill.anecdote}</p>
+      <button
+        className={classes.iconButton}
+        aria-hidden
+      >
+        {expanded ? <ion-icon name="chevron-up-outline" />:
+        <ion-icon name="chevron-down-outline"/>
+        }
+      </button>
     </div>
   );
 };
+
+export default function Toolbox() {
+  return (
+    <div className={classes.container}>
+      {myToolbox.map((skill) => skill.kind === 'technical' ?
+      <TechnicalSkillCard key={skill.name} skill={skill}/> :
+      <SoftSkillCard key={skill.name} skill={skill}/>
+      )}
+    </div>
+  );
+}

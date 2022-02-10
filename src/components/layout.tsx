@@ -5,17 +5,22 @@ import Footer from './footer';
 
 const classes = {
   layout: `
-    h-full
-    w-full
-    fixed
+    min-h-screen
+    min-w-screen
+    relative
+    box-border
+    dark:bg-black bg-white
+    dark:text-white
   `,
   main: `flex 
     flex-col 
     overflow-y-auto
-    h-[80%]
-    p-4
-    dark:bg-black bg-white
-    dark:text-white
+    sm:w-full
+    md:w-3/4
+    lg:w-1/2
+    mx-auto
+    block
+    min-h-[80vh]
   `,
 };
 

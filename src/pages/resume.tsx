@@ -1,7 +1,7 @@
 import React from 'react';
-import {AboutMe} from '../components/aboutMe';
-import {Experience} from '../components/experience';
-import {Toolbox} from '../components/toolbox';
+import AboutMe from '../components/aboutMe';
+import Experience from '../components/experience';
+import Toolbox from '../components/toolbox';
 
 const classes = {
   container: `max-w-full mx-auto`,
