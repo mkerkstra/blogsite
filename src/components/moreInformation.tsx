@@ -4,7 +4,8 @@ const ChevronIcon = ({open}: {open: boolean}) =>
   <div className={`
     text-black
     dark:text-white
-     ${open ? 'transform rotate-180' : ''}
+    grid
+    ${open ? 'transform rotate-180' : ''}
   `}>
     <ion-icon name="chevron-down-circle" size={'large'}/>
   </div>;

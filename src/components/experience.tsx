@@ -2,7 +2,7 @@ import {myExperience} from '../data/myExperience';
 import {intervalToDuration, formatDuration} from 'date-fns';
 import React from 'react';
 import {useInterval} from '../hooks/useInterval';
-import {MoreInformation} from './disclosure';
+import {MoreInformation} from './moreInformation';
 
 const classes = {
   container: `

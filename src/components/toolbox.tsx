@@ -1,6 +1,6 @@
 import React from 'react';
 import {myToolbox} from '../data/myToolbox';
-import {MoreInformation} from './disclosure';
+import {MoreInformation} from './moreInformation';
 
 const classes = {
   container: `
