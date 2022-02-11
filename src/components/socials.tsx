@@ -25,7 +25,7 @@ const socials: Parameters<typeof SocialLink>[0][] = [
   },
   {
     name: 'Twitter',
-    link: 'https://twitter.com/mkerkstra',
+    link: 'https://twitter.com/MatthewKerkstra',
     iconName: 'logo-twitter',
   },
   {
@@ -35,7 +35,7 @@ const socials: Parameters<typeof SocialLink>[0][] = [
   },
   {
     name: 'LinkedIn',
-    link: 'https://www.linkedin.com/in/mkerkstra/',
+    link: 'https://www.linkedin.com/in/matthew-kerkstra-9333873b/',
     iconName: 'logo-linkedin',
   },
   {
