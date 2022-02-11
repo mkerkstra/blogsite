@@ -4,11 +4,12 @@ import Link from './link';
 
 const classes = {
   nav: `
-  sticky top-0 w-screen h-[10%] py-5 flex items-center place-content-around
+  sticky top-0 h-[10%] py-5 flex items-center place-content-around
   border-b  
   z-50
-  dark:bg-black bg-white
-  dark:text-white text-black`,
+  bg-inherit
+  dark:border-slate-200 border-slate-800
+  `,
   links: `
     my-auto
     hover:underline

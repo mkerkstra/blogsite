@@ -9,13 +9,15 @@ const classes = {
     min-w-screen
     relative
     box-border
-    dark:bg-black bg-white
-    dark:text-white
+    dark:border-slate-200 border-slate-900
+    dark:bg-slate-900 bg-slate-200
+    dark:text-white text-slate-900
   `,
   main: `flex 
     flex-col 
+    p-4
     overflow-y-auto
-    sm:w-full
+    w-full
     md:w-3/4
     lg:w-1/2
     mx-auto

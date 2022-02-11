@@ -9,9 +9,8 @@ const classes = {
     p-4
     items-center
     justify-center
-    w-screen 
-    border-t 
-    dark:bg-black bg-white
+    border-t
+    dark:border-slate-200 border-slate-800
   `,
   span: `flex items-center justify-center dark:text-white text-black`,
 };

@@ -6,15 +6,14 @@ const classes = {
     inline-flex
     p-2
     rounded-full
-    border-1
-    bg-black
-    dark:bg-white
+    bg-slate-900
+    dark:bg-slate-200
   `,
   socialLink: `
     w-8
     m-2
-    dark:text-black
-    text-white
+    dark:text-slate-900
+    text-slate-200
   `,
 };
 

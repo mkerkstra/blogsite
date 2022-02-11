@@ -1,5 +1,7 @@
 import React from 'react';
 import {myToolbox} from '../data/myToolbox';
+import {MoreInformation} from './disclosure';
+
 const classes = {
   container: `
     flex
@@ -11,13 +13,19 @@ const classes = {
     flex-col
     h-1/4
     rounded
+    w-full
+    md:w-auto
     outline outline-offset-2 outline-2
     m-4
     p-2
     pb-0
+    shadow-inner dark:shadow-stone-200/50 shadow-stone-600/20 
+  `,
+  nameContainer: `
+    flex flex-nowrap
   `,
   name: ` 
-    text-4xl
+    text-2xl
     font-bold
   `,
   detailedInfo: `
@@ -39,62 +47,39 @@ const classes = {
     dark:bg-white
     dark:text-black
   `,
-} as const;
+};
 
-const TechnicalSkillCard = ({skill}: {skill: typeof myToolbox[number] & {kind: 'technical'}}) => {
-  const [expanded, setExpanded] = React.useState(false);
-  const detailedStyle = expanded ? classes.detailedInfo : 'hidden';
-  return (
-    <div
-      className={`${classes.skillCard} ${!expanded ? 'truncate ...' : ''}`}
-    >
-      <div className={`flex flex-nowrap`}>
-        <h1 className={classes.name}>{skill.name}</h1>
-        <a
-          href={skill.link}
-          target='_blank'
-          rel='noopener noreferrer'
-        >
-          <ion-icon name="open-outline" size="small" color="inherit"/>
-        </a>
-      </div>
-      <p className={detailedStyle}>
+const TechnicalSkillCard = ({skill}: {skill: typeof myToolbox[number] & {kind: 'technical'}}) =>
+  <div
+    className={classes.skillCard}
+  >
+    <div className={classes.nameContainer}>
+      <h1 className={classes.name}>{skill.name}</h1>
+      <a
+        href={skill.link}
+        target='_blank'
+        rel='noopener noreferrer'
+      >
+        <ion-icon name="open-outline" size="small" color="inherit"/>
+      </a>
+    </div>
+    <MoreInformation>
+      <p>
         {skill.why}
       </p>
-      <button
-        className={classes.iconButton}
-        aria-hidden
-        onClick={() => setExpanded(!expanded)}
-      >
-        {expanded ? <ion-icon name="chevron-up-outline" />:
-        <ion-icon name="chevron-down-outline"/>
-        }
-      </button>
-    </div>
-  );
-};
+    </MoreInformation>
+  </div>;
 
-const SoftSkillCard = ({skill}: {skill: typeof myToolbox[number] & {kind: 'soft'}}) => {
-  const [expanded, setExpanded] = React.useState(false);
-  const detailedStyle = expanded ? classes.detailedInfo : 'hidden';
-  return (
-    <div className={classes.skillCard}
-      onClick={() => setExpanded(!expanded)}
-    >
-      <h1 className={classes.name}>{skill.name}</h1>
-      <p className={detailedStyle}>{skill.trait}</p>
-      <p className={detailedStyle}>{skill.anecdote}</p>
-      <button
-        className={classes.iconButton}
-        aria-hidden
-      >
-        {expanded ? <ion-icon name="chevron-up-outline" />:
-        <ion-icon name="chevron-down-outline"/>
-        }
-      </button>
-    </div>
-  );
-};
+const SoftSkillCard = ({skill}: {skill: typeof myToolbox[number] & {kind: 'soft'}}) =>
+  <div className={classes.skillCard}>
+    <h1 className={classes.name}>{skill.name}</h1>
+    <MoreInformation>
+      <section>
+        <p>{skill.trait}</p>
+        <p>{skill.anecdote}</p>
+      </section>
+    </MoreInformation>
+  </div>;
 
 export default function Toolbox() {
   return (
