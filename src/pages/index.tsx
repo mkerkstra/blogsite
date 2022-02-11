@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import NextLink from 'next/link';
 import Image from 'next/image';
 import fs from 'fs';
 import path from 'path';
@@ -15,7 +15,7 @@ export default function blog({posts}: AsyncReturnType<typeof getStaticProps>['pr
   return (
     <div className={classes.container}>
       {posts.map((post, index) =>
-        <Link href={'/posts/' + post.slug} passHref key={index}>
+        <NextLink href={'/posts/' + post.slug} passHref key={index}>
           <div className="card mb-3 pointer" style={{maxWidth: '540px'}}>
             <div className="row g-0">
               <div className="col-md-8">
@@ -39,7 +39,7 @@ export default function blog({posts}: AsyncReturnType<typeof getStaticProps>['pr
               </div>
             </div>
           </div>
-        </Link>
+        </NextLink>
       )}
     </div>
   );

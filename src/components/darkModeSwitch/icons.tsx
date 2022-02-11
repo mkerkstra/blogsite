@@ -14,16 +14,17 @@ export const darkModeIcon = () => (
       rounded-full
     `}>
       <div className={`
+        relative
+        right-[2px]
         my-auto
-        mr-[8%]
-        center
-        h-[95%]
-        w-[95%]
-        bg-black
+        h-[94%]
+        w-[94%]
+        bg-slate-900
         rounded-full
         transition-transform group-hover:translate-x-[2.5%]
         group-hover:translate-y-[1.25%] group-hover:-scale-0
         group:hover:opacity-0 delay-250 duration-500 ease-in-out
+        shadow-slate-900
       `}/>
     </div>
   </div>
@@ -31,6 +32,7 @@ export const darkModeIcon = () => (
 
 export const lightModeStyles = {
   button: `
+    opacity-75
     relative h-full w-full
     hover:animate-[spin_2s_linear_infinite]
   `,
@@ -51,7 +53,7 @@ export const lightModeStyles = {
     left-[20%]
     top-[20%]
     border-black
-    bg-white
+    bg-slate-200
     rounded-full
   `,
 };

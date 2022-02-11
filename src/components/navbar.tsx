@@ -1,13 +1,15 @@
 import {useRouter} from 'next/router';
 import DarkModeSwitch from './darkModeSwitch';
-import AriaLink from '../components/ariaLink';
+import Link from './link';
 
 const classes = {
   nav: `
-  relative w-screen h-[10%] py-5 flex items-center place-content-around
+  sticky top-0 h-[10%] py-5 flex items-center place-content-around
   border-b  
-  dark:bg-black bg-white
-  dark:text-white text-black`,
+  dark:border-slate-200 border-slate-800
+  z-10
+  bg-inherit
+  `,
   links: `
     my-auto
     hover:underline
@@ -25,20 +27,20 @@ const Navbar = () => {
   const router = useRouter();
   return (
     <nav className={classes.nav}>
-      <AriaLink
+      <Link
         disabled={router.pathname === routes.home}
         href={routes.home}
         className={classes.links}
       >
         blog
-      </AriaLink>
-      <AriaLink
+      </Link>
+      <Link
         disabled={router.pathname === routes.resume}
         href={routes.resume}
         className={classes.links}
       >
         resume
-      </AriaLink>
+      </Link>
       <div className=''>
         <DarkModeSwitch/>
       </div>

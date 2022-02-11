@@ -5,17 +5,32 @@ import Footer from './footer';
 
 const classes = {
   layout: `
-    h-full
+    min-h-screen
+    min-w-screen
+    relative
+    box-border
+    backdrop-opacity-20 bg-gradient-to-r from-cyan-500/30 to-blue-500/30
+    dark:border-slate-200 border-slate-900
+    dark:bg-slate-900 bg-slate-200
+    dark:text-white text-slate-900
+  `,
+  background: `
+    dark:bg-slate-900 bg-slate-200
     w-full
-    fixed
+    md:w-3/4
+    mx-auto
+    shadow-lg dark:shadow-stone-200/50 shadow-stone-600/50 
   `,
   main: `flex 
     flex-col 
-    overflow-auto
-    h-[80%]
-    p-4
-    dark:bg-black bg-white
-    dark:text-white
+    p-12
+    sm:p-4
+    md:p-8
+    overflow-y-auto
+    w-full
+    mx-auto
+    block
+    min-h-[80vh]
   `,
 };
 
@@ -27,9 +42,12 @@ const Layout = (props: { children?: React.ReactNode }) => {
         <link rel='icon' href='/favicon.ico' />
       </Head>
       <Navbar />
-      <main className={classes.main}>
-        {props?.children}
-      </main>
+      <div className={classes.background}>
+        <main className={classes.main}>
+          {props?.children}
+        </main>
+      </div>
+
       <Footer />
     </div>
   );
