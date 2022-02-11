@@ -53,7 +53,7 @@ export const lightModeStyles = {
     left-[20%]
     top-[20%]
     border-black
-    bg-white
+    bg-slate-200
     rounded-full
   `,
 };

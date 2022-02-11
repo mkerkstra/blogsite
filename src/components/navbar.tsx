@@ -6,9 +6,9 @@ const classes = {
   nav: `
   sticky top-0 h-[10%] py-5 flex items-center place-content-around
   border-b  
-  z-50
-  bg-inherit
   dark:border-slate-200 border-slate-800
+  z-10
+  bg-inherit
   `,
   links: `
     my-auto
