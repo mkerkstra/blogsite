@@ -1,3 +1,6 @@
+/**
+ * If you were stuck on an island...
+ */
 export const myToolbox: Array<{
   /** The name of the tool/skill. */
   name: string;
@@ -8,7 +11,7 @@ export const myToolbox: Array<{
 } | {
   kind: 'technical';
   /** what kind of technical tool is this? */
-  tool: 'language' | 'framework' | 'library' | 'database' | 'platform' | 'ide' | 'standard';
+  tool: 'language' | 'framework' | 'library' | 'database' | 'platform' | 'ide' | 'standard' | 'CI/CD';
   /** link to the tool's website  or documentation */
   link: string;
 })> =
@@ -165,6 +168,39 @@ export const myToolbox: Array<{
       I was stuck in a cycle of empty promises from management, 
       I started investing my time working in modern web frameworks and running hackathons amongst my friends. 
       2/3 of us wound up being able to find much greener pastures.
+    `,
+  },
+  {
+    name: 'GitHub Actions',
+    kind: 'technical',
+    tool: 'CI/CD',
+    link: 'https://github.com/features/actions',
+    description: `
+      GH actions adds a ton of flexibility for welding your integraton to your deployment. 
+    `,
+  },
+  {
+    name: 'GitHub Copilot',
+    kind: 'technical',
+    tool: 'ide',
+    link: `https://copilot.github.com/`,
+    description: `
+      GitHub copilot ain't always perfect, but when it's 
+      pretty good at either interpolating the last 50-60% of what you're intending 
+      to write or maybe even showing you an alternative you hadn't thought about yet.
+      The trick to it is knowing when it's right.
+    `,
+  },
+  {
+    name: 'VS Code',
+    kind: 'technical',
+    tool: 'ide',
+    link: `https://code.visualstudio.com/`,
+    description: `
+      Switching from sublime text to VS code blew my mind when it first came out.
+      It felt almost as powerful as intelliJ, eclipse, or netbeans but as lightweight as sublime.
+      It's flexible and personalization/settings as well as the portability/ease of collaboration
+      with project settings and workspaces have cemented it as the leading tool used by developers.
     `,
   },
 ];
