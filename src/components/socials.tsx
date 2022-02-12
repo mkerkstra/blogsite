@@ -51,11 +51,12 @@ const SocialLink = ({name, link, iconName}: {name: string, link: string, iconNam
     target='_blank'
     rel='noopener noreferrer'
     className={classes.socialLink}
+    title={name}
+    aria-label={name}
   >
     <div className={classes.iconContainer}>
-      <ion-icon name={iconName} size="large"/>
+      <ion-icon name={iconName} style={{'pointerEvents': 'none'}} size="large"/>
     </div>
-    <span className='sr-only'>{name}</span>
   </a>
 );
 

@@ -1,13 +1,15 @@
 import {Disclosure, Transition} from '@headlessui/react';
 
 const ChevronIcon = ({open}: {open: boolean}) =>
-  <div className={`
+  <div
+    title={open? 'Close' : 'Open'}
+    className={`
     text-black
     dark:text-white
     grid
     ${open ? 'transform rotate-180' : ''}
   `}>
-    <ion-icon name="chevron-down-circle" size={'large'}/>
+    <ion-icon name="chevron-down-circle" style={{'pointerEvents': 'none'}} size={'large'}/>
   </div>;
 
 export function MoreInformation({
