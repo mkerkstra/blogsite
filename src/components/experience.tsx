@@ -36,7 +36,6 @@ const CompanyCard = ({name, quickOverview, link}: typeof myExperience[0]['compan
         flex flex-nowrap
         font-bold
         tracking-wider
-        underline
       `}>
       <a
         href={link}

@@ -18,7 +18,7 @@ const classes = {
   background: `
     dark:bg-slate-900 bg-slate-200
     w-full
-    md:w-3/4
+    sm:w-fit
     mx-auto
     sm:my-0
     md:my-4

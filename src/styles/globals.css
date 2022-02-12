@@ -10,7 +10,7 @@
     @apply text-lg
   }
   a {
-    @apply underline hover:mix-blend-color-burn
+    @apply underline sm:no-underline hover:underline hover:mix-blend-lighten
   }
 }
 @tailwind components;
