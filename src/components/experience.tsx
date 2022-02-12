@@ -14,7 +14,7 @@ const classes = {
     rounded
     outline outline-offset-2 outline-2
     mx-4
-    my-6
+    m-6
     p-6
     shadow-inner dark:shadow-stone-200/50 shadow-stone-600/20 
   `,
@@ -32,23 +32,21 @@ const CompanyCard = ({name, quickOverview, link}: typeof myExperience[0]['compan
   <section
     className={classes.companyCard}
   >
-    <a
-      href={link}
-      target='_blank'
-      rel='noopener noreferrer'
-      className={`underline `}
-    >
-      <h1 className={`
+    <h1 className={`
         flex flex-nowrap
         font-bold
         tracking-wider
         underline
-        hover:text-[#666666]
       `}>
+      <a
+        href={link}
+        target='_blank'
+        rel='noopener noreferrer'
+      >
         {name || quickOverview}
         <ion-icon name="open-outline" size="small" color="inherit"/>
-      </h1>
-    </a>
+      </a>
+    </h1>
   </section>
 );
 

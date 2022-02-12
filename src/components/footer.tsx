@@ -2,10 +2,12 @@ import Socials from './socials';
 
 const classes = {
   footer: `
+    mt-auto
     z-10
-    static
-    flex  flex-col
-    h-[10%] 
+    relative
+    flex flex-col
+    h-20
+    w-full
     bottom-0
     p-4
     items-center
@@ -13,6 +15,7 @@ const classes = {
     border-t
     dark:border-slate-200 border-slate-800
     bg-inherit
+    opacity-[98.5%]
   `,
   span: `flex items-center justify-center dark:text-white text-black`,
 };

@@ -4,7 +4,8 @@ import Link from './link';
 
 const classes = {
   nav: `
-  sticky top-0 h-[10%] py-5 flex items-center place-content-around
+  opacity-[98.5%]
+  sticky top-0 h-16 py-5 flex items-center place-content-around
   border-b  
   dark:border-slate-200 border-slate-800
   z-10
@@ -39,7 +40,7 @@ const Navbar = () => {
         href={routes.resume}
         className={classes.links}
       >
-        resume
+        about me
       </Link>
       <div className=''>
         <DarkModeSwitch/>
