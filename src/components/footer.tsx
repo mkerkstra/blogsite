@@ -1,28 +1,33 @@
 import Socials from './socials';
 
-const classes = {
+const styles = {
   footer: `
-    mt-auto
-    z-10
     relative
-    flex flex-col
-    h-20
-    w-full
+    md:sticky
     bottom-0
-    p-4
+    z-10
+
+    flex flex-col
     items-center
     justify-center
+
+    h-20
+    w-full
+
+    mt-auto
+    p-4
+
+    opacity-[98.5%]
+
+    bg-inherit
     border-t
     dark:border-slate-200 border-slate-800
-    bg-inherit
-    opacity-[98.5%]
   `,
-  span: `flex items-center justify-center dark:text-white text-black`,
 };
 
 const Footer = () => {
   return (
-    <footer className={classes.footer}>
+    <footer className={styles.footer}>
       <Socials/>
     </footer>
   );

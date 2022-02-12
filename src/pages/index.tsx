@@ -1,63 +1,34 @@
-import NextLink from 'next/link';
-import Image from 'next/image';
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
-import {AsyncReturnType} from 'type-fest';
+import React from 'react';
+import AboutMe from '../components/aboutMe';
+import Experience from '../components/experience';
+import Toolbox from '../components/toolbox';
 
 const classes = {
-  container: `flex flex-col 
-    items-center justify-center 
-    py-2`,
+  container: `max-w-full mx-auto grid grid-cols-1`,
+  section: `w-full relative mx-auto my-4`,
+  header: `
+    text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight dark:text-slate-200
+  `,
 };
 
-export default function blog({posts}: AsyncReturnType<typeof getStaticProps>['props']) {
+export default function Resume() {
   return (
     <div className={classes.container}>
-      {posts.map((post, index) =>
-        <NextLink href={'/posts/' + post.slug} passHref key={index}>
-          <div className="card mb-3 pointer" style={{maxWidth: '540px'}}>
-            <div className="row g-0">
-              <div className="col-md-8">
-                <div className="card-body">
-                  <h5 className="card-title">{post.frontMatter.title}</h5>
-                  <p className="card-text">{post.frontMatter.description}</p>
-                  <p className="card-text">
-                    <small className="text-muted">{post.frontMatter.date}</small>
-                  </p>
-                </div>
-              </div>
-              <div className="col-md-4 m-auto">
-                <Image
-                  src={post.frontMatter.thumbnailUrl}
-                  className="img-fluid mt-1 rounded-start"
-                  alt="thumbnail"
-                  width={500}
-                  height={400}
-                  objectFit="cover"
-                />
-              </div>
-            </div>
-          </div>
-        </NextLink>
-      )}
+      <AboutMe/>
+      <section className={`
+        ${classes.section}`
+      }>
+        <h2 className={classes.header}>Where I&apos;ve worked</h2>
+        <div className={``}>
+          <Experience/>
+        </div>
+      </section>
+      <section className={`
+        ${classes.section}`
+      }>
+        <h2 className={classes.header}>Tools I like to work with</h2>
+        <Toolbox/>
+      </section>
     </div>
   );
 }
-
-export const getStaticProps = async () => {
-  const files = fs.readdirSync(path.join('src/pages/posts'));
-  const posts = files.map((filename) => {
-    const markdownWithMeta = fs.readFileSync(path.join('src/pages/posts', filename), 'utf-8');
-    const {data: frontMatter} = matter(markdownWithMeta);
-    return {
-      frontMatter,
-      slug: filename.split('.')[0],
-    };
-  });
-  return {
-    props: {
-      posts,
-    },
-  };
-};

@@ -1,25 +1,30 @@
 import React from 'react';
 
-export const darkModeContext =React.createContext<
+const darkModeContext = React.createContext<
   [boolean, React.DispatchWithoutAction]
 >([
-  false,
+  true,
   () => {},
 ]);
 
-export const useDarkMode = () => React.useContext(darkModeContext);
-
-const toggleDarkMode = (flipOn: boolean) => flipOn ? (
+const toggleDarkMode = (flipOn: boolean) =>
+  flipOn ? (
     document.body['className'] = 'dark',
     localStorage.setItem('dark', 'true'),
     true
-) : (
-  document.body['className'] = '',
-  localStorage.removeItem('dark'),
-  false
-);
+  ) : (
+    document.body['className'] = '',
+    localStorage.removeItem('dark'),
+    false
+  );
 
-export const DarkModeProvider = (props: { children?: React.ReactNode }) => {
+export const useDarkMode = () => React.useContext(darkModeContext);
+
+export function DarkModeProvider({
+  children,
+}: {
+  children?: React.ReactNode
+}) {
   const [darkMode, dispatchDarkMode] = React.useReducer(
       (state: boolean, action: boolean) => {
         return action ? toggleDarkMode(action) : toggleDarkMode(!state);
@@ -40,7 +45,7 @@ export const DarkModeProvider = (props: { children?: React.ReactNode }) => {
 
   return (
     <darkModeContext.Provider value={MemoForContext}>
-      {props.children}
+      {children}
     </darkModeContext.Provider>
   );
-};
+}

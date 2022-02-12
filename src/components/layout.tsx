@@ -3,22 +3,30 @@ import Head from 'next/head';
 import Navbar from './navbar';
 import Footer from './footer';
 
-const classes = {
+const styles = {
   layout: `
-    grid col-auto
+    relative
+
+    grid
+
     min-h-screen
     min-w-screen
-    relative
+    max-w-full
+    max-h-full
+
     box-border
-    backdrop-opacity-20 bg-gradient-to-r from-cyan-500/30 to-blue-500/30
     dark:border-slate-200 border-slate-900
+
+    backdrop-opacity-20 bg-gradient-to-r from-cyan-500/30 to-blue-500/30
     dark:bg-slate-900 bg-slate-200
+
     dark:text-white text-slate-900
   `,
   background: `
     dark:bg-slate-900 bg-slate-200
     w-full
-    sm:w-fit
+    sm:max-w-fit
+    lg:max-w-3xl
     mx-auto
     sm:my-0
     md:my-4
@@ -38,23 +46,20 @@ const classes = {
   `,
 };
 
-const Layout = (props: { children?: React.ReactNode }) => {
-  return (
-    <div className={classes.layout}>
-      <Head>
-        <title>Matt Kerkstra</title>
-        <link rel='icon' href='/favicon.ico' />
-      </Head>
-      <Navbar />
-      <div className={classes.background}>
-        <main className={classes.main}>
-          {props?.children}
-        </main>
-      </div>
-
-      <Footer />
+const Layout = (props: { children?: React.ReactNode }) => (
+  <div className={styles.layout}>
+    <Head>
+      <title>Matt Kerkstra</title>
+      <link rel='icon' href='/favicon.ico' />
+    </Head>
+    <Navbar />
+    <div className={styles.background}>
+      <main className={styles.main}>
+        {props?.children}
+      </main>
     </div>
-  );
-};
+    <Footer />
+  </div>
+);
 
 export default Layout;

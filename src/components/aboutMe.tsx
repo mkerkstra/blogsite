@@ -15,24 +15,23 @@ const classes = {
   `,
 };
 
-export default function AboutMe() {
-  return (
-    <section>
-      <div className={`flex items-center m-2`}>
-        <div className={`flex justify-center items-center h-16 w-16 mr-4`}>
-          <Image
-            src={profilePic}
-            alt={'profile pic'}
-            className={`z-0 rounded-full`}
-          />
-        </div>
-        <div className={``}>
-          <h1 className={classes.name}>{myAboutMe.name}</h1>
-          <p>{myAboutMe.title} - {myAboutMe.stack}</p>
-          <p>{myAboutMe.location}</p>
-        </div>
+const AboutMe = () =>
+  <section>
+    <div className={`flex items-center m-2`}>
+      <div className={`flex justify-center items-center h-16 w-16 mr-4`}>
+        <Image
+          src={profilePic}
+          alt={'profile pic'}
+          className={`z-0 rounded-full`}
+        />
       </div>
-      <p>{myAboutMe.blurb}</p>
-    </section>)
-  ;
-}
+      <div className={``}>
+        <h1 className={classes.name}>{myAboutMe.name}</h1>
+        <p>{myAboutMe.title} - {myAboutMe.stack}</p>
+        <p className={`flex items-center`}><ion-icon name="location-outline"></ion-icon>{myAboutMe.location}</p>
+      </div>
+    </div>
+    <p>{myAboutMe.blurb}</p>
+  </section>;
+
+export default AboutMe;
