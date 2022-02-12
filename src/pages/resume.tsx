@@ -14,7 +14,7 @@ const classes = {
 export default function Resume() {
   return (
     <div className={classes.container}>
-      <section className={classes.section}><div><AboutMe/></div></section>
+      <AboutMe/>
       <section className={`
         ${classes.section}`
       }>
@@ -28,9 +28,6 @@ export default function Resume() {
       }>
         <h2 className={classes.header}>Tools I like to work with</h2>
         <Toolbox/>
-      </section>
-      <section className={`${classes.section}`}>
-        <h2 className={classes.header}>People I like to learn from</h2>
       </section>
     </div>
   );

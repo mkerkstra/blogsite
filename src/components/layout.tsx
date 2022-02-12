@@ -5,6 +5,7 @@ import Footer from './footer';
 
 const classes = {
   layout: `
+    grid col-auto
     min-h-screen
     min-w-screen
     relative
@@ -19,18 +20,21 @@ const classes = {
     w-full
     md:w-3/4
     mx-auto
-    shadow-lg dark:shadow-stone-200/50 shadow-stone-600/50 
+    sm:my-0
+    md:my-4
+    opacity-90
+    shadow-md dark:shadow-stone-400/50 shadow-stone-600/50 
   `,
-  main: `flex 
+  main: `
+    container
+    flex 
     flex-col 
-    p-12
-    sm:p-4
-    md:p-8
+    p-4
+    md:p-6
     overflow-y-auto
     w-full
     mx-auto
     block
-    min-h-[80vh]
   `,
 };
 
