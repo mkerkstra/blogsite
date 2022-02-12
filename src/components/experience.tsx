@@ -2,7 +2,7 @@ import {myExperience} from '../data/myExperience';
 import {intervalToDuration, formatDuration} from 'date-fns';
 import React from 'react';
 import {useInterval} from '../hooks/useInterval';
-import {MoreInformation} from './moreInformation';
+import MoreInformation from './moreInformation';
 
 const classes = {
   container: `
@@ -28,7 +28,13 @@ const classes = {
   `,
 };
 
-const CompanyCard = ({name, quickOverview, link}: typeof myExperience[0]['company']) => (
+const CompanyCard = ({
+  name,
+  quickOverview,
+  link,
+}:
+  typeof myExperience[0]['company']
+) =>
   <section
     className={classes.companyCard}
   >
@@ -36,7 +42,6 @@ const CompanyCard = ({name, quickOverview, link}: typeof myExperience[0]['compan
         flex flex-nowrap
         font-bold
         tracking-wider
-        underline
       `}>
       <a
         href={link}
@@ -47,16 +52,25 @@ const CompanyCard = ({name, quickOverview, link}: typeof myExperience[0]['compan
         <ion-icon name="open-outline" size="small" color="inherit"/>
       </a>
     </h1>
-  </section>
-);
+  </section>;
 
-const Growth = ({point, details}: typeof myExperience[0]['projects'][0]['growth'][0]) =>
+const Growth = ({
+  point, details,
+}:
+  typeof myExperience[0]['projects'][0]['growth'][0]
+) =>
   <section>
     <h4>{point}</h4>
     <p>{details}</p>
   </section>;
 
-const ProjectCard = ({title, overview, growth}: typeof myExperience[0]['projects'][0]) =>
+const ProjectCard = ({
+  title,
+  overview,
+  growth,
+}:
+  typeof myExperience[0]['projects'][0]
+) =>
   <div className={`
           inline-block m-3 
 `}>
@@ -72,8 +86,7 @@ const ProjectCard = ({title, overview, growth}: typeof myExperience[0]['projects
           />
         ))}</>
     </MoreInformation>
-  </div>
-;
+  </div>;
 
 /**
  * This is overkill. Originally had this showing the
@@ -83,18 +96,34 @@ const ProjectCard = ({title, overview, growth}: typeof myExperience[0]['projects
  * @param {param0} start - The start date of the experience
  * @return {jsx} a duration string
  */
-const Duration = ({start}: {start: Date}) => {
+const Duration = ({
+  start,
+}: {
+  start: Date
+}) => {
   const [duration, setDuration] = React.useState(calculateDuration({start, end: new Date()}));
   useInterval(() => {
     setDuration(calculateDuration({start, end: new Date()}));
   }, 600000);
   return <span className={`text-md`}>{duration}</span>;
 };
-const calculateDuration = ({start, end}: {start: Date, end: Date}) => formatDuration(
+const calculateDuration = ({
+  start,
+  end,
+}: {
+  start: Date,
+  end: Date
+}) => formatDuration(
     intervalToDuration({start, end}), {format: ['years', 'months']}
 );
 
-const RoleCard = ({title, time, overview}: typeof myExperience[0]['role']) =>
+const RoleCard = ({
+  title,
+  time,
+  overview,
+}:
+  typeof myExperience[0]['role']
+) =>
   <section className={classes.roleCard}>
     <h2 className={`
       font-bold
@@ -112,19 +141,17 @@ const RoleCard = ({title, time, overview}: typeof myExperience[0]['role']) =>
     `}>{overview}</p>
   </section>;
 
-export default function Experience() {
-  return (
-    <div className={`${classes.container}`}>
-      {myExperience.map(({company, role, projects}) => (
-        <div key={`job_${company.name}`} className={classes.jobCard}>
-          <CompanyCard key={`company_${company.name}`} {...company}/>
-          <RoleCard key={`role_${role.title}`} {...role}/>
-          {projects.map((project) => (
-            <ProjectCard key={`project_${project.title}`} {...project}/>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
+const Experience = () =>
+  <div className={`${classes.container}`}>
+    {myExperience.map(({company, role, projects}) => (
+      <div key={`job_${company.name}`} className={classes.jobCard}>
+        <CompanyCard key={`company_${company.name}`} {...company}/>
+        <RoleCard key={`role_${role.title}`} {...role}/>
+        {projects.map((project) => (
+          <ProjectCard key={`project_${project.title}`} {...project}/>
+        ))}
+      </div>
+    ))}
+  </div>;
 
+export default Experience;

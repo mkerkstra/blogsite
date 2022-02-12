@@ -1,6 +1,6 @@
 import React from 'react';
 import {myToolbox} from '../data/myToolbox';
-import {MoreInformation} from './moreInformation';
+import MoreInformation from './moreInformation';
 
 const classes = {
   container: `
@@ -49,7 +49,11 @@ const classes = {
   `,
 };
 
-const TechnicalSkillCard = ({skill}: {skill: typeof myToolbox[number] & {kind: 'technical'}}) =>
+const TechnicalSkillCard = ({
+  skill,
+}: {
+  skill: typeof myToolbox[number] & {kind: 'technical'}
+}) =>
   <div
     className={classes.skillCard}
   >
@@ -65,29 +69,31 @@ const TechnicalSkillCard = ({skill}: {skill: typeof myToolbox[number] & {kind: '
     </div>
     <MoreInformation>
       <p>
-        {skill.why}
+        {skill.description}
       </p>
     </MoreInformation>
   </div>;
 
-const SoftSkillCard = ({skill}: {skill: typeof myToolbox[number] & {kind: 'soft'}}) =>
+const SoftSkillCard = ({
+  skill,
+}: {
+  skill: typeof myToolbox[number] & {kind: 'soft'}
+}) =>
   <div className={classes.skillCard}>
     <h1 className={classes.name}>{skill.name}</h1>
     <MoreInformation>
       <section>
-        <p>{skill.trait}</p>
-        <p>{skill.anecdote}</p>
+        <p>{skill.description}</p>
       </section>
     </MoreInformation>
   </div>;
 
-export default function Toolbox() {
-  return (
-    <div className={classes.container}>
-      {myToolbox.map((skill) => skill.kind === 'technical' ?
+const Toolbox = () =>
+  <div className={classes.container}>
+    {myToolbox.map((skill) => skill.kind === 'technical' ?
       <TechnicalSkillCard key={skill.name} skill={skill}/> :
       <SoftSkillCard key={skill.name} skill={skill}/>
-      )}
-    </div>
-  );
-}
+    )}
+  </div>;
+
+export default Toolbox;

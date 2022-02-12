@@ -8,9 +8,6 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@chakra-ui/react": "^1.8.1",
-    "@emotion/react": "^11.7.1",
-    "@emotion/styled": "^11.6.0",
     "@headlessui/react": "^1.4.3",
     "@ionic/core": "^6.0.5",
     "@mdx-js/loader": "^2.0.0",

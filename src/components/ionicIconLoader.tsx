@@ -3,7 +3,22 @@ import React from 'react';
 import {defineCustomElements, JSX as LocalJSX} from '@ionic/core/loader';
 import {JSX as IoniconsJSX} from 'ionicons';
 
-export const IonicIconLoader = () => {
+type ToReact<T> = {
+  [P in keyof T]?: T[P] & Omit<React.HTMLAttributes<Element>, 'className'> & {
+    class?: string;
+    key?: React.ReactText;
+  }
+}
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  export namespace JSX {
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface IntrinsicElements extends ToReact<LocalJSX.IntrinsicElements & IoniconsJSX.IntrinsicElements> {}
+  }
+}
+
+const IonicIconLoader = () => {
   React.useEffect(() => {
     void defineCustomElements(window);
   });
@@ -23,17 +38,4 @@ export const IonicIconLoader = () => {
   );
 };
 
-type ToReact<T> = {
-  [P in keyof T]?: T[P] & Omit<React.HTMLAttributes<Element>, 'className'> & {
-    class?: string;
-    key?: React.ReactText;
-  }
-}
-
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  export namespace JSX {
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    interface IntrinsicElements extends ToReact<LocalJSX.IntrinsicElements & IoniconsJSX.IntrinsicElements> {}
-  }
-}
+export default IonicIconLoader;

@@ -5,7 +5,10 @@ import {useEffect, useRef} from 'react';
  * @param {callback} callback - The function to call every interval
  * @param {delay} delay - The interval in milliseconds
  */
-export function useInterval(callback: () => unknown, delay?: number) {
+export const useInterval = (
+    callback: () => unknown,
+    delay?: number
+) => {
   const savedCallback = useRef<typeof callback>(() => {});
 
   // stash off the last callback.
@@ -23,4 +26,4 @@ export function useInterval(callback: () => unknown, delay?: number) {
       return () => clearInterval(id);
     }
   }, [delay]);
-}
+};
