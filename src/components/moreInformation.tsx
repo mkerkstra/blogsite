@@ -33,7 +33,7 @@ const MoreInformation = ({
             x-4 font-medium text-left
             focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75
           `}>
-          <span>{title}</span>
+          <h2>{title}</h2>
           <ChevronIcon open={open}/>
         </Disclosure.Button>
         <Transition
@@ -48,7 +48,6 @@ const MoreInformation = ({
           <Disclosure.Panel
             className={`
               p-6 pt-0
-              text-sm
             `}
           >
             {children}

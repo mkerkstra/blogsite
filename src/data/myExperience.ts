@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import {RequireAtLeastOne} from 'type-fest';
 
 type company = {
@@ -46,116 +47,79 @@ export const myExperience: {
       start: new Date('2021-07-07'),
     },
     overview: `
-        Hotel Engine is a hotel booking platform and lodging performance network.
-        I have been incredibly fortunate to have been surrounded by truly competent engineeers 
-        with a wide variety of experience, walks of life, and ideologies.
-        This company is wonderful to work for and, being a scaleup, each week is different from the last.
-  
-        The folks I work with I think of as a friends, I am able to make a 
-        meaningful impact on the quality of the product, and I feel like I am growing as an engineer.
-    `,
+        I have been incredibly fortunate to have been surrounded by truly competent engineers with a wide variety of experiences, walks of life, and ideologies.
+        Hotel Engine is terrific to work for and, being a scaleup, the types of problems I get to solve change every week.
+        The folks I work with, I think of as friends, can make a meaningful impact on the quality of the product, and I feel like I am growing as an engineer.    `,
   },
   projects: [
     {
       title: `ACH integration`,
-      overview: `Adding the FE piece of an ACH integration.`,
+      overview: `Individual contributor for the front-end portion of an automated clearing-house payment solution via a third party to our flagship application.`,
       growth: [
         {
           point: `The source of truth is the source.`,
           details: `
-              Being able to dive into someone's code and understand it is an invaluable skill.
-
-              Documentation can be a luxury. The source of truth is the source and, by extension, its behavior. 
-              During implementation we quickly realized contradictions in the third party's 
-              documentation and stated behavior of their SDK.
-              The backend dev (a truly impressive engineer) working on this submitted feedback to the third party, 
-              commmunicated that workaround to me, and I dug into the source of the 
-              FE SDK rather than work off their docs.
-
-          `,
+            Documentation can be a luxury. Diving into someone's code and understanding it is an invaluable skill. The source of truth is the source and, by extension, its behavior. 
+            
+            During implementation, we quickly realized contradictions in the third party's documentation and stated behavior of their SDK. The backend dev (a truly impressive engineer) working on this submitted feedback to the third party, communicated that workaround to me, and I dug into the source of the FE SDK rather than work off their docs.`,
         },
         {
-          point: `Working in a narrower scope of an application`,
+          point: `Working in a narrower scope of an application.`,
           details: `
-              Previously, I had been pretty self-reliant/self-driven while working in a project. 
-              The first epic I was given at this company required working solely 
-              on the frontend piece of a large-scale integration. Communicating what was best to meet our 
-              requirements and standards on the frontend didn't always align 1:1 with what the backend wanted to do. 
-              Before, finding imperfect solutions that performed felt like compromise, 
-              after this experience, I learned to think a little larger. 
-              What's important for my slice of the codebase might not be best for another; 
-              similarly what's best for the codebase ain't always 
-              the best for the state of the product, or for the company.
-            `,
+          Previously, I had been pretty self-reliant/self-driven while working on a project. My first epic at this company required focusing only on the frontend piece of a third-party integration. 
+
+          Communicating what was best to meet our requirements and standards on the front end didn't always align 1:1 with what the backend wanted to do. What's critical for my slice of the codebase might not be best for another; similarly, what's best for the codebase isn't always the best for the state of the product or the company. 
+
+          Before, finding imperfect solutions that performed felt like a compromise; after this experience, I learned to think a little larger.
+          `,
         },
       ],
     },
     {
       title: `CCPA Compliance - cookie opt-out`,
-      overview: `Setup strongly typed cookie management for the company's main 
-      main application to meet CCPA and GDPR compliance.`,
+      overview: `Brought our cookie opt-out up solution up to CCPA &  GDPR compliance and built it around utilities that baked cookie settings/definitions into the utility's types.`,
       growth: [
         {
-          point: `I can take abstract requirements, scope out and direct the work accurately and quickly.`,
+          point: `I can take abstract requirements and scope out the work, so execution is accurate, precise, and efficient.`,
           details: `
-            Software Development is a unique blend of independent and collaborative work. 
-            Being able to work given a wide range of requirements is a valuable skill in terms of 
-            bridging any gaps on whatever feature, team, company you're working with. 
-            In this case, I was given a very broad requirement - essentially,
-            "get our application's use of cookies and our privacy policies CCPA compliant." 
-            I broke this down into 
-            \n1) Scoping out CCPA compliance, 
-            \n2) Reaching out to the two folks who were SME in 
+            Software Development is a unique blend of independent and collaborative work. Working given a wide range of requirements is a valuable skill in bridging any gaps in a team or company. In this case, I received relatively general specifications - essentially, "get our application's use of cookies and our privacy policies CCPA compliant." 
+            
+            I broke this down into:
+            1) Scoping out CCPA compliance, 
+            2) Reaching out to the two folks who were SME in 
               compliance/accessibility for guidance to check the direction I was going.
-            \n3) Feeding our interpretation of CCPA (and GDPR at this point) 
+            3) Feeding our interpretation of CCPA (and GDPR at this point) 
             compliance definitions to management and then legal.
-            \n4) Write out test plan for manual QA, test cases for our unit testing.
-            \n4) Getting the mechanics to work, and submitting rough draft of the copy & 
+            4) Write out test plan for manual QA, test cases for our unit testing.
+            4) Getting the mechanics to work, and submitting rough draft of the copy & 
               UX to our product and design since they were lagging behind dev.
-            \n5) Account for product & design feedback.
-            \n6) Edit test plan if needed. Write out integration tests.
-            \n7) QA & release.
-            \nThis is a skill all of us do at some level. Being able, willing, curious, and confident 
-            enough to broaden your responsibilities to meet the needs of a problem 
-            or the organization goes a long way towards becoming a workplace multiplyer.
+            5) Account for product & design feedback.
+            6) Edit test plan if needed. Write out integration tests.
+            7) QA & release.
           `,
         },
         {
           point: `Consideration or implementation of accessibility and compliance can be a costly afterthought.`,
           details: `
-              Compliance, accessibility, translation. 
-              All of these can throw an incredibly heavy monkey-wrench in any frontend architecture.
-              From the start, it is on devs as much as it is on product to stress that fact. 
-              It will always be a cost-benefit analysis, but it is imperative that devs advocate/extoll the potential 
-              costs of adding these after the fact in an enterprise-grade solution.
+            Compliance, accessibility, translation; any of these can throw a heavy monkey-wrench in any frontend architecture. It is on devs as much as product to stress that fact from the start. It will always be a cost-benefit analysis, but devs advocate/must extoll the potential costs of adding these after the fact in an enterprise-grade solution.
             `,
         },
       ],
     },
     {
       title: `Migrating class-based API calls to React-Query custom hooks`,
-      overview: `Led an initiative to move our main product's API calls to React-Query custom hooks.`,
+      overview: `Led an initiative to move our flagship product's API calls to React-Query custom hooks.`,
       growth: [
         {
           point: `
-              Large-scale standard and pushes to pay down technical 
-              debt within an active product on a team that is very rapidly scaling
-              is only possible with patience, diligence, and, most importantly,
-              by making it an improvement for the DX as much as it is for the performance or scalability of the product.
+              It takes patience, diligence, and an organization that understands a quality developer experience is critical for having a quality product.
             `,
           details: `
-              The trick to improving standard ain't identifying the issue and 
-              providing options or a direction to address it. It's adoption. 
-              I started with a bit more cowboy code process, realized that wasn't going to work,
-              and switched up the approach to one that first focused on
-              improving the DX to lower the threshhold required for adoption within in-flight tickets or feature work.
-              This began with creating utilities around our custom hooks, building up our types and 
-              constants like route definitions etc to shepherd folks towards the newer patterns.
-              Then, for our dedicated tickets, the first subtask was to beef up our
-              integration tests around a component we were going to migrate. To make that easier,
-              we migrated our tests from Nock to a pretty slick MSW pattern inspired by some of the features in PollyJS.
-              The endpoints mocked out by MSW were built to mirror the patterns used for our react-query custom hooks
-              to guide folks away from the deprecated API calls.
+            Paying down tech debt is essential at a scale-up. Discussions of standards strategies for tackling outdated syntax and patterns are a weekly, if not daily, occurrence. 
+            
+            Making progress in paying down tech debt while simultaneously onboarding at the rate of a scale-up is tricky. The approach I've found works best is not with the usual cowboy coding approach from a startup, and it's not from the architectural committees and process-driven initiatives of a scaled company; it's in a beautiful gray area between these two.            The trick to improving standard ain't identifying the issue and 
+            
+            It starts with initial productive discourse between a few developers to own a particular niche or library (usually ambitious mids or seniors who are SMEs in that area). Once consensus is reached on the issue and recommended strategy, that discussion widens to include engineering managers associated with that product area. The new pattern or library usage is adopted with at least the initial case by the initiative owners. Tickets that are pretty darn perfect for onboarding are created and dispersed to fill in any feature works the organization may have. 
             `,
         },
       ],
@@ -175,90 +139,67 @@ export const myExperience: {
       start: new Date('2019-02-04'),
       end: new Date('2021-06-21'),
     },
-    overview: `I worked in a team that provided tools used by Dealerships in 
-      their Finance and Insurance departments (commonly called backoffice or F&I). 
-      `,
+    overview: `
+      I worked in a team that provided tools used by Dealerships in their Finance and Insurance departments (commonly called front office or F&I).
+      I started as a Software Developer, then shortly after my onboarding period, I informally took on the responsibilities of a supervisor/lead developer after an abrupt exit on my team.
+    `,
   },
   projects: [
     {
       title: 'Form Library Version Control',
       overview: `
-          I began on an project moving an internal tool used for version control, deployment, and billing.
-          This tool was written in visual basic, SQL and deployed to distributed systems where the installation 
-          process was ran in PICK basic. We rewrote it to use a new CI/CD process 
-          (previously was tape then FTP) in just COBOL and PICK basic.
-        `,
-      growth: [{
-        point: `I ramp up quickly.`,
-        details: `
-            Two weeks after I started the lead quit without notice.
-            I stepped up, took over her responsibilities in terms of designing the core 
-            processes of version control & content delivery.
+        My initial project was migrating an internal tool responsible for version control, deployment, and billing across most of my product area's software. It was originally written in visual basic, SQL, and it deployed software to distributed systems where the installation process was run in PICK basic. We rewrote it to use a new CI/CD process in just COBOL and PICK basic.`,
+      growth: [
+        {
+          point: `I am comfortable rising to the occasion.`,
+          details: `
+            Two weeks after I started, our supervisor/lead quit without notice. I stepped up took over her responsibilities designing the core processes of version control & content delivery.
           `,
-      }, {
-        point: `
-            When there are tough truths about the state of a project, I am able to 
-            articulate the issue and be an advocatate for the codebase.
-          `,
-        details: `
-            After diving into what the lead had sketched up and a lot of discussions 
-            with as many senior folks I could bounce ideas off of, 
-            we reached the conclusion the direction of the version control & distribution 
-            would be problematic at scale. Building up support and laying out 
-            the options to tackle our concerns was a great learning experience.
-          `,
-      }, {
-        point: `
-            Just like compliance or translation, 
-            the costs to solve issues of scale increase over the lifespan of your product.
-          `,
-        details: `
-            This project involved migrating from a 
-            relational database to one that's document based.
-            The SQL 2008 database we were migrating from was already having performance issues.
-            Partly because of the 20 or so years of data sitting on it, partly because of neglect/feature creep.
-            Those two facts plus having to switch to an archaic database language made this project quite the hat trick.
-            \nThe approach was to:
-
-            \n1. Revisit the problem this product was solving.
-              \n• Do customers actually use X piece of this product or was 
-                it a one-off asked by a customer long since gone?
-              \n• If similar subdomains are used in similar ways, how do we bridge the gap between them?
-
-            \n2. When dealing with some tables having records in the low 9 figures and in a stack where calls to the
-              BE are always synchronous and the FE dumps after a call lasts longer than 15-20 seconds
-              you can only do so much before you start relying on cron jobs and queues.
-              We did what we could before reaching that point since maintaining cron jobs and
-              queues can introduce bugs that are a bit more slack.
-
-            \n3. Finally - negotiate retention with stakeholders and bake those
-              into a post-process of the migration tests/staging data.
-          `,
-      }],
+        },
+        {
+          point: `
+            When there are harsh truths about the state of a project, I can articulate the issue, work towards a strategy, and cultivate discussions that hone in on our best path forward.            `,
+          details: `
+            I started diving into where the lead left off, which, unfortunately, wasn't as far as we'd thought. Working in a waterfall product cycle on an internal developer tool - the only place I could think to start was back at the scope. I went called or met up with every engineer (at least those still at the company) who had worked on this product and those who used it daily. 
+            
+            The goal was to get these answered:
+            • What were we trying to achieve?
+            • How does the current solution work? 
+            • What pitfalls or kludges exist within the current solution?
+            • What do the product's stakeholders need it to do?
+            • What do the product's stakeholders view as its shortcomings?
+            
+            Eventually, we identified a solid strategy that would keep the scale of the project in scope throughout its entirety—the migration and the fact that we were moving from an RDBMS to a proprietary document-based database would need to remain at the front of our minds. Many late nights, coffee, and diagrams later, our billing regression tests were clean, and our migrations were completed. All without a hitch and on the original schedule.            `,
+        },
+      ],
     },
     {
       title: `
-          COBOL/PICK basic => React/NestJS/PICK basic proof of concept
+          Modern stack with proprietary database proof of concept
         `,
       overview: `
           Having a product last for many years is a wonderful problem. 
-          To research through and work on software that was used in batch processing 
-          before I was born was a great learning experience. 
-          Pushing for modernizing that and then having the weight of a pandemic push 
-          create a greater need for web-based solutions developing the need for web-based solutions was great timing. 
-          I was in a position to build proof of concepts, research 
-          and provide options for library and architectural decisions very early in my career.
         `,
-      growth: [{
-        point: `Importance of well-defined schema through the application`,
-        details: `
-            One of the main things I did was built an ORM. This would 
-            not have been close to possible had the pick "dictionary" files were not diligently maintained.
-            Investment in a product's type/database definitions/schema 
-            pay off in terms of the lifespan of the product; making it more resistant to emerging product requirements
-            and framework modernizations.
+      growth: [
+        {
+          point: `Importance of well-defined schema through the application`,
+          details: `
+              One of the main things I did was built an ORM. This would not have been close to possible had the pick "dictionary" files were not diligently maintained.
+              
+              Investment in a product's type/database definitions/schema pay off in terms of the lifespan of the product; making it more resistant to emerging product requirements and framework modernizations.
+            `,
+        },
+        {
+          point: `Personal technical growth is only achieved by working with problems that challenge you.`,
+          details: `
+            To research through and work on software that was used in batch processing before I was born was a great learning experience. 
+            
+            Pushing for modernizing that and then having the weight of a pandemic push create a greater need for web-based solutions developing the need for web-based solutions set me up to work on truly interesting problems. 
+            
+            I was in a position to build proof of concepts, research and provide options for library and architectural decisions very early in my career.
           `,
-      }],
+        },
+      ],
     },
   ],
 }];

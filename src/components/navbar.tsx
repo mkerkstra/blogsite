@@ -20,8 +20,9 @@ const classes = {
   links: `
     w-full h-full
     hover:underline
-    disabled:opacity-50
     disabled:no-underline
+    bg-inherit
+    disabled:shadow-inner
   `,
 };
 

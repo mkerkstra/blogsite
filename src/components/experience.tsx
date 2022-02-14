@@ -59,9 +59,9 @@ const Growth = ({
 }:
   typeof myExperience[0]['projects'][0]['growth'][0]
 ) =>
-  <section>
+  <section className={`text-sm p-2 my-2 mb-0 rounded border-2`}>
     <h4>{point}</h4>
-    <p>{details}</p>
+    <p className={`pl-2`}>{details}</p>
   </section>;
 
 const ProjectCard = ({
@@ -72,13 +72,13 @@ const ProjectCard = ({
   typeof myExperience[0]['projects'][0]
 ) =>
   <div className={`
-          inline-block m-3 
-`}>
+    inline-block m-3 
+  `}>
     <MoreInformation
       title={title}
     >
       <>
-        <h3>{overview}</h3>
+        <h4>{overview}</h4>
         {growth.map((args) => (
           <Growth
             key={args.point}
