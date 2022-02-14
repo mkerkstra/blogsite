@@ -14,8 +14,10 @@ const classes = {
     rounded
     outline outline-offset-2 outline-2
     mx-4
-    m-6
-    p-6
+    m-2
+    md:m-6
+    p-2
+    md:p-6
     shadow-inner dark:shadow-stone-200/50 shadow-stone-600/20 
   `,
   companyCard: `
@@ -59,9 +61,9 @@ const Growth = ({
 }:
   typeof myExperience[0]['projects'][0]['growth'][0]
 ) =>
-  <section>
+  <section className={`text-sm p-2 my-2 mb-0 rounded border-2`}>
     <h4>{point}</h4>
-    <p>{details}</p>
+    <p className={`pl-2`}>{details}</p>
   </section>;
 
 const ProjectCard = ({
@@ -72,13 +74,13 @@ const ProjectCard = ({
   typeof myExperience[0]['projects'][0]
 ) =>
   <div className={`
-          inline-block m-3 
-`}>
+    inline-block m-3 
+  `}>
     <MoreInformation
       title={title}
     >
       <>
-        <h3>{overview}</h3>
+        <h4>{overview}</h4>
         {growth.map((args) => (
           <Growth
             key={args.point}

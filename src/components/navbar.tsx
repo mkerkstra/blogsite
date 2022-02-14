@@ -20,8 +20,10 @@ const classes = {
   links: `
     w-full h-full
     hover:underline
-    disabled:opacity-50
     disabled:no-underline
+    drop-shadow-none
+    dark:shadow-stone-200/50 shadow-stone-600/20
+    disabled:drop-shadow-2xl
   `,
 };
 
