@@ -28,7 +28,8 @@ const MoreInformation = ({
       <>
         <Disclosure.Button className={`
             flex justify-between items-center
-            p-3
+            p-1
+            sm:p-3
             w-full
             x-4 font-medium text-left
             focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75
@@ -47,7 +48,9 @@ const MoreInformation = ({
         >
           <Disclosure.Panel
             className={`
-              p-6 pt-0
+              p-2
+              md:p-6
+              pt-0
             `}
           >
             {children}

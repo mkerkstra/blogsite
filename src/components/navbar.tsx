@@ -21,8 +21,9 @@ const classes = {
     w-full h-full
     hover:underline
     disabled:no-underline
-    bg-inherit
-    disabled:shadow-inner
+    drop-shadow-none
+    dark:shadow-stone-200/50 shadow-stone-600/20
+    disabled:drop-shadow-2xl
   `,
 };
 

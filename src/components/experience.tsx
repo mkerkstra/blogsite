@@ -14,8 +14,10 @@ const classes = {
     rounded
     outline outline-offset-2 outline-2
     mx-4
-    m-6
-    p-6
+    m-2
+    md:m-6
+    p-2
+    md:p-6
     shadow-inner dark:shadow-stone-200/50 shadow-stone-600/20 
   `,
   companyCard: `
