@@ -23,3 +23,9 @@ jobs:
     steps:
       - name: printit
         run: echo "SHA=${GITHUB_SHA}"
+  test_workflow_disp:
+    name: testit
+    runs-on: ubuntu-latest
+    steps:
+      - name: k
+        run: echo "SHA=${GITHUB_SHA}"
