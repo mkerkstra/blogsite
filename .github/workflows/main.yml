@@ -22,4 +22,4 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: printit
-        run: echo Hello, world!
+        run: echo ${GITHUB_SHA}
