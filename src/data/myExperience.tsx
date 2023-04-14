@@ -25,7 +25,7 @@ type project = {
   overview: string;
   growth: {
     point: string;
-    details: string;
+    details: string | JSX.Element;
   }[];
 }
 
@@ -36,6 +36,105 @@ export const myExperience: {
 }[] =
 [{
   company: {
+    name: `Paperspace`,
+    link: `https://www.paperspace.com/`,
+    quickOverview: 'MLOps as a service.',
+    size: `Startup - ≈40 employees`,
+  },
+  role: {
+    title: `Fullstack Software Engineer`,
+    time: {
+      start: new Date('2022-06-05'),
+      end: new Date('2023-03-06'),
+    },
+    overview: `
+      In my role as a Full Stack Engineer for the Customer Platform Team, 
+      I provided support across a broad range of areas, spanning the core and gradient products. 
+      Specifically, I focused on optimizing the billing engine, managing teams and accounts, mitigating fraud, 
+      implementing authorization and authentication protocols, improving devops processes, and enhancing testing infrastructure.
+    `,
+  },
+  projects: [
+    {
+      title: `Billing Engine`,
+      overview: `Maintained a legacy codebase for billing operations.`,
+      growth: [
+        {
+          point: `Complex billing cycles necessitate versatile staging and development environments.`,
+          details: `To ensure safe delivery of changes, multiple environments should be employed, some offset and with the same billing frequency, and some with increased frequency for iteration.`,
+        },
+        {
+          point: `Transparency is crucial.`,
+          details: `Billing calculations should be performed twice: once in the backend as the source of truth, and once in front of the user for transparency.`,
+        },
+        {
+          point: `Clever billing practices won't compensate for a poor product.`,
+          details: `Short-term revenue gains from unconventional billing strategies may harm long-term success.`,
+        },
+      ],
+    },
+    {
+      title: `Team & account management`,
+      overview: `Scoped-out project for a new ABAC => RBAC authorization architecture`,
+      growth: [
+        {
+          point: `Done correctly, RBAC should shake out to ABAC with extra steps.`,
+          details: `Hypothetically, if we have have roles for members and owners for a resource, we are likely checking for those roles adjacent to the protected action. If the logic for that action should need to be dispersed, then that authorization will need to be checked twice. ABAC, on the other hand, allows us to take those same actions and colocate them. As the amount of actions and their complexity scales, ABAC outperforms RBAC. RBAC, however, is quite a bit more user-friendly. The best way to address this is to support roles on top of ABAC. A secondary benefit of doing this roles scale horizontally and can even be user-created (outside of internal permissions, ownership etc.)`,
+        },
+      ],
+    },
+    {
+      title: `Fraud mitigation`,
+      overview: `Reduced fraud by ≈40% by enhancing account lifecycle, tuning Cloudflare settings, and refining account signup/verification flows.`,
+      growth: [
+        {
+          point: `Leverage passive and active defenses for large attack surfaces.`,
+          details: `Incorporate passive mitigation strategies, such as rate limiting, DNS firewall tuning, and DDoS mitigation, in addition to active approaches`,
+        },
+        {
+          point: `Access logs are vital for fraud mitigation.`,
+          details: `Maintaining a record of user CRUD events helps identify compliance issues, security gaps, and UX pitfalls`,
+        },
+      ],
+    },
+    {
+      title: `Infrastructure`,
+      overview: `Devops for the main API`,
+      growth: [
+        {
+          point: `Choose EKS over ELB for modern applications.`,
+          details: `Despite the learning curve, containerizing and deploying to a managed Kubernetes service is ideal for enterprise-level applications.`,
+        },
+        {
+          point: `Infrastructure as code is a powerful concept.`,
+          details: `Tools like Terraform allow for infrastructure change tracking and reproducibility, making the change process less intimidating`,
+        },
+        {
+          point: `Maximize caching.`,
+          details: `With storage being cheaper than compute, always utilize caching when possible.`,
+        },
+      ],
+    },
+    {
+      title: `Test suites`,
+      overview: `Promoting a healthy codebase requires a cultural approach, acknowledging that no one is perfect.`,
+      growth: [
+        {
+          point: `Manual tests ran in the staging environments are likely good automated test cases.`,
+          details: `Treat manual testing as the last line of defense. 
+            If manual testing is the norm, the test suite needs improvement. 
+            Writing a test should be as easy or easier than manually testing a change on staging.`,
+        },
+        {
+          point: `Codegen, OpenAPI specs, and mocking third-party integrations are complementary.`,
+          details: `Utilize open API specs provided by third parties to minimize the risk of updating API versions, and periodically update mocked APIs based on whether they're floating or versioned integrations.`,
+        },
+      ],
+    },
+  ],
+},
+{
+  company: {
     name: `Hotel Engine`,
     link: `https://www.hotelengine.com/about-us/`,
     quickOverview: 'A hotel booking platform and lodging performance network.',
@@ -45,11 +144,15 @@ export const myExperience: {
     title: 'Software Engineer',
     time: {
       start: new Date('2021-07-07'),
+      end: new Date('2022-06-07'),
     },
     overview: `
-        I have been incredibly fortunate to have been surrounded by truly competent engineers with a wide variety of experiences, walks of life, and ideologies.
-        Hotel Engine is terrific to work for and, being a scaleup, the types of problems I get to solve change every week.
-        The folks I work with, I think of as friends, can make a meaningful impact on the quality of the product, and I feel like I am growing as an engineer.    `,
+      I was fortunate to have worked alongside a team of competent engineers with diverse experiences, 
+      walks of life, and ideologies during my time at Hotel Engine. 
+      As a scaleup, the company provided me with the opportunity to tackle a range of evolving problems each week. 
+      I had the pleasure of working with colleagues who had become friends, making a meaningful impact on the quality of the product, 
+      and growing as an engineer.
+    `,
   },
   projects: [
     {
@@ -81,22 +184,24 @@ export const myExperience: {
       growth: [
         {
           point: `I can take abstract requirements and scope out the work, so execution is accurate, precise, and efficient.`,
-          details: `
-            Software Development is a unique blend of independent and collaborative work. Working given a wide range of requirements is a valuable skill in bridging any gaps in a team or company. In this case, I received relatively general specifications - essentially, "get our application's use of cookies and our privacy policies CCPA compliant." 
-            
+          details:
+          <>
+            Software Development is a unique blend of independent and collaborative work. Working given a wide range of requirements is a valuable skill in bridging any gaps in a team or company. In this case, I received relatively general specifications - essentially, &quot;get our application&apos;s use of cookies and our privacy policies CCPA compliant.&quot;
+
             I broke this down into:
-            1) Scoping out CCPA compliance, 
-            2) Reaching out to the two folks who were SME in 
-              compliance/accessibility for guidance to check the direction I was going.
-            3) Feeding our interpretation of CCPA (and GDPR at this point) 
-            compliance definitions to management and then legal.
-            4) Write out test plan for manual QA, test cases for our unit testing.
-            4) Getting the mechanics to work, and submitting rough draft of the copy & 
-              UX to our product and design since they were lagging behind dev.
-            5) Account for product & design feedback.
-            6) Edit test plan if needed. Write out integration tests.
-            7) QA & release.
-          `,
+            <br />
+            <ol className='list-decimal indent-8'>
+              <li>Scoping out CCPA compliance</li>
+              <li>Reaching out to the two folks who were SME in compliance/accessibility for guidance to check the direction I was going.</li>
+              <li>Feeding our interpretation of CCPA (and GDPR at this point) compliance definitions to management and then legal.</li>
+              <li>Write out test plan for manual QA, test cases for our unit testing.</li>
+              <li>Getting the mechanics to work, and submitting rough draft of the copy &
+              UX to our product and design since they were lagging behind dev.</li>
+              <li>Account for product & design feedback.</li>
+              <li>Edit test plan if needed. Write out integration tests.</li>
+              <li>QA & release.</li>
+            </ol>
+          </>,
         },
         {
           point: `Consideration or implementation of accessibility and compliance can be a costly afterthought.`,

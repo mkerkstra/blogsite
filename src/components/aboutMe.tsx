@@ -4,7 +4,6 @@ import {myAboutMe} from '../data/myAboutMe';
 
 const classes = {
   name: `text-2xl sm:text-3xl font-extrabold`,
-  location: ``,
   profilePicContainer: `
     inset-0
     overflow-hidden
@@ -12,6 +11,15 @@ const classes = {
     absolute
     max-h-full
     z-10
+  `,
+  location: `
+    flex
+    items-center
+    whitespace-normal
+  `,
+  blurb: `
+    mx-8
+    whitespace-normal
   `,
 };
 
@@ -27,11 +35,14 @@ const AboutMe = () =>
       </div>
       <div className={``}>
         <h1 className={classes.name}>{myAboutMe.name}</h1>
-        <p>{myAboutMe.title} - {myAboutMe.stack}</p>
-        <p className={`flex items-center`}><ion-icon name="location-outline"></ion-icon>{myAboutMe.location}</p>
+        <p>{myAboutMe.title}</p>
+        <p className={classes.location}>
+          <ion-icon name="location-outline"/>
+          {myAboutMe.location}
+        </p>
       </div>
     </div>
-    <p>{myAboutMe.blurb}</p>
+    <p className={classes.blurb}>{myAboutMe.blurb}</p>
   </section>;
 
 export default AboutMe;

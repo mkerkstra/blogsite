@@ -8,6 +8,9 @@ const classes = {
     flex-wrap
     my-4
   `,
+  description: `
+    whitespace-normal
+  `,
   skillCard: `
     flex
     flex-col
@@ -68,7 +71,7 @@ const TechnicalSkillCard = ({
       </a>
     </div>
     <MoreInformation>
-      <p>
+      <p className={classes.description}>
         {skill.description}
       </p>
     </MoreInformation>
@@ -83,7 +86,7 @@ const SoftSkillCard = ({
     <h1 className={classes.name}>{skill.name}</h1>
     <MoreInformation>
       <section>
-        <p>{skill.description}</p>
+        <p className={classes.description}>{skill.description}</p>
       </section>
     </MoreInformation>
   </div>;

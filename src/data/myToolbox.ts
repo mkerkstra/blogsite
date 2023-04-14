@@ -11,11 +11,72 @@ export const myToolbox: Array<{
 } | {
   kind: 'technical';
   /** what kind of technical tool is this? */
-  tool: 'language' | 'framework' | 'library' | 'database' | 'platform' | 'ide' | 'standard' | 'CI/CD';
+  tool: 'language' | 'framework' | 'library' | 'database' | 'platform' | 'ide' | 'standard' | 'CI/CD' | 'ORM';
   /** link to the tool's website  or documentation */
   link: string;
 })> =
 [
+  {
+    name: `tRPC`,
+    kind: 'technical',
+    tool: 'library',
+    link: 'https://trpc.io/',
+    description: `End-to-end typesafety is really appealing and with typescript's performance improvements, 
+    using this library in an enterprise-grade application is now feasible.
+    Previously, the codegen available with graphql was the best way to marry 
+    types between the client and server, but tRPC solves a good amount of those problems.
+    `,
+  },
+  {
+    name: `Terraform`,
+    kind: 'technical',
+    tool: 'platform',
+    link: 'https://www.terraform.io/',
+    description: `Automating the provisioning and configuration of infrastructure 
+    allows us to makes these changes within source control. 
+    IaC is a beautiful thing - it reduces the risk of human error and increases
+    the efficiency and reliability of infrastructure deployment.
+    Most infrastructure providers support terraform and it's a smell if they don't.
+    `,
+  },
+  {
+    name: `Prisma`,
+    kind: 'technical',
+    tool: 'ORM',
+    link: 'https://www.prisma.io/',
+    description: `Prisma solves an absurd amount of headaches 
+    while being darn-near as flexible as a query builder like knex.
+    Migrations are cleaner, dataloader patterns are obsolete as queries are similarly cached prisma's query engine.
+    I've been watching prisma grow the past couple of years and I still nerd-out when they release features. 
+    `,
+  },
+  {
+    name: `Docker`,
+    kind: 'technical',
+    tool: 'platform',
+    link: 'https://www.docker.com/',
+    description: `Docker is a platform for building, 
+    shipping, and running applications in a containerized environment. 
+    Containers provide an isolated and lightweight environment for running applications, 
+    making it easier to deploy and manage software across different environments. 
+    Docker enables developers to package their applications and dependencies into a portable container image, 
+    which can be run on any Docker-enabled host without worrying about differences in the underlying infrastructure.`,
+  },
+  {
+    name: `Kubernetes`,
+    kind: 'technical',
+    tool: 'platform',
+    link: 'https://kubernetes.io/',
+    description: `K8s is a container orchestration platform. designed to automate the deployment, 
+    scaling, and management of containerized applications.
+    While docker is a platform for building and running containerized applications, 
+    kubernetes is more focused on managed applications at scale.
+    Kubernetes provides a framework for deploying and managing containers across multiple hosts, 
+    running on a distributed infrastructure. 
+    It provides a powerful set of features for managing containerized workloads, including horizontal 
+    scaling, self-healing, and rolling updates, and can 
+    be integrated with a variety of other tools and platforms in the container ecosystem.`,
+  },
   {
     name: 'TypeScript',
     kind: 'technical',
@@ -34,7 +95,10 @@ export const myToolbox: Array<{
     link: 'https://graphql.org/',
     description: `
       GraphQL - and in particular, GrapQL written in a 
-      TypeScript environment solve a lot of the complains we have with REST.
+      TypeScript environment solve a lot of the complaints with REST. 
+      That being said, it adds a lot of complexity to the stack, maintaining the codegen and 
+      schema parity can be a headache, and the learning curve is an uphill battle across a team.
+      RPC, on the other hand, is a lot more intuitive for developers.
     `,
   },
   {
@@ -136,6 +200,7 @@ export const myToolbox: Array<{
     description: `
       NoSQL gives a faster ramp up time from the product perspective. 
       Particularly with typescript/react, it's easier to think in terms of objects rather than tables.
+      For small projects I love using tools like 
     `,
   },
   {
@@ -146,6 +211,7 @@ export const myToolbox: Array<{
     description: `
       Relational databases can  give a lot more flexibility/introperability 
       than NoSQL when dealing with well-structured data.
+      I love postgresql and have been able to use it professionaly in a few different contexts.
     `,
   },
   {
