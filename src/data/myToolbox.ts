@@ -25,6 +25,8 @@ export const myToolbox: Array<{
     using this library in an enterprise-grade application is now feasible.
     Previously, the codegen available with graphql was the best way to marry 
     types between the client and server, but tRPC solves a good amount of those problems.
+
+    I would recommend rpc over graphql for most scenarios and tRPC is a superb library for it.
     `,
   },
   {
@@ -51,33 +53,6 @@ export const myToolbox: Array<{
     `,
   },
   {
-    name: `Docker`,
-    kind: 'technical',
-    tool: 'platform',
-    link: 'https://www.docker.com/',
-    description: `Docker is a platform for building, 
-    shipping, and running applications in a containerized environment. 
-    Containers provide an isolated and lightweight environment for running applications, 
-    making it easier to deploy and manage software across different environments. 
-    Docker enables developers to package their applications and dependencies into a portable container image, 
-    which can be run on any Docker-enabled host without worrying about differences in the underlying infrastructure.`,
-  },
-  {
-    name: `Kubernetes`,
-    kind: 'technical',
-    tool: 'platform',
-    link: 'https://kubernetes.io/',
-    description: `K8s is a container orchestration platform. designed to automate the deployment, 
-    scaling, and management of containerized applications.
-    While docker is a platform for building and running containerized applications, 
-    kubernetes is more focused on managed applications at scale.
-    Kubernetes provides a framework for deploying and managing containers across multiple hosts, 
-    running on a distributed infrastructure. 
-    It provides a powerful set of features for managing containerized workloads, including horizontal 
-    scaling, self-healing, and rolling updates, and can 
-    be integrated with a variety of other tools and platforms in the container ecosystem.`,
-  },
-  {
     name: 'TypeScript',
     kind: 'technical',
     tool: 'language',
@@ -86,6 +61,11 @@ export const myToolbox: Array<{
       It allows separating business logic from implementation details to be baked into your design patterns. 
       If a product has the good fortune of lasting through the lifecycle of a framework, good static typing will 
       allow devs to make a stronger, more confident case.
+
+      The increased complexity in the dev environment is well-worth it.
+      I have been involved in projects where there was legacy javascript.
+      Usually one of the first tasks I perform in that situation is to convert the codebase to typescript
+      with the help of tooling like airbnb's ts-migrate.
     `,
   },
   {
@@ -112,6 +92,35 @@ export const myToolbox: Array<{
       a migration from class-based API calls towards react-query hooks within an enterprise application.
       React-query is a beautiful abstraction for handling 
       data synchronization between the client and the backend (both rest and graphql APIs are supported).
+    `,
+  },
+  {
+    name: `Docker`,
+    kind: 'technical',
+    tool: 'platform',
+    link: 'https://www.docker.com/',
+    description: `Docker is a platform for building, 
+    shipping, and running applications in a containerized environment. 
+    Containers provide an isolated and lightweight environment for running applications, 
+    making it easier to deploy and manage software across different environments. 
+    Docker enables developers to package their applications and dependencies into a portable container image, 
+    which can be run on any Docker-enabled host without worrying about differences in the underlying infrastructure.
+    `,
+  },
+  {
+    name: `Kubernetes`,
+    kind: 'technical',
+    tool: 'platform',
+    link: 'https://kubernetes.io/',
+    description: `K8s is a container orchestration platform. designed to automate the deployment, 
+    scaling, and management of containerized applications.
+    While docker is a platform for building and running containerized applications, 
+    kubernetes is more focused on managed applications at scale.
+    Kubernetes provides a framework for deploying and managing containers across multiple hosts, 
+    running on a distributed infrastructure. 
+    It provides a powerful set of features for managing containerized workloads, including horizontal 
+    scaling, self-healing, and rolling updates, and can 
+    be integrated with a variety of other tools and platforms in the container ecosystem.
     `,
   },
   {
