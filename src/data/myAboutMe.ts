@@ -6,7 +6,7 @@ export const myAboutMe: {
 } = {
   name: 'Matt Kerkstra',
   title: 'Senior Fullstack Software Engineer',
-  location: 'Austin, TX',
+  location: 'Austin, TX (Remote)',
   blurb: `
     I am a software engineer based in Austin, Texas, 
     with a background in computer science from Rice University. 
