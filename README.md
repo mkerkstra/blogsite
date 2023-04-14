@@ -1,6 +1,6 @@
 # Matt Kerkstra's Resume Site
 
-This is a one-page website that showcases [my](https://www.kerkstra.dev/)'s resume and has links to my social media profiles, and a toggle switch for switching between light and dark modes. The website was built using [Next.js](https://nextjs.org/) and styled using [Tailwind CSS](https://tailwindcss.com/) with [Headless UI components](https://headlessui.com/).
+This is a one-page website that showcases [my](https://www.kerkstra.dev/) resume and has links to my social media profiles, and a toggle switch for switching between light and dark modes. The website was built using [Next.js](https://nextjs.org/) and styled using [Tailwind CSS](https://tailwindcss.com/) with [Headless UI components](https://headlessui.com/).
 
 ## Installation
 
