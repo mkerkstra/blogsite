@@ -1,5 +1,6 @@
 import React from 'react';
 import type {AppProps} from 'next/app';
+import {Analytics} from '@vercel/analytics/react';
 
 import '../styles/globals.css';
 
@@ -13,6 +14,7 @@ export default function MyApp({Component, pageProps}: AppProps) {
       <DarkModeProvider>
         <Layout>
           <Component {...pageProps} />
+          <Analytics />
         </Layout>
       </DarkModeProvider>
       <IonicIconLoader/>
