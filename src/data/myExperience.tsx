@@ -74,7 +74,7 @@ export const myExperience: {
       ],
     },
     {
-      title: `Team & account management`,
+      title: `Account management`,
       overview: `Scoped-out project for a new ABAC => RBAC authorization architecture`,
       growth: [
         {
