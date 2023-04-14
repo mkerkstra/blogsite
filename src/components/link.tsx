@@ -11,7 +11,7 @@ const Link = ({
 } &
   Parameters<typeof NextLink>[number],
 ) =>
-  <NextLink {...LinkArgs}>
+  <NextLink {...LinkArgs} legacyBehavior passHref>
     <a
       aria-disabled={disabled ?? undefined}
       tabIndex={disabled ? -1 : undefined}
