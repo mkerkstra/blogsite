@@ -16,8 +16,10 @@ const styles = {
 
     box-border
     dark:border-slate-200 border-slate-900
-
-    backdrop-opacity-20 bg-gradient-to-r from-cyan-500/30 to-blue-500/30
+    backdrop-blur-lg
+    backdrop-opacity-20 
+    bg-gradient-to-b
+    from-bg-from to-bg-to
     dark:bg-slate-900 bg-slate-200
 
     dark:text-white text-slate-900
