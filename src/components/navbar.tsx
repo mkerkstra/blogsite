@@ -4,14 +4,13 @@ import Link from './link';
 
 const routes = {
   home: '/',
-  thoughts: '/thoughts',
 } as const;
 
 const classes = {
   nav: `
     opacity-[98.5%]
     sticky top-0 h-16
-    grid grid-cols-3 justify-around place-items-center
+    grid grid-cols-2 justify-around place-items-center
     border-b
     dark:border-slate-200 border-slate-800
     z-10
@@ -37,13 +36,6 @@ const Navbar = () => {
         className={classes.links}
       >
         about me
-      </Link>
-      <Link
-        disabled={router.pathname === routes.thoughts}
-        href={routes.thoughts}
-        className={classes.links}
-      >
-        thoughts
       </Link>
       <div className=''>
         <DarkModeSwitch/>
