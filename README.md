@@ -4,6 +4,7 @@ This is a one-page website that showcases [my](https://www.kerkstra.dev/) resume
 
 ## Installation
 
+
 To install and run this website locally, follow these steps:
 
   * Clone the repository: git clone https://github.com/mkerkstra/blogsite
