@@ -1,11 +1,26 @@
 import { ArrowUpRight, Lock } from "lucide-react";
 import type { Metadata } from "next";
+import Image, { type StaticImageData } from "next/image";
+
+import heidelbergPic from "../../../public/now/heidelberg.png";
+import olliePic from "../../../public/now/ollie.jpeg";
 
 import { ContributionGraphView } from "@/features/now/components/contribution-graph";
-import { nowState } from "@/features/now/data/now";
+import { type FocusImage, nowState } from "@/features/now/data/now";
 import { fetchContributionGraph } from "@/features/now/lib/github-contributions";
 import { fetchRecentRepos } from "@/features/now/lib/github-repos";
 import { SectionLabel } from "@/features/resume/components/section-label";
+
+/**
+ * Static image lookup keyed by the `image` field on a focus block.
+ * next/image gets StaticImageData objects so we get auto-generated
+ * blur placeholders + responsive variants without touching the
+ * data layer.
+ */
+const FOCUS_IMAGES: Record<FocusImage, StaticImageData> = {
+  ollie: olliePic,
+  heidelberg: heidelbergPic,
+};
 
 export const metadata: Metadata = {
   title: "Now",
@@ -59,17 +74,33 @@ export default async function NowPage() {
       <section className="reveal reveal-1 flex flex-col gap-4">
         <SectionLabel index="01">Focus</SectionLabel>
         <div className="flex flex-col">
-          {nowState.focus.map((item) => (
-            <div
-              key={item.label}
-              className="grid grid-cols-1 gap-2 border-t border-border py-4 md:grid-cols-[7rem_1fr] md:gap-8"
-            >
-              <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground md:text-right">
-                {item.label}
+          {nowState.focus.map((item) => {
+            const pic = "image" in item && item.image ? FOCUS_IMAGES[item.image] : null;
+            return (
+              <div
+                key={item.label}
+                className="grid grid-cols-1 gap-2 border-t border-border py-4 md:grid-cols-[7rem_1fr] md:gap-8"
+              >
+                <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground md:text-right">
+                  {item.label}
+                </div>
+                <div className="flex flex-col gap-3">
+                  <p className="text-[13px] leading-[1.7] text-foreground/90">{item.blurb}</p>
+                  {pic ? (
+                    <div className="relative mt-1 max-w-sm overflow-hidden border border-border bg-card">
+                      <Image
+                        src={pic}
+                        alt={"imageAlt" in item ? (item.imageAlt ?? "") : ""}
+                        placeholder="blur"
+                        sizes="(max-width: 768px) 90vw, 384px"
+                        className="h-auto w-full object-cover"
+                      />
+                    </div>
+                  ) : null}
+                </div>
               </div>
-              <p className="text-[13px] leading-[1.7] text-foreground/90">{item.blurb}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
