@@ -1,28 +1,44 @@
-# Matt Kerkstra's Resume Site
+# kerkstra.dev
 
-This is a one-page website that showcases [my](https://www.kerkstra.dev/) resume and has links to my social media profiles, and a toggle switch for switching between light and dark modes. The website was built using [Next.js](https://nextjs.org/) and styled using [Tailwind CSS](https://tailwindcss.com/) with [Headless UI components](https://headlessui.com/).
+A single-page resume site for [Matt Kerkstra](https://www.kerkstra.dev/). Built as an "engineer's editorial" — Instrument Serif display name juxtaposed against a dense JetBrains Mono body, dark by default, with a single electric lime accent.
 
-## Installation
+## Stack
 
-To install and run this website locally, follow these steps:
+- **Next.js 16** (App Router, Turbopack) · **React 19** · **TypeScript 5.7+** (`bundler` resolution, `@/*` alias)
+- **Tailwind 3.4** with shadcn-style HSL CSS variables
+- `next-themes` for light/dark · `lucide-react` for icons
+- `next/font/google` — Instrument Serif + JetBrains Mono
+- **oxlint + oxfmt** for lint/format · **vitest + happy-dom** for tests
+- `@vercel/analytics`
 
-  * Clone the repository: git clone https://github.com/mkerkstra/blogsite
-  * Install dependencies: pnpm install
-  * Run the development server: pnpm run dev
-  * Open http://localhost:3000 in your web browser to view the website.
+## Local
 
-## Usage
+```sh
+pnpm install
+pnpm dev      # next dev --turbopack on :3000
+pnpm build
+pnpm lint     # oxfmt + oxlint
+pnpm typecheck
+```
 
-This website serves as a digital resume for me, [Matt Kerkstra](https://www.kerkstra.dev/). The resume section provides a brief overview of my work experience and skills, while the links section provides links to their social media profiles. The toggle switch in the top right corner can be used to switch between light and dark modes.
+Requires Node ≥24, pnpm ≥10.
 
-## Credits
+## Layout
 
-This website was built using the following technologies:
+```
+src/
+  app/                    # App Router root + globals
+  components/
+    theme-toggle.tsx
+  features/resume/
+    components/           # AboutMe, Experience, Toolbox, Navbar, Footer, Socials, SectionLabel
+    data/                 # about-me, experience, toolbox (resume content)
+    lib/                  # render-bold helper
+  lib/utils.ts            # cn helper
+```
 
-  * Next.js
-  * Tailwind CSS
-  * Headless UI
+Resume content lives in `src/features/resume/data/*` and mirrors `~/projects/videa/resume.md`.
 
 ## License
 
-This website is released under the MIT License.
+MIT.
