@@ -23,11 +23,17 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Matt Kerkstra — Staff-level Platform Engineer",
+  metadataBase: new URL("https://www.kerkstra.dev"),
+  title: "Matt Kerkstra — Platform Engineer",
   description:
     "Staff-level platform engineer with seven years building production ML infrastructure and the systems other engineers run on.",
-  icons: {
-    icon: "/favicon.ico",
+  openGraph: {
+    title: "Matt Kerkstra — Platform Engineer",
+    description:
+      "Staff-level platform engineer with seven years building production ML infrastructure and the systems other engineers run on.",
+    url: "https://www.kerkstra.dev",
+    siteName: "kerkstra.dev",
+    type: "website",
   },
 };
 

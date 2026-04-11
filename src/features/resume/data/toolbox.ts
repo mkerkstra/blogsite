@@ -1,8 +1,8 @@
 export type ToolGroupId =
-  | "languages"
   | "ml-llm"
   | "infrastructure"
   | "data"
+  | "languages"
   | "app-stack"
   | "observability"
   | "soft";
@@ -20,16 +20,6 @@ export type Tool = {
 };
 
 export const toolbox: ToolGroup[] = [
-  {
-    id: "languages",
-    label: "Languages",
-    tools: [
-      { name: "TypeScript", link: "https://www.typescriptlang.org/" },
-      { name: "Python", link: "https://www.python.org/" },
-      { name: "Go", link: "https://go.dev/" },
-      { name: "SQL" },
-    ],
-  },
   {
     id: "ml-llm",
     label: "ML / LLM",
@@ -81,6 +71,16 @@ export const toolbox: ToolGroup[] = [
       { name: "Redis / Valkey", link: "https://valkey.io/" },
       { name: "BullMQ", link: "https://bullmq.io/" },
       { name: "Kafka", link: "https://kafka.apache.org/" },
+    ],
+  },
+  {
+    id: "languages",
+    label: "Languages",
+    tools: [
+      { name: "TypeScript", link: "https://www.typescriptlang.org/" },
+      { name: "Python", link: "https://www.python.org/" },
+      { name: "Go", link: "https://go.dev/" },
+      { name: "SQL" },
     ],
   },
   {

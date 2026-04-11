@@ -29,9 +29,6 @@ export function AboutMe() {
       {/* Hero — oversized italic display name */}
       <div className="reveal flex items-start justify-between gap-6">
         <div className="flex flex-col gap-3">
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            ↳ {aboutMe.title}
-          </p>
           <h1 className="display-name font-display text-[clamp(3.5rem,11vw,6.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground">
             {aboutMe.name}
           </h1>

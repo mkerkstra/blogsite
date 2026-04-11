@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "pnpm build:pdf && next build",
+    "build:pdf": "tsx scripts/build-resume-pdf.tsx",
     "start": "next start",
     "lint": "oxfmt --check && oxlint --config oxlintrc.json src/",
     "lint:fix": "oxfmt --write && oxlint --fix --config oxlintrc.json src/",
@@ -24,6 +25,7 @@
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
+    "@react-pdf/renderer": "^4.4.1",
     "@tailwindcss/typography": "^0.5.15",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -38,6 +40,7 @@
     "oxlint": "^1.50.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.21.0",
     "typescript": "^5.7.3",
     "vitest": "^4.0.18"
   },
