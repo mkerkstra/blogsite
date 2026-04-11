@@ -1,4 +1,5 @@
 import { Download } from "lucide-react";
+import Link from "next/link";
 
 import { CommandPaletteHint } from "@/components/command-palette-hint";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -6,13 +7,24 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export function Navbar() {
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur">
-      <div className="mx-auto flex h-12 w-full max-w-3xl items-center justify-between px-5 md:px-8">
-        <a
+      <div className="mx-auto flex h-12 w-full max-w-3xl items-center justify-between gap-3 px-5 md:px-8">
+        <Link
           href="/"
           className="font-mono text-[11px] uppercase tracking-[0.2em] text-foreground no-underline hover:text-accent"
         >
           kerkstra<span className="text-muted-foreground">.dev</span>
-        </a>
+        </Link>
+        <nav
+          className="hidden items-center gap-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground sm:flex"
+          aria-label="Primary"
+        >
+          <Link href="/now" className="no-underline transition-colors hover:text-accent">
+            /now
+          </Link>
+          <Link href="/reading" className="no-underline transition-colors hover:text-accent">
+            /reading
+          </Link>
+        </nav>
         <div className="flex items-center gap-1">
           <CommandPaletteHint />
           <a

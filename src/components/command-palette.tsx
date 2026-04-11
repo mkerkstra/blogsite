@@ -85,6 +85,33 @@ export function CommandPalette() {
     { id: "jump-education", label: "Education", icon: GraduationCap, perform: jumpTo("education") },
   ];
 
+  const pages: ItemDef[] = [
+    {
+      id: "page-resume",
+      label: "/  ·  resume",
+      icon: User,
+      perform: () => {
+        window.location.href = "/";
+      },
+    },
+    {
+      id: "page-now",
+      label: "/now  ·  what I'm doing now",
+      icon: Sparkles,
+      perform: () => {
+        window.location.href = "/now";
+      },
+    },
+    {
+      id: "page-reading",
+      label: "/reading  ·  books I keep reaching for",
+      icon: GraduationCap,
+      perform: () => {
+        window.location.href = "/reading";
+      },
+    },
+  ];
+
   const actions: ItemDef[] = [
     {
       id: "theme-toggle",
@@ -182,6 +209,12 @@ export function CommandPalette() {
           <Command.Empty className="px-3 py-6 text-center text-[11px] uppercase tracking-wider text-muted-foreground">
             no matches
           </Command.Empty>
+
+          <CommandGroup label="Pages">
+            {pages.map((item) => (
+              <CommandItem key={item.id} item={item} onRun={run} />
+            ))}
+          </CommandGroup>
 
           <CommandGroup label="Sections">
             {sections.map((item) => (
