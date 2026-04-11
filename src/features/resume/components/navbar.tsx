@@ -17,7 +17,7 @@ export function Navbar() {
             href="/resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Download resume PDF"
+            aria-label="Download resume.pdf"
             className="inline-flex h-8 items-center gap-1.5 px-2 font-mono text-[11px] uppercase tracking-[0.15em] text-muted-foreground no-underline transition-colors hover:text-accent"
           >
             <Download className="h-3.5 w-3.5" aria-hidden="true" />
