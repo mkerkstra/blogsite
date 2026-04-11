@@ -1,10 +1,3 @@
-/**
- * NOTE TO MATT: the per-book `note` fields below are minimal — most
- * are empty so the page renders just title + author + year. Add your
- * own takes whenever you want; the field is optional and the layout
- * adapts. The book list itself is exactly what you sent me.
- */
-
 export type Book = {
   title: string;
   author: string;

@@ -2,12 +2,8 @@
  * The /now page is partly static, partly derived. The static prose
  * lives here so it's editable in one place. The GitHub-derived bits
  * (contribution graph + recent public repos) are fetched at build time
- * by the page itself.
- *
- * NOTE TO MATT: the focus blurbs below are starting drafts based on
- * what's in your resume + the GitHub screenshot you shared. Replace
- * with your own words whenever you want. Update the `updatedOn` date
- * when you do — the page surfaces it as "last updated".
+ * by the page itself. Update `updatedOn` when you edit the focus
+ * blurbs — the page surfaces it as "last updated".
  */
 
 export const nowState = {
