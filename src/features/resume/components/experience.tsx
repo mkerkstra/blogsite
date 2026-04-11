@@ -1,26 +1,8 @@
-import { formatDuration, intervalToDuration } from "date-fns";
 import { ArrowUpRight } from "lucide-react";
 
 import { experience, type Job } from "../data/experience";
+import { calculateDuration, formatMonthYear, formatYear } from "../lib/dates";
 import { renderBold } from "../lib/render-bold";
-
-function calculateDuration(start: Date, end: Date) {
-  return formatDuration(intervalToDuration({ start, end }), {
-    format: ["years", "months"],
-  });
-}
-
-function formatYear(d: Date) {
-  return d.getFullYear().toString();
-}
-
-function formatMonthYear(d: Date) {
-  return d.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    timeZone: "UTC",
-  });
-}
 
 function JobBlock({ job }: { job: Job }) {
   const end = job.role.time.end ?? new Date();

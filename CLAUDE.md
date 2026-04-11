@@ -38,21 +38,36 @@ The dev server is always running. Don't check it, don't start it.
 ```
 src/
   app/                          # App Router
-    layout.tsx                  # fonts + providers + grain overlay
+    layout.tsx                  # fonts + providers + grain + skip link
     page.tsx                    # the resume page
     providers.tsx               # next-themes wrapper
-    globals.css                 # HSL tokens + grain + reveal animations
+    globals.css                 # HSL tokens + grain + reveal anims + view-transition + print
     icon.svg                    # favicon (>_ glyph in lime)
     opengraph-image.tsx         # OG image (next/og)
+    not-found.tsx               # on-brand 404
+    now/page.tsx                # /now — current focus + GitHub heatmap
+    reading/page.tsx            # /reading — book list
+    api/resume.json/route.ts    # jsonresume v1 schema endpoint
   components/
+    command-palette.tsx         # ⌘K palette (cmdk)
+    command-palette-hint.tsx    # navbar ⌘K button
     theme-toggle.tsx            # next-themes Sun/Moon button
   features/resume/
-    components/                 # AboutMe, Experience, Toolbox, Navbar, Footer, Socials, SectionLabel
-    data/                       # about-me, experience, toolbox — content lives here
-    lib/render-bold.tsx         # **bold** → lime-underlined span renderer
+    components/                 # AboutMe, Experience, Toolbox, Education, Projects, Navbar, Footer, Socials, SectionLabel
+    data/                       # about-me, experience, toolbox, education, projects — content lives here
+    lib/
+      dates.ts                  # shared date formatters (UTC-safe)
+      render-bold.tsx           # **bold** → underlined span renderer (web)
+  features/now/
+    components/contribution-graph.tsx  # editorial-style heatmap renderer
+    data/now.ts                 # static "currently focused on" prose
+    lib/github-contributions.ts # GraphQL fetcher + parser
+  features/reading/
+    data/reading.ts             # book list
   lib/utils.ts                  # cn() helper
 scripts/
   build-resume-pdf.tsx          # @react-pdf/renderer build script
+  lib/pdf-text.ts               # pure text helpers (clean, splitName, splitLede, stripBold)
 ```
 
 ## Aesthetic
@@ -68,6 +83,16 @@ scripts/
 - **No new shadcn primitives** unless needed. The original `Card`/`Button`/`Collapsible` were removed because they didn't carry weight in the editorial design.
 - **Animations are CSS-only.** No motion library. Reveals are `.reveal` + `.reveal-N` utilities in `globals.css`.
 - **Server components by default.** Only mark `'use client'` for components that need state, theme, or event handlers (currently: `theme-toggle`, `providers`).
+
+## GitHub contribution graph (private)
+
+The /now page renders a contribution heatmap. By default it falls back to the public-only `ghchart.rshah.org` SVG. To get the full heatmap (including private VideaHealth/narrative-nexus contributions), three things must all be true:
+
+1. **`GITHUB_TOKEN` env var is set** — fine-grained PAT or classic token with `read:user`. In Vercel: Project → Settings → Environment Variables → add `GITHUB_TOKEN` to Production + Preview. Locally: `.env.local` (gitignored).
+2. **GitHub profile setting "Include private contributions on my profile" is enabled** — github.com/settings/profile → Contributions section. The GraphQL API respects this flag and strips private counts when it's off, even when querying with the user's own token.
+3. **The token belongs to mkerkstra** — the GraphQL `contributionsCollection` field returns full counts only when the authenticated user matches the queried user.
+
+If any of those is missing, the page falls back gracefully to ghchart. The fetcher logic lives in `src/features/now/lib/github-contributions.ts`.
 
 ## Pre-commit hooks (lefthook)
 

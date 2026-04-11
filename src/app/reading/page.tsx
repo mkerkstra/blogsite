@@ -64,12 +64,8 @@ export default function ReadingPage() {
           ↳ /reading
         </p>
         <h1 className="display-name font-display text-[clamp(2.5rem,8vw,4.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground">
-          things I keep reaching for.
+          books I keep reaching for.
         </h1>
-        <p className="reveal-1 max-w-prose pt-2 text-[13px] leading-[1.7] text-muted-foreground">
-          A small, slow-moving list. Not exhaustive — just the books I&apos;ve given to enough
-          people that I should probably write down somewhere.
-        </p>
       </header>
       {reading.map((shelf, i) => (
         <Shelf key={shelf.id} shelf={shelf} index={String(i + 1).padStart(2, "0")} />

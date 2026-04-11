@@ -16,6 +16,8 @@ import { education } from "../src/features/resume/data/education";
 import { experience } from "../src/features/resume/data/experience";
 import { projects } from "../src/features/resume/data/projects";
 import { toolbox } from "../src/features/resume/data/toolbox";
+import { formatMonthYearUpper } from "../src/features/resume/lib/dates";
+import { clean, splitLede, splitName } from "./lib/pdf-text";
 
 const COLORS = {
   paper: "#fafaf7",
@@ -290,12 +292,12 @@ const styles = StyleSheet.create({
   },
 });
 
-/** Replace unicode glyphs that aren't in built-in PDF fonts. */
-function clean(s: string): string {
-  return s.replace(/→/g, "->").replace(/↳/g, "->").replace(/✕/g, "x").replace(/✓/g, "v");
-}
-
-/** Render a highlight string with **bold** spans → <Text> with bold style. */
+/**
+ * Render a highlight string with **bold** spans → <Text> with bold style.
+ * Stays local to the PDF renderer because it outputs react-pdf <Text>
+ * nodes; the web equivalent is renderBold() in
+ * src/features/resume/lib/render-bold.tsx and outputs DOM spans.
+ */
 function renderBullet(text: string): React.ReactNode {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) => {
@@ -310,25 +312,17 @@ function renderBullet(text: string): React.ReactNode {
   });
 }
 
-function calculateFirstLast(name: string): [string, string] {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) return [parts[0]!, ""];
-  return [parts.slice(0, -1).join(" "), parts[parts.length - 1]!];
-}
-
 const SKILL_GROUPS = toolbox.map((g) => ({
   label: g.label,
   list: g.tools.map((t) => clean(t.name)).join(", "),
 }));
 
 function ResumeDocument() {
-  const [first, last] = calculateFirstLast(aboutMe.name);
+  const [first, last] = splitName(aboutMe.name);
 
   // Split summary into lede + rest. The lede is the first sentence,
   // rendered italic Times to match videa/resume.html.
-  const sentences = aboutMe.blurb.split(/(?<=\.)\s+/);
-  const lede = sentences[0] ?? "";
-  const rest = sentences.slice(1).join(" ");
+  const [lede, rest] = splitLede(aboutMe.blurb);
 
   return (
     <Document title="Matt Kerkstra — Resume" author={aboutMe.name} subject="Resume">
@@ -388,15 +382,9 @@ function ResumeDocument() {
           {experience.map((job) => {
             const start = job.role.time.start;
             const end = job.role.time.end;
-            const fmt = (d: Date) =>
-              d
-                .toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  timeZone: "UTC",
-                })
-                .toUpperCase();
-            const dateStr = `${fmt(start)} - ${end ? fmt(end) : "PRESENT"}`;
+            const dateStr = `${formatMonthYearUpper(start)} - ${
+              end ? formatMonthYearUpper(end) : "PRESENT"
+            }`;
             return (
               <View key={job.company.name} style={styles.job} wrap={false}>
                 <View style={styles.jobHead}>
