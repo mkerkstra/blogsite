@@ -1,6 +1,6 @@
 import { toolbox, type Tool, type ToolGroup } from "../data/toolbox";
 
-function ToolChip({ tool }: { tool: Tool }) {
+function ToolChip({ tool, groupLabel }: { tool: Tool; groupLabel: string }) {
   const className =
     "group inline-flex items-center gap-1 border border-border bg-transparent px-1.5 py-0.5 font-mono text-[11px] text-foreground/80 transition-all duration-150 hover:border-accent hover:bg-accent/10 hover:text-foreground";
   if (tool.link) {
@@ -12,6 +12,10 @@ function ToolChip({ tool }: { tool: Tool }) {
         className={`${className} no-underline`}
       >
         {tool.name}
+        {/* Visually hidden suffix — keeps accessible name + textContent
+            descriptive enough to pass Lighthouse's link-text audit
+            (which blacklists short generic words like "go"). */}
+        <span className="sr-only"> — {groupLabel}</span>
       </a>
     );
   }
@@ -26,7 +30,7 @@ function ToolGroupSection({ group }: { group: ToolGroup }) {
       </h3>
       <div className="flex flex-wrap gap-1.5">
         {group.tools.map((tool) => (
-          <ToolChip key={tool.name} tool={tool} />
+          <ToolChip key={tool.name} tool={tool} groupLabel={group.label} />
         ))}
       </div>
     </div>

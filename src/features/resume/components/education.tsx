@@ -12,7 +12,7 @@ export function Education() {
         >
           <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground md:text-right">
             {row.year}
-            {row.gpa ? <span className="ml-2 opacity-70">GPA {row.gpa}</span> : null}
+            {row.gpa ? <span className="ml-2">GPA {row.gpa}</span> : null}
           </div>
           <div className="flex items-baseline gap-2 text-[13px]">
             {row.schoolUrl ? (

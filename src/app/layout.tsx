@@ -46,9 +46,15 @@ export default function RootLayout({
     <html lang="en" className={`${display.variable} ${mono.variable}`} suppressHydrationWarning>
       <body className="grain min-h-screen bg-background font-mono text-foreground antialiased">
         <Providers>
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-background focus:px-3 focus:py-2 focus:font-mono focus:text-xs focus:text-foreground focus:outline focus:outline-2 focus:outline-accent"
+          >
+            Skip to main content
+          </a>
           <div className="flex min-h-screen flex-col">
             <Navbar />
-            <main className="mx-auto w-full max-w-3xl flex-1 px-5 pb-20 pt-10 md:px-8">
+            <main id="main" className="mx-auto w-full max-w-3xl flex-1 px-5 pb-20 pt-10 md:px-8">
               {children}
             </main>
             <Footer />

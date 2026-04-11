@@ -11,7 +11,8 @@ export const projects: Project[] = [
     name: "Narrative Nexus",
     url: "narrative.sh",
     href: "https://narrative.sh",
-    blurb: "AI-powered companion for tabletop RPG dungeon masters.",
-    role: "Solo build · TypeScript, Next.js, Go",
+    blurb:
+      "AI-powered companion for tabletop RPG dungeon masters. Co-built with longtime collaborators I've known since we started our engineering careers together at Reynolds & Reynolds.",
+    role: "TypeScript · Next.js · Go",
   },
 ];

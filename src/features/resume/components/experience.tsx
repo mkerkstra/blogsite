@@ -15,7 +15,11 @@ function formatYear(d: Date) {
 }
 
 function formatMonthYear(d: Date) {
-  return d.toLocaleDateString("en-US", { year: "numeric", month: "short" });
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
 }
 
 function JobBlock({ job }: { job: Job }) {
@@ -32,7 +36,7 @@ function JobBlock({ job }: { job: Job }) {
           {isPresent ? "now" : formatYear(end)}
         </div>
         <div className="font-mono">{duration}</div>
-        <div className="font-mono opacity-70">{job.role.location}</div>
+        <div className="font-mono">{job.role.location}</div>
       </div>
 
       {/* Right column — role + highlights */}
