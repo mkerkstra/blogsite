@@ -66,7 +66,9 @@ export const toolbox: ToolGroup[] = [
       { name: "Aurora", link: "https://aws.amazon.com/rds/aurora/" },
       { name: "ClickHouse", link: "https://clickhouse.com/" },
       { name: "Snowflake", link: "https://www.snowflake.com/" },
+      { name: "Drizzle ORM", link: "https://orm.drizzle.team/" },
       { name: "Kysely", link: "https://kysely.dev/" },
+      { name: "SQLAlchemy", link: "https://www.sqlalchemy.org/" },
       { name: "Mongo → PG migrations" },
       { name: "Redis / Valkey", link: "https://valkey.io/" },
       { name: "BullMQ", link: "https://bullmq.io/" },
@@ -88,7 +90,9 @@ export const toolbox: ToolGroup[] = [
     label: "App Stack",
     tools: [
       { name: "NestJS", link: "https://nestjs.com/" },
+      { name: "Fastify", link: "https://fastify.dev/" },
       { name: "FastAPI", link: "https://fastapi.tiangolo.com/" },
+      { name: "Pydantic", link: "https://docs.pydantic.dev/" },
       { name: "React", link: "https://react.dev/" },
       { name: "Next.js", link: "https://nextjs.org/" },
       { name: "Jotai", link: "https://jotai.org/" },
@@ -116,6 +120,7 @@ export const toolbox: ToolGroup[] = [
       { name: "OpenTelemetry", link: "https://opentelemetry.io/" },
       { name: "Mimir", link: "https://grafana.com/oss/mimir/" },
       { name: "Loki", link: "https://grafana.com/oss/loki/" },
+      { name: "Pyroscope", link: "https://grafana.com/oss/pyroscope/" },
     ],
   },
 ];
