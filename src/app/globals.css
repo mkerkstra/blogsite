@@ -17,13 +17,15 @@
     --secondary-foreground: 0 0% 8%;
     --muted: 42 18% 88%;
     --muted-foreground: 0 0% 38%;
-    --accent: 70 100% 50%;
-    --accent-foreground: 0 0% 8%;
+    /* Deep electric chartreuse — same hue family as the dark-mode
+       lime, but dark enough to read against cream paper. */
+    --accent: 78 95% 22%;
+    --accent-foreground: 42 32% 94%;
     --destructive: 5 75% 42%;
     --destructive-foreground: 42 32% 94%;
     --border: 0 0% 75%;
     --input: 0 0% 75%;
-    --ring: 70 100% 50%;
+    --ring: 78 95% 22%;
     --radius: 0.125rem;
   }
 
