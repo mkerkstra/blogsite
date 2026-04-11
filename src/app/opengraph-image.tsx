@@ -1,11 +1,31 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const alt = "Matt Kerkstra — Platform Engineer";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+// Fetch the actual font files at request time so Satori renders the
+// hero in real Instrument Serif italic instead of falling back to sans.
+// google/fonts ships TTFs in their public repo — stable URLs, cached
+// by Vercel after first request.
+// Satori chokes on variable fonts (the [wght] axis). Pull static
+// single-weight TTFs: Instrument Serif italic from google/fonts,
+// JetBrains Mono regular from JetBrains' own repo (the google/fonts
+// copy is variable-only).
+async function loadFonts() {
+  const [serifItalic, monoRegular] = await Promise.all([
+    fetch(
+      "https://raw.githubusercontent.com/google/fonts/main/ofl/instrumentserif/InstrumentSerif-Italic.ttf",
+    ).then((r) => r.arrayBuffer()),
+    fetch(
+      "https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/fonts/ttf/JetBrainsMono-Regular.ttf",
+    ).then((r) => r.arrayBuffer()),
+  ]);
+  return { serifItalic, monoRegular };
+}
+
 export default async function OpengraphImage() {
+  const { serifItalic, monoRegular } = await loadFonts();
   return new ImageResponse(
     <div
       style={{
@@ -17,7 +37,7 @@ export default async function OpengraphImage() {
         flexDirection: "column",
         justifyContent: "space-between",
         padding: "72px 88px",
-        fontFamily: "ui-monospace, monospace",
+        fontFamily: "JetBrains Mono",
         position: "relative",
       }}
     >
@@ -37,24 +57,13 @@ export default async function OpengraphImage() {
         <span>kerkstra.dev</span>
       </div>
 
-      {/* Hero — italic display name */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      {/* Hero — italic display name + tagline pulled from the resume summary */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
         <div
           style={{
-            fontSize: 24,
-            color: "#d4ff00",
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            display: "flex",
-          }}
-        >
-          ↳ Staff-level Platform Engineer
-        </div>
-        <div
-          style={{
-            fontSize: 168,
+            fontSize: 200,
             fontStyle: "italic",
-            fontFamily: "ui-serif, Georgia, serif",
+            fontFamily: "Instrument Serif",
             lineHeight: 0.9,
             letterSpacing: "-0.03em",
             color: "#f5f1e8",
@@ -62,6 +71,16 @@ export default async function OpengraphImage() {
           }}
         >
           Matt Kerkstra
+        </div>
+        <div
+          style={{
+            fontSize: 28,
+            color: "#d4ff00",
+            letterSpacing: "0.06em",
+            display: "flex",
+          }}
+        >
+          building the systems other engineers run on.
         </div>
       </div>
 
@@ -99,6 +118,22 @@ export default async function OpengraphImage() {
         }}
       />
     </div>,
-    { ...size },
+    {
+      ...size,
+      fonts: [
+        {
+          name: "Instrument Serif",
+          data: serifItalic,
+          style: "italic",
+          weight: 400,
+        },
+        {
+          name: "JetBrains Mono",
+          data: monoRegular,
+          style: "normal",
+          weight: 400,
+        },
+      ],
+    },
   );
 }

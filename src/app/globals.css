@@ -100,6 +100,61 @@
   }
 }
 
+/* ──────────────── Print ──────────────── */
+@media print {
+  /* Force light palette regardless of theme so print is readable */
+  :root,
+  .dark,
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --muted-foreground: 0 0% 30%;
+    --accent: 0 0% 0%;
+    --border: 0 0% 70%;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 10pt;
+  }
+  /* Strip atmospheric / interactive chrome */
+  .grain::before,
+  header,
+  footer,
+  .reveal,
+  .display-name {
+    animation: none !important;
+  }
+  .grain::before {
+    display: none !important;
+  }
+  header,
+  footer {
+    display: none !important;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  /* Compact section gaps */
+  .flex.flex-col.gap-16 {
+    gap: 1rem !important;
+  }
+  /* Allow native links to print but suppress hover decorations */
+  a {
+    color: black !important;
+    text-decoration: none !important;
+  }
+  /* Avoid breaking job blocks across pages */
+  article {
+    break-inside: avoid;
+  }
+  @page {
+    size: letter;
+    margin: 0.5in;
+  }
+}
+
 @layer utilities {
   /* Page load — staggered reveal */
   .reveal {
