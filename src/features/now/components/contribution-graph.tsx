@@ -44,45 +44,44 @@ export function ContributionGraphView({ graph }: { graph: ContributionGraph }) {
         <span className="hidden text-muted-foreground md:inline">includes private</span>
       </div>
 
-      <div className="overflow-x-auto">
-        {/*
-          suppressHydrationWarning: the per-cell dates in the <title>
-          tooltips can drift between SSR and Turbopack HMR re-renders
-          during dev (the GitHub fetch may refresh between passes),
-          which React 19 flags as a hydration mismatch. In production
-          the page is statically prerendered once so no drift is
-          possible — this suppression is purely to silence dev console
-          noise without masking a real bug.
-        */}
-        <svg
-          role="img"
-          aria-label={`GitHub contribution graph: ${graph.totalContributions} contributions in the last year`}
-          width={width}
-          height={height}
-          viewBox={`0 0 ${width} ${height}`}
-          style={{ minWidth: width }}
-          suppressHydrationWarning
-        >
-          {weeks.map((week, wi) =>
-            week.days.map((day, di) => (
-              <rect
-                key={`${wi}-${di}`}
-                x={wi * (CELL_SIZE + CELL_GAP)}
-                y={di * (CELL_SIZE + CELL_GAP)}
-                width={CELL_SIZE}
-                height={CELL_SIZE}
-                rx={1}
-                ry={1}
-                className={LEVEL_FILL[day.level]}
-              >
-                <title>
-                  {day.date}: {day.count} contributions
-                </title>
-              </rect>
-            )),
-          )}
-        </svg>
-      </div>
+      {/*
+        suppressHydrationWarning on every rect: per-cell tooltip dates
+        can drift between SSR and Turbopack HMR re-renders during dev
+        (the GitHub fetch refreshes between passes, shifting the
+        12-month window by a day). React 19 flags this as a hydration
+        mismatch at each <title> leaf. In production the page is
+        statically prerendered once so no drift is possible — the
+        suppression is dev-console silence, not a masked bug.
+        suppressHydrationWarning doesn't cascade, so it has to land on
+        the diffed leaf elements, not the svg parent.
+      */}
+      <svg
+        role="img"
+        aria-label={`GitHub contribution graph: ${graph.totalContributions} contributions in the last year`}
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="xMidYMid meet"
+        className="h-auto w-full"
+      >
+        {weeks.map((week, wi) =>
+          week.days.map((day, di) => (
+            <rect
+              key={`${wi}-${di}`}
+              x={wi * (CELL_SIZE + CELL_GAP)}
+              y={di * (CELL_SIZE + CELL_GAP)}
+              width={CELL_SIZE}
+              height={CELL_SIZE}
+              rx={1}
+              ry={1}
+              className={LEVEL_FILL[day.level]}
+              suppressHydrationWarning
+            >
+              <title suppressHydrationWarning>
+                {day.date}: {day.count} contributions
+              </title>
+            </rect>
+          )),
+        )}
+      </svg>
 
       <div className="flex items-center justify-end gap-1.5 font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">
         <span>less</span>

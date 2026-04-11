@@ -7,6 +7,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         display: ["var(--font-display)", "ui-serif", "Georgia", "serif"],
+        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: [
           "var(--font-mono)",
           "ui-monospace",
@@ -15,7 +16,6 @@ const config: Config = {
           "Monaco",
           "monospace",
         ],
-        sans: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       colors: {
         background: "hsl(var(--background))",

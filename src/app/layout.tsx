@@ -2,16 +2,29 @@ import "./globals.css";
 
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
-import { Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { Hanken_Grotesk, JetBrains_Mono, Newsreader } from "next/font/google";
 
 import { Providers } from "@/app/providers";
 import { CommandPalette } from "@/components/command-palette";
+import { DevConsoleFilter } from "@/components/dev-console-filter";
 import { Footer } from "@/features/resume/components/footer";
 import { Navbar } from "@/features/resume/components/navbar";
 
-const display = Instrument_Serif({
+// Fonts mirror ~/projects/videa/contribution-report.html:
+// - Hanken Grotesk for body + headings (sans)
+// - Newsreader italic for display accents (the hero name, "at" connectors, ledes)
+// - JetBrains Mono for labels, chips, metadata
+
+const sans = Hanken_Grotesk({
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const display = Newsreader({
+  subsets: ["latin"],
+  weight: ["400", "500"],
   style: ["normal", "italic"],
   variable: "--font-display",
   display: "swap",
@@ -19,6 +32,7 @@ const display = Instrument_Serif({
 
 const mono = JetBrains_Mono({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-mono",
   display: "swap",
 });
@@ -92,9 +106,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${display.variable} ${mono.variable}`} suppressHydrationWarning>
-      <body className="grain min-h-screen bg-background font-mono text-foreground antialiased">
+    <html
+      lang="en"
+      className={`${sans.variable} ${display.variable} ${mono.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="grain min-h-screen bg-background font-sans text-foreground antialiased">
         <Providers>
+          <DevConsoleFilter />
           <a
             href="#main"
             className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-background focus:px-3 focus:py-2 focus:font-mono focus:text-xs focus:text-foreground focus:outline focus:outline-2 focus:outline-accent"
