@@ -12,22 +12,22 @@ export default function ResumePage() {
     <div className="flex flex-col gap-16">
       <AboutMe />
 
-      <section className="reveal reveal-3 flex flex-col gap-4">
+      <section id="experience" className="reveal reveal-3 flex flex-col gap-4 scroll-mt-20">
         <SectionLabel index="01">Where I&apos;ve worked</SectionLabel>
         <Experience />
       </section>
 
-      <section className="reveal reveal-4 flex flex-col gap-4">
+      <section id="projects" className="reveal reveal-4 flex flex-col gap-4 scroll-mt-20">
         <SectionLabel index="02">Side projects</SectionLabel>
         <Projects />
       </section>
 
-      <section className="reveal reveal-4 flex flex-col gap-4">
+      <section id="tools" className="reveal reveal-4 flex flex-col gap-4 scroll-mt-20">
         <SectionLabel index="03">Tools I like to work with</SectionLabel>
         <Toolbox />
       </section>
 
-      <section className="reveal reveal-4 flex flex-col gap-4">
+      <section id="education" className="reveal reveal-4 flex flex-col gap-4 scroll-mt-20">
         <SectionLabel index="04">Education</SectionLabel>
         <Education />
       </section>

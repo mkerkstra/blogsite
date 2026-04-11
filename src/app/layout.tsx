@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Instrument_Serif, JetBrains_Mono } from "next/font/google";
 
 import { Providers } from "@/app/providers";
+import { CommandPalette } from "@/components/command-palette";
 import { Footer } from "@/features/resume/components/footer";
 import { Navbar } from "@/features/resume/components/navbar";
 
@@ -64,6 +65,7 @@ export default function RootLayout({
             </main>
             <Footer />
           </div>
+          <CommandPalette />
           <Analytics />
         </Providers>
       </body>

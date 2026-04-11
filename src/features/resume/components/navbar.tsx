@@ -1,5 +1,6 @@
 import { Download } from "lucide-react";
 
+import { CommandPaletteHint } from "@/components/command-palette-hint";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Navbar() {
@@ -13,6 +14,7 @@ export function Navbar() {
           kerkstra<span className="text-muted-foreground">.dev</span>
         </a>
         <div className="flex items-center gap-1">
+          <CommandPaletteHint />
           <a
             href="/resume.pdf"
             target="_blank"

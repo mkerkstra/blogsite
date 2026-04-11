@@ -14,10 +14,21 @@ export function ThemeToggle() {
 
   const isDark = mounted && resolvedTheme === "dark";
 
+  const toggle = () => {
+    const next = isDark ? "light" : "dark";
+    // Cross-fade the theme swap with the View Transitions API where supported.
+    // Falls back to an instant swap on browsers without the API.
+    if (typeof document !== "undefined" && "startViewTransition" in document) {
+      document.startViewTransition(() => setTheme(next));
+    } else {
+      setTheme(next);
+    }
+  };
+
   return (
     <button
       type="button"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
+      onClick={toggle}
       aria-label="Toggle theme"
       className="inline-flex h-8 w-8 items-center justify-center text-muted-foreground transition-colors hover:text-accent"
     >

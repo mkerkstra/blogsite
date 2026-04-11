@@ -74,6 +74,16 @@
   }
 }
 
+/* ──────────────── View Transitions ──────────────── */
+/* Cross-fade the entire root when toggling theme via the View
+   Transitions API. Browsers without support fall through. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 280ms;
+  animation-timing-function: cubic-bezier(0.2, 0.6, 0.2, 1);
+  mix-blend-mode: normal;
+}
+
 @layer components {
   /* Subtle film grain overlay — fractal noise via inline SVG */
   .grain::before {
