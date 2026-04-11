@@ -45,6 +45,15 @@ export function ContributionGraphView({ graph }: { graph: ContributionGraph }) {
       </div>
 
       <div className="overflow-x-auto">
+        {/*
+          suppressHydrationWarning: the per-cell dates in the <title>
+          tooltips can drift between SSR and Turbopack HMR re-renders
+          during dev (the GitHub fetch may refresh between passes),
+          which React 19 flags as a hydration mismatch. In production
+          the page is statically prerendered once so no drift is
+          possible — this suppression is purely to silence dev console
+          noise without masking a real bug.
+        */}
         <svg
           role="img"
           aria-label={`GitHub contribution graph: ${graph.totalContributions} contributions in the last year`}
@@ -52,6 +61,7 @@ export function ContributionGraphView({ graph }: { graph: ContributionGraph }) {
           height={height}
           viewBox={`0 0 ${width} ${height}`}
           style={{ minWidth: width }}
+          suppressHydrationWarning
         >
           {weeks.map((week, wi) =>
             week.days.map((day, di) => (
