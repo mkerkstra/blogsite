@@ -23,6 +23,15 @@ export const nowState = {
       label: "Open source",
       blurb: "Occasional contributions where the ML platform work bumps into upstream issues.",
     },
+    {
+      label: "Home",
+      blurb: "My wife and our chipoodle Ollie. Reality TV to unwind.",
+    },
+    {
+      label: "Travel",
+      blurb:
+        "We're national-parks-and-travel people. Most recent trip was down the Rhine for the Christmas markets.",
+    },
   ],
 };
 
