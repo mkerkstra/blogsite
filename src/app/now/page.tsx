@@ -1,47 +1,29 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Lock } from "lucide-react";
 import type { Metadata } from "next";
 
 import { ContributionGraphView } from "@/features/now/components/contribution-graph";
 import { nowState } from "@/features/now/data/now";
 import { fetchContributionGraph } from "@/features/now/lib/github-contributions";
+import { fetchRecentRepos } from "@/features/now/lib/github-repos";
 import { SectionLabel } from "@/features/resume/components/section-label";
 
 export const metadata: Metadata = {
-  title: "Now — Matt Kerkstra",
-  description: "What I'm currently focused on.",
+  title: "Now",
+  description:
+    "What Matt Kerkstra is currently focused on — day job, side projects, open source, and recent GitHub activity.",
+  alternates: { canonical: "/now" },
+  openGraph: {
+    title: "Now · kerkstra.dev",
+    description:
+      "What Matt Kerkstra is currently focused on — day job, side projects, open source, and recent GitHub activity.",
+    url: "https://www.kerkstra.dev/now",
+    type: "profile",
+  },
 };
 
 // Refresh daily — the GitHub fetch is the only dynamic bit and we
 // don't need it any fresher than that.
 export const revalidate = 86400;
-
-type GitHubRepo = {
-  name: string;
-  full_name: string;
-  html_url: string;
-  description: string | null;
-  stargazers_count: number;
-  language: string | null;
-  pushed_at: string;
-  fork: boolean;
-};
-
-async function fetchRecentRepos(): Promise<GitHubRepo[]> {
-  try {
-    const res = await fetch(
-      "https://api.github.com/users/mkerkstra/repos?sort=pushed&per_page=10&type=owner",
-      {
-        headers: { Accept: "application/vnd.github+json" },
-        next: { revalidate: 86400 },
-      },
-    );
-    if (!res.ok) return [];
-    const repos: GitHubRepo[] = await res.json();
-    return repos.filter((r) => !r.fork).slice(0, 6);
-  } catch {
-    return [];
-  }
-}
 
 function timeSince(iso: string): string {
   const then = new Date(iso).getTime();
@@ -102,9 +84,10 @@ export default async function NowPage() {
         ) : (
           // Fallback when no GITHUB_TOKEN is configured. Public contributions
           // only — won't show the videahealth/narrative private commits.
+          // Setup instructions: see CLAUDE.md → "GitHub contribution graph (private)".
           <div className="flex flex-col gap-3 overflow-hidden rounded border border-border bg-card p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-              public contributions only — set GITHUB_TOKEN to include private
+              public contributions only · GITHUB_TOKEN env var unset
             </p>
             <picture>
               <source
@@ -124,28 +107,37 @@ export default async function NowPage() {
           <div className="flex flex-col">
             {repos.map((repo) => (
               <div
-                key={repo.full_name}
+                key={repo.key}
                 className="grid grid-cols-1 gap-2 border-t border-border py-3 md:grid-cols-[7rem_1fr] md:gap-8"
               >
                 <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground md:text-right">
-                  {timeSince(repo.pushed_at)}
+                  {timeSince(repo.pushedAt)}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <a
-                    href={repo.html_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-baseline gap-1 self-start text-[14px] font-medium text-foreground no-underline transition-colors hover:text-accent"
-                  >
-                    {repo.full_name}
-                    <ArrowUpRight className="h-3 w-3 opacity-50 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />
-                  </a>
+                  {repo.url ? (
+                    <a
+                      href={repo.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group inline-flex items-baseline gap-1 self-start text-[14px] font-medium text-foreground no-underline transition-colors hover:text-accent"
+                    >
+                      {repo.displayName}
+                      <ArrowUpRight className="h-3 w-3 opacity-50 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />
+                    </a>
+                  ) : (
+                    <span className="inline-flex items-baseline gap-1.5 self-start text-[14px] font-medium text-foreground/70">
+                      {repo.displayName}
+                      <Lock
+                        className="h-3 w-3 translate-y-0.5 opacity-50"
+                        aria-label="private repository"
+                      />
+                    </span>
+                  )}
                   {repo.description ? (
                     <p className="text-[12px] text-muted-foreground">{repo.description}</p>
                   ) : null}
                   <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
                     {repo.language ?? "—"}
-                    {repo.stargazers_count > 0 ? ` · ★ ${repo.stargazers_count}` : ""}
                   </p>
                 </div>
               </div>

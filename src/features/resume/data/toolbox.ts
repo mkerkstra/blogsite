@@ -96,7 +96,6 @@ export const toolbox: ToolGroup[] = [
         name: "React Query",
         link: "https://tanstack.com/query/latest",
       },
-      { name: "Tiptap", link: "https://tiptap.dev/" },
       {
         name: "OPFS",
         link: "https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system",

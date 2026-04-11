@@ -23,23 +23,66 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
+const SITE_URL = "https://www.kerkstra.dev";
+const SITE_NAME = "kerkstra.dev";
+const DEFAULT_TITLE = "Matt Kerkstra — Software Engineer";
+const DEFAULT_DESCRIPTION =
+  "Staff-level platform engineer with seven years building production ML infrastructure and the systems other engineers run on.";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.kerkstra.dev"),
-  title: "Matt Kerkstra — Platform Engineer",
-  description:
-    "Staff-level platform engineer with seven years building production ML infrastructure and the systems other engineers run on.",
+  metadataBase: new URL(SITE_URL),
+  // Title template — child pages override `title` and the template
+  // wraps it as "Page Title · kerkstra.dev". Pages that want a fully
+  // custom title (no template) can set `title: { absolute: "..." }`.
+  title: {
+    default: DEFAULT_TITLE,
+    template: "%s · kerkstra.dev",
+  },
+  description: DEFAULT_DESCRIPTION,
+  applicationName: SITE_NAME,
+  authors: [{ name: "Matt Kerkstra", url: SITE_URL }],
+  creator: "Matt Kerkstra",
+  publisher: "Matt Kerkstra",
   alternates: {
+    canonical: "/",
     types: {
       "application/json": "/api/resume.json",
     },
   },
   openGraph: {
-    title: "Matt Kerkstra — Platform Engineer",
-    description:
-      "Staff-level platform engineer with seven years building production ML infrastructure and the systems other engineers run on.",
-    url: "https://www.kerkstra.dev",
-    siteName: "kerkstra.dev",
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
     type: "website",
+    locale: "en_US",
+    images: [
+      {
+        url: "/og",
+        width: 1200,
+        height: 630,
+        alt: DEFAULT_TITLE,
+        type: "image/png",
+      },
+    ],
+  },
+  // Next 16 auto-derives twitter:* from openGraph with no clean
+  // opt-out (twitter: null doesn't suppress; explicit empty objects
+  // still emit empty tags). Matt is off X and doesn't want twitter
+  // cards. Workaround: scripts/strip-twitter-tags.ts runs as a
+  // post-build step that strips twitter:* meta tags from every
+  // prerendered HTML file under .next/server/app. The openGraph
+  // fields here keep driving Slack/LinkedIn/Discord previews.
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
 };
 

@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "pnpm build:pdf && next build",
+    "build": "pnpm build:pdf && next build && pnpm build:postprocess",
     "build:pdf": "tsx scripts/build-resume-pdf.tsx",
+    "build:postprocess": "tsx scripts/post-process-html.ts",
     "start": "next start",
     "lint": "oxfmt --check && oxlint --config oxlintrc.json src/",
     "lint:fix": "oxfmt --write && oxlint --fix --config oxlintrc.json src/",

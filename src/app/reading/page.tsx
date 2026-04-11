@@ -4,8 +4,17 @@ import { reading, type Book, type ReadingShelf } from "@/features/reading/data/r
 import { SectionLabel } from "@/features/resume/components/section-label";
 
 export const metadata: Metadata = {
-  title: "Reading — Matt Kerkstra",
-  description: "Books I keep reaching for.",
+  title: "Reading",
+  description:
+    "Books Matt Kerkstra keeps reaching for — engineering, sci-fi, and the slow-moving stack.",
+  alternates: { canonical: "/reading" },
+  openGraph: {
+    title: "Reading · kerkstra.dev",
+    description:
+      "Books Matt Kerkstra keeps reaching for — engineering, sci-fi, and the slow-moving stack.",
+    url: "https://www.kerkstra.dev/reading",
+    type: "profile",
+  },
 };
 
 export const revalidate = 86400;

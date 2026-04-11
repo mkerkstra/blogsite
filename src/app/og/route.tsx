@@ -1,17 +1,24 @@
+/**
+ * OG image route handler — explicitly NOT using the `opengraph-image.tsx`
+ * file convention because that auto-generates Twitter card metadata
+ * (twitter:image, twitter:card, twitter:title, etc.) that we can't
+ * suppress. By serving the same ImageResponse from a regular route
+ * handler, we keep open-graph link previews working without leaking
+ * twitter:* tags into the HTML head.
+ *
+ * The metadata.openGraph.images field in src/app/layout.tsx points
+ * here explicitly.
+ */
 import { ImageResponse } from "next/og";
 
-export const alt = "Matt Kerkstra — Platform Engineer";
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const dynamic = "force-static";
+export const revalidate = 86400;
 
-// Fetch the actual font files at request time so Satori renders the
-// hero in real Instrument Serif italic instead of falling back to sans.
-// google/fonts ships TTFs in their public repo — stable URLs, cached
-// by Vercel after first request.
-// Satori chokes on variable fonts (the [wght] axis). Pull static
-// single-weight TTFs: Instrument Serif italic from google/fonts,
-// JetBrains Mono regular from JetBrains' own repo (the google/fonts
-// copy is variable-only).
+const SIZE = { width: 1200, height: 630 };
+
+// Satori chokes on variable fonts. Pull static single-weight TTFs:
+// Instrument Serif italic from google/fonts, JetBrains Mono regular
+// from JetBrains' own repo (the google/fonts copy is variable-only).
 async function loadFonts() {
   const [serifItalic, monoRegular] = await Promise.all([
     fetch(
@@ -24,7 +31,7 @@ async function loadFonts() {
   return { serifItalic, monoRegular };
 }
 
-export default async function OpengraphImage() {
+export async function GET() {
   const { serifItalic, monoRegular } = await loadFonts();
   return new ImageResponse(
     <div
@@ -119,7 +126,7 @@ export default async function OpengraphImage() {
       />
     </div>,
     {
-      ...size,
+      ...SIZE,
       fonts: [
         {
           name: "Instrument Serif",
