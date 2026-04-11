@@ -69,10 +69,20 @@ scripts/
 - **Animations are CSS-only.** No motion library. Reveals are `.reveal` + `.reveal-N` utilities in `globals.css`.
 - **Server components by default.** Only mark `'use client'` for components that need state, theme, or event handlers (currently: `theme-toggle`, `providers`).
 
+## Pre-commit hooks (lefthook)
+
+`lefthook.yml` defines pre-commit (`lint` + `typecheck` + `test`) and pre-push (`build`) hooks. Lefthook is opt-in — it doesn't auto-install. After cloning, run once:
+
+```sh
+pnpm exec lefthook install
+```
+
+That writes the git hooks under `.git/hooks/`. Subsequent commits run the hooks automatically. To bypass (rarely), use `git commit --no-verify` — but only when you have a reason; the hooks exist to prevent regressions.
+
 ## Don'ts
 
 - Don't add eslint/prettier back. oxlint+oxfmt are intentional.
-- Don't reintroduce husky/lint-staged. Use lefthook if pre-commit is needed.
+- Don't reintroduce husky/lint-staged. lefthook is the modern replacement and is already configured.
 - Don't add MDX, jest, ionicons, or @headlessui/react. They were removed for reasons.
 - Don't restructure into a monorepo. Flat is intentional for this size of project.
 - Don't commit unless explicitly asked.
