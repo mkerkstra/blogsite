@@ -44,3 +44,4 @@ yarn-error.log*
 
 # superpowers plugin scratch state
 /.superpowers
+/docs/superpowers
