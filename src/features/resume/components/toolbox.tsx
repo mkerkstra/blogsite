@@ -2,7 +2,7 @@ import { toolbox, type Tool, type ToolGroup } from "../data/toolbox";
 
 function ToolChip({ tool, groupLabel }: { tool: Tool; groupLabel: string }) {
   const className =
-    "group inline-flex items-center gap-1 border border-border bg-transparent px-1.5 py-0.5 font-mono text-[11px] text-foreground/80 transition-all duration-150 hover:border-accent hover:bg-accent/10 hover:text-foreground";
+    "group inline-flex items-center gap-1 border border-border bg-transparent px-1.5 py-0.5 text-[12px] font-medium text-foreground/80 transition-all duration-150 hover:border-accent hover:bg-accent/10 hover:text-foreground";
   if (tool.link) {
     return (
       <a

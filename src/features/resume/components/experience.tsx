@@ -53,14 +53,14 @@ function JobBlock({ job }: { job: Job }) {
         ) : null}
         <ul className="flex flex-col gap-2.5 text-[12.5px] leading-[1.65]">
           {job.highlights.map((h, i) => (
-            <li key={h} className="flex gap-2.5">
+            <li key={h.text} className="flex gap-2.5">
               <span
                 aria-hidden
                 className="mt-[3px] shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground"
               >
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span className="text-foreground/90">{renderBold(h)}</span>
+              <span className="text-foreground/90">{renderBold(h.text)}</span>
             </li>
           ))}
         </ul>

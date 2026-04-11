@@ -400,9 +400,9 @@ function ResumeDocument() {
                 ) : null}
                 <View style={styles.jobBullets}>
                   {job.highlights.map((h) => (
-                    <View key={h} style={styles.bullet}>
+                    <View key={h.text} style={styles.bullet}>
                       <Text style={styles.bulletDash}>−</Text>
-                      <Text style={styles.bulletText}>{renderBullet(h)}</Text>
+                      <Text style={styles.bulletText}>{renderBullet(h.text)}</Text>
                     </View>
                   ))}
                 </View>

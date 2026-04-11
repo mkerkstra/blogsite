@@ -1,9 +1,12 @@
+import type { WidgetId } from "./widget-id";
+
 export type Project = {
   name: string;
   url: string;
   href: string;
   blurb: string;
   role: string;
+  widget?: WidgetId;
 };
 
 export const projects: Project[] = [

@@ -16,23 +16,32 @@ export const revalidate = 86400;
 
 const SIZE = { width: 1200, height: 630 };
 
-// Satori chokes on variable fonts. Pull static single-weight TTFs:
-// Instrument Serif italic from google/fonts, JetBrains Mono regular
-// from JetBrains' own repo (the google/fonts copy is variable-only).
+// Satori chokes on variable fonts (opentype.js can't parse the
+// variable-axis tables in Newsreader/Hanken-Grotesk from google/fonts
+// and throws "Cannot read properties of undefined (reading '256')").
+// Pull static single-weight WOFFs from @fontsource via jsdelivr
+// instead — Satori supports WOFF and fontsource ships pre-sliced
+// static-weight files. Font stack matches the web layout:
+// - Newsreader italic 400 for the hero display
+// - Hanken Grotesk 500 for body / tagline copy
+// - JetBrains Mono 400 for metadata labels (top/bottom strips)
 async function loadFonts() {
-  const [serifItalic, monoRegular] = await Promise.all([
+  const [serifItalic, sansMedium, monoRegular] = await Promise.all([
     fetch(
-      "https://raw.githubusercontent.com/google/fonts/main/ofl/instrumentserif/InstrumentSerif-Italic.ttf",
+      "https://cdn.jsdelivr.net/npm/@fontsource/newsreader/files/newsreader-latin-400-italic.woff",
     ).then((r) => r.arrayBuffer()),
     fetch(
-      "https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/fonts/ttf/JetBrainsMono-Regular.ttf",
+      "https://cdn.jsdelivr.net/npm/@fontsource/hanken-grotesk/files/hanken-grotesk-latin-500-normal.woff",
+    ).then((r) => r.arrayBuffer()),
+    fetch(
+      "https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff",
     ).then((r) => r.arrayBuffer()),
   ]);
-  return { serifItalic, monoRegular };
+  return { serifItalic, sansMedium, monoRegular };
 }
 
 export async function GET() {
-  const { serifItalic, monoRegular } = await loadFonts();
+  const { serifItalic, monoRegular, sansMedium } = await loadFonts();
   return new ImageResponse(
     <div
       style={{
@@ -44,7 +53,7 @@ export async function GET() {
         flexDirection: "column",
         justifyContent: "space-between",
         padding: "72px 88px",
-        fontFamily: "JetBrains Mono",
+        fontFamily: "Hanken Grotesk",
         position: "relative",
       }}
     >
@@ -58,6 +67,7 @@ export async function GET() {
           color: "#666666",
           letterSpacing: "0.2em",
           textTransform: "uppercase",
+          fontFamily: "JetBrains Mono",
         }}
       >
         <span style={{ color: "#d4ff00", fontWeight: 700 }}>{">_"}</span>
@@ -70,7 +80,7 @@ export async function GET() {
           style={{
             fontSize: 200,
             fontStyle: "italic",
-            fontFamily: "Instrument Serif",
+            fontFamily: "Newsreader",
             lineHeight: 0.9,
             letterSpacing: "-0.03em",
             color: "#f5f1e8",
@@ -83,7 +93,9 @@ export async function GET() {
           style={{
             fontSize: 28,
             color: "#d4ff00",
-            letterSpacing: "0.06em",
+            letterSpacing: "0.02em",
+            fontFamily: "Hanken Grotesk",
+            fontWeight: 500,
             display: "flex",
           }}
         >
@@ -100,6 +112,7 @@ export async function GET() {
           fontSize: 18,
           color: "#666666",
           letterSpacing: "0.12em",
+          fontFamily: "JetBrains Mono",
         }}
       >
         <div style={{ display: "flex", gap: 28 }}>
@@ -129,7 +142,7 @@ export async function GET() {
       ...SIZE,
       fonts: [
         {
-          name: "Instrument Serif",
+          name: "Newsreader",
           data: serifItalic,
           style: "italic",
           weight: 400,
@@ -139,6 +152,12 @@ export async function GET() {
           data: monoRegular,
           style: "normal",
           weight: 400,
+        },
+        {
+          name: "Hanken Grotesk",
+          data: sansMedium,
+          style: "normal",
+          weight: 500,
         },
       ],
     },

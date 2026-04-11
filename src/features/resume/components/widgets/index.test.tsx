@@ -1,0 +1,18 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { Widget } from "./index";
+
+describe("<Widget />", () => {
+  it("renders a frame for a known id", () => {
+    render(<Widget id="clinical-note" />);
+    expect(screen.getByText("live templating")).toBeInTheDocument();
+    expect(screen.getByText("voice + context → structured note")).toBeInTheDocument();
+  });
+
+  it("renders nothing for an unknown id", () => {
+    // @ts-expect-error — intentionally passing an invalid id
+    const { container } = render(<Widget id="does-not-exist" />);
+    expect(container.firstChild).toBeNull();
+  });
+});

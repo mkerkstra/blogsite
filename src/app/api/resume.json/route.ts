@@ -59,7 +59,7 @@ export async function GET() {
       startDate: isoDate(job.role.time.start),
       ...(job.role.time.end ? { endDate: isoDate(job.role.time.end) } : {}),
       summary: job.role.overview ?? job.company.blurb,
-      highlights: job.highlights.map(stripBold),
+      highlights: job.highlights.map((h) => stripBold(h.text)),
       location: job.role.location,
     })),
     education: education.map((row) => ({
