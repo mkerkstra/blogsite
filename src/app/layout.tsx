@@ -27,6 +27,11 @@ export const metadata: Metadata = {
   title: "Matt Kerkstra — Platform Engineer",
   description:
     "Staff-level platform engineer with seven years building production ML infrastructure and the systems other engineers run on.",
+  alternates: {
+    types: {
+      "application/json": "/api/resume.json",
+    },
+  },
   openGraph: {
     title: "Matt Kerkstra — Platform Engineer",
     description:
