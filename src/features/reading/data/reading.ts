@@ -7,7 +7,7 @@ export type Book = {
 };
 
 export type ReadingShelf = {
-  id: "engineering" | "fiction";
+  id: "engineering" | "fiction" | "history";
   label: string;
   blurb?: string;
   books: Book[];
@@ -57,6 +57,28 @@ export const reading: ReadingShelf[] = [
         title: "Do Androids Dream of Electric Sheep?",
         author: "Philip K. Dick",
         year: 1968,
+      },
+      {
+        title: "The Killer Angels",
+        author: "Michael Shaara",
+        year: 1974,
+        note: "Gettysburg, told from the minds of the men who fought it.",
+      },
+    ],
+  },
+  {
+    id: "history",
+    label: "History",
+    books: [
+      {
+        title: "Alexander Hamilton",
+        author: "Ron Chernow",
+        year: 2004,
+      },
+      {
+        title: "Mark Twain",
+        author: "Ron Chernow",
+        year: 2025,
       },
     ],
   },
