@@ -6,6 +6,19 @@ export type Book = {
   note?: string;
 };
 
+/**
+ * Resolve a "where to find this book" link. If the entry has a curated
+ * `url` (author site, publisher page, Staff Eng book landing, etc.),
+ * use that. Otherwise fall back to a BookPeople search — Austin's
+ * local independent bookstore. Supports the local indie and dodges
+ * Amazon.
+ */
+export function bookLink(book: Book): string {
+  if (book.url) return book.url;
+  const query = encodeURIComponent(`${book.title} ${book.author}`);
+  return `https://bookpeople.com/search?q=${query}`;
+}
+
 export type ReadingShelf = {
   id: "engineering" | "fiction" | "history";
   label: string;
@@ -46,6 +59,7 @@ export const reading: ReadingShelf[] = [
         title: "Foundation trilogy",
         author: "Isaac Asimov",
         year: 1951,
+        url: "https://bookpeople.com/book/9781607962731",
       },
       {
         title: "Remembrance of Earth's Past",

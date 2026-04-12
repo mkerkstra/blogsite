@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { reading, type Book, type ReadingShelf } from "@/features/reading/data/reading";
+import { bookLink, reading, type Book, type ReadingShelf } from "@/features/reading/data/reading";
 import { SectionLabel } from "@/features/resume/components/section-label";
 
 export const metadata: Metadata = {
@@ -27,18 +27,14 @@ function BookRow({ book }: { book: Book }) {
       </div>
       <div className="flex flex-col gap-1">
         <div className="flex items-baseline gap-2 text-[15px] leading-snug">
-          {book.url ? (
-            <a
-              href={book.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-foreground no-underline transition-colors hover:text-accent"
-            >
-              {book.title}
-            </a>
-          ) : (
-            <span className="font-medium text-foreground">{book.title}</span>
-          )}
+          <a
+            href={bookLink(book)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-foreground no-underline transition-colors hover:text-accent"
+          >
+            {book.title}
+          </a>
           <span className="text-muted-foreground">— {book.author}</span>
         </div>
         {book.note ? (

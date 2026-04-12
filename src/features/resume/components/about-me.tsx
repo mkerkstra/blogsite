@@ -1,8 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
-import Image from "next/image";
 
-import profilePic from "../../../../public/profilePic.jpg";
 import { aboutMe } from "../data/about-me";
+import { CyclingPortrait } from "./cycling-portrait";
 
 const META: { label: string; value: string; href?: string }[] = [
   { label: "loc", value: aboutMe.location },
@@ -36,17 +35,7 @@ export function AboutMe() {
             {aboutMe.name}
           </h1>
         </div>
-        <div className="relative mt-1 hidden shrink-0 sm:block">
-          <Image
-            src={profilePic}
-            alt={aboutMe.name}
-            placeholder="blur"
-            width={92}
-            height={92}
-            className="h-[92px] w-[92px] object-cover grayscale [filter:grayscale(1)_contrast(1.05)]"
-          />
-          <div className="pointer-events-none absolute inset-0 ring-1 ring-foreground/20" />
-        </div>
+        <CyclingPortrait />
       </div>
 
       {/* Blurb */}
