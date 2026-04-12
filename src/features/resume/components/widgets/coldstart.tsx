@@ -1,4 +1,4 @@
-import { WidgetFrame } from "./widget-frame";
+import { WidgetFrame } from "@/components/widget-frame";
 
 export function Coldstart() {
   return (
