@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { LighthouseScores } from "@/features/colophon/components/lighthouse-scores";
 import { craftNotes } from "@/features/colophon/data/craft-notes";
 import { stack } from "@/features/colophon/data/stack";
 import { tokenGroups } from "@/features/colophon/data/tokens";
@@ -127,6 +128,12 @@ export default function ColophonPage() {
             </li>
           ))}
         </ul>
+      </section>
+
+      {/* Performance */}
+      <section className="reveal reveal-4 flex flex-col gap-4">
+        <SectionLabel index="05">Performance</SectionLabel>
+        <LighthouseScores />
       </section>
     </div>
   );
