@@ -124,6 +124,7 @@ export default function RootLayout({
         <Script id="theme-init" strategy="beforeInteractive">
           {THEME_INIT_SCRIPT}
         </Script>
+        <div className="scroll-progress" aria-hidden="true" />
         <ThemeProvider>
           <a
             href="#main"
