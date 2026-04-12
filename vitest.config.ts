@@ -11,6 +11,7 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
   },
+  assetsInclude: ["**/*.{jpeg,jpg,png,gif,svg,webp,avif}"],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
