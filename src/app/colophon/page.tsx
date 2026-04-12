@@ -135,6 +135,52 @@ export default function ColophonPage() {
         <SectionLabel index="05">Performance</SectionLabel>
         <LighthouseScores />
       </section>
+
+      {/* Accessibility */}
+      <section className="reveal reveal-4 flex flex-col gap-4">
+        <SectionLabel index="06">How this site builds accessibility in</SectionLabel>
+        <p className="text-[13px] leading-[1.7] text-muted-foreground">
+          These are the choices behind the 100.
+        </p>
+        <div className="flex flex-col">
+          {[
+            {
+              label: "Semantic HTML",
+              text: "Every section, heading, and navigation landmark uses the correct HTML element, not a styled div.",
+            },
+            {
+              label: "Color contrast",
+              text: "The cream/ink palette was chosen to exceed WCAG AA contrast ratios in both light and dark themes.",
+            },
+            {
+              label: "Reduced motion",
+              text: "Every animation on this site respects prefers-reduced-motion and degrades to instant transitions.",
+            },
+            {
+              label: "Skip link",
+              text: "A 'Skip to main content' link is the first focusable element, visible on keyboard focus.",
+            },
+            {
+              label: "Decorative isolation",
+              text: "Widgets and the grain overlay are aria-hidden so screen readers skip them entirely.",
+            },
+            {
+              label: "Keyboard navigation",
+              text: "Every interactive element is reachable and operable via keyboard. The command palette opens with \u2318K.",
+            },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="grid grid-cols-1 gap-2 border-t border-border py-3 md:grid-cols-[7rem_1fr] md:gap-8"
+            >
+              <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground md:text-right">
+                {item.label}
+              </div>
+              <p className="text-[13px] leading-[1.7] text-foreground/90">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
