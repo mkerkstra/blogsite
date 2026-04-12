@@ -20,11 +20,15 @@ export type OlliePic = {
 };
 
 export const olliePics: OlliePic[] = [
-  { src: angelic, alt: "Ollie looking angelic", caption: "looking innocent. don't trust it." },
+  {
+    src: angelic,
+    alt: "Ollie looking angelic",
+    caption: "sorry we couldn't find that page - here's a little angel instead",
+  },
   {
     src: curledUp,
     alt: "Ollie curled up in a ball",
-    caption: "this page curled up and disappeared.",
+    caption: "couldn't find that page - here's ollie recovering after a bath.",
   },
   {
     src: fancySweater,
@@ -34,39 +38,39 @@ export const olliePics: OlliePic[] = [
   {
     src: freshCroissant,
     alt: "Ollie next to a croissant",
-    caption: "at least there's a croissant.",
+    caption: "No page? at least there's a croissant.",
   },
-  { src: hello, alt: "Ollie saying hello", caption: "ollie says hi. the page does not." },
-  { src: isSheBack, alt: "Ollie waiting by the door", caption: "ollie's waiting too." },
+  { src: hello, alt: "Ollie saying hello", caption: "ollie saying hello (unlike this page)." },
+  { src: isSheBack, alt: "Ollie hearing my wife's home", caption: "What's that? Page not found?" },
   {
     src: justAdopted,
     alt: "Ollie on adoption day",
-    caption: "this page found a new home. not here.",
+    caption: "this page found a new home.",
   },
   { src: mondays, alt: "Ollie looking tired", caption: "404 energy." },
   {
     src: pumpkinAlpaca,
     alt: "Ollie with a pumpkin and alpaca",
-    caption: "wrong turn. but look at this alpaca.",
+    caption: "wrong turn. but look at this little pumpkin and his alpaca.",
   },
   {
     src: stairsWereHard,
     alt: "Ollie exhausted after climbing stairs",
-    caption: "this page couldn't make it up the stairs either.",
+    caption: "stairs are scary - so are 404s.",
   },
   { src: sundayVibes, alt: "Ollie relaxing on Sunday", caption: "nothing here. that's the vibe." },
   {
     src: tuckedIn,
     alt: "Ollie tucked into a blanket",
-    caption: "page not found. ollie doesn't care.",
+    caption: "page not found - here's a tucked-in little pup.",
   },
 ];
 
 export const ollieBio = {
   name: "Ollie",
-  breed: "Chihuahua and poodle, a.k.a. chipoodle",
+  breed: "Our little chihuahua / poodle, a.k.a. chipoodle",
   gotchaDay: "2018-08-05",
-  origin: "Rescue",
+  origin: "Little Rescue Pup",
   traits: [
     "Really clingy. Will find a nook and claim it.",
     "Likes blankets that match his fur color.",

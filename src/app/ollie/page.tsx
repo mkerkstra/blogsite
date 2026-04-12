@@ -68,7 +68,7 @@ export default function OlliePage() {
                 className="h-auto w-full border border-border"
               />
               <p className="font-mono text-[9px] italic tracking-wide text-muted-foreground">
-                {pic.caption}
+                {pic.alt}
               </p>
             </div>
           ))}
