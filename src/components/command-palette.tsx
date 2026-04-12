@@ -7,9 +7,7 @@ import {
   Code,
   Copy,
   Download,
-  Github,
   GraduationCap,
-  Linkedin,
   Mail,
   Moon,
   Sparkles,
@@ -17,6 +15,8 @@ import {
   User,
   Wrench,
 } from "lucide-react";
+
+import { Github, Linkedin } from "@/components/brand-icons";
 import { useTheme } from "@/app/theme-provider";
 import * as React from "react";
 
