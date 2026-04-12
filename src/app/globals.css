@@ -250,13 +250,11 @@
   animation-delay: 320ms;
 }
 
-/* H1 specific — fade + subtle rise. Previously animated
-   letter-spacing from 0.04em → -0.02em, which caused a visible
-   "line snap" on multi-word headings (e.g. "books I keep reaching
-   for.") when the text's bounding box shrank and words re-wrapped
-   mid-animation. Now uses opacity + translateY only — same
-   settling feel, no layout reflow. Final letter-spacing comes
-   from tracking-tight applied as a static Tailwind class. */
+/* H1 specific — subtle rise into place. Opacity is NOT animated
+   because the h1 is the LCP element. Chromium excludes opacity:0
+   elements from LCP candidates, so animating from opacity:0 delays
+   the LCP measurement by the full animation duration. The text is
+   visible at full opacity immediately; only the position settles. */
 .display-name {
   animation: settle 700ms cubic-bezier(0.2, 0.6, 0.2, 1) backwards;
 }
@@ -287,11 +285,9 @@
 }
 @keyframes settle {
   from {
-    opacity: 0;
     transform: translateY(6px);
   }
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }

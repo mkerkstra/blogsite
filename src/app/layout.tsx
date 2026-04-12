@@ -1,6 +1,7 @@
 import "./globals.css";
 
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Hanken_Grotesk, JetBrains_Mono, Newsreader } from "next/font/google";
 import Script from "next/script";
@@ -34,7 +35,7 @@ const sans = Hanken_Grotesk({
 const display = Newsreader({
   subsets: ["latin"],
   weight: ["400", "500"],
-  style: ["normal", "italic"],
+  style: ["italic"],
   variable: "--font-display",
   display: "swap",
 });
@@ -141,6 +142,7 @@ export default function RootLayout({
           </div>
           <CommandPalette />
           <Analytics />
+          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>

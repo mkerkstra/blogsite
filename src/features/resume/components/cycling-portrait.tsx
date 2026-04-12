@@ -37,6 +37,7 @@ export function CyclingPortrait() {
           src={p.src}
           alt={p.alt}
           placeholder="blur"
+          priority={i === 0}
           width={92}
           height={92}
           className={`absolute inset-0 h-[92px] w-[92px] object-cover transition-opacity duration-200 ${
