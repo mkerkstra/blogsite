@@ -63,12 +63,15 @@ function Shelf({ shelf, index }: { shelf: ReadingShelf; index: string }) {
 
 export default function ReadingPage() {
   return (
-    <div className="flex flex-col gap-12">
+    <div className="flex flex-col gap-12" style={{ viewTransitionName: "page-body" }}>
       <header className="reveal flex flex-col gap-3">
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
           ↳ /reading
         </p>
-        <h1 className="display-name font-display text-[clamp(2.5rem,8vw,4.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground">
+        <h1
+          className="display-name font-display text-[clamp(2.5rem,8vw,4.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground"
+          style={{ viewTransitionName: "display-heading" }}
+        >
           books I keep reaching for.
         </h1>
       </header>

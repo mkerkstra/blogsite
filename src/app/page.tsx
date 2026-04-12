@@ -24,7 +24,7 @@ export const revalidate = 86400;
 
 export default function ResumePage() {
   return (
-    <div className="flex flex-col gap-16">
+    <div className="flex flex-col gap-16" style={{ viewTransitionName: "page-body" }}>
       <AboutMe />
 
       <section id="experience" className="reveal reveal-3 flex flex-col gap-4 scroll-mt-20">

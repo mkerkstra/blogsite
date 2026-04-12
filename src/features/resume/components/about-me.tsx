@@ -31,7 +31,10 @@ export function AboutMe() {
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
             ↳ {aboutMe.title}
           </p>
-          <h1 className="display-name font-display text-[clamp(3.5rem,11vw,6.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground">
+          <h1
+            className="display-name font-display text-[clamp(3.5rem,11vw,6.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground"
+            style={{ viewTransitionName: "display-heading" }}
+          >
             {aboutMe.name}
           </h1>
         </div>

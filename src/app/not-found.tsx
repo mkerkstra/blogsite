@@ -10,12 +10,15 @@ export default async function NotFound() {
   const pick = olliePics[Math.floor(Math.random() * olliePics.length)];
 
   return (
-    <div className="flex flex-col gap-10 py-12">
+    <div className="flex flex-col gap-10 py-12" style={{ viewTransitionName: "page-body" }}>
       <div className="reveal flex flex-col gap-3">
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
           [404] · not found
         </p>
-        <h1 className="display-name font-display text-[clamp(3.5rem,11vw,6.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground">
+        <h1
+          className="display-name font-display text-[clamp(3.5rem,11vw,6.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground"
+          style={{ viewTransitionName: "display-heading" }}
+        >
           dead link.
         </h1>
       </div>
