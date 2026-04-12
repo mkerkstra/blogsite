@@ -25,7 +25,7 @@ export const nowState = {
     {
       label: "Side project",
       blurb:
-        "narrative.sh — an AI companion for tabletop RPG dungeon masters, co-built with a group of long-time friends who are also software devs. TypeScript, Next.js, Go.",
+        "narrative.sh - an AI companion for tabletop RPG dungeon masters, co-built with a group of long-time friends who are also software devs. TypeScript, Next.js, Go.",
     },
     {
       label: "Open source",

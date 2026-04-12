@@ -9,7 +9,7 @@ import { Toolbox } from "@/features/resume/components/toolbox";
 
 export const metadata: Metadata = {
   // Override the layout's title template — homepage uses the absolute title.
-  title: { absolute: "Matt Kerkstra — Software Engineer" },
+  title: { absolute: "Matt Kerkstra - Software Engineer" },
   alternates: { canonical: "/" },
 };
 

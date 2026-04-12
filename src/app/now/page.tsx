@@ -25,12 +25,12 @@ const FOCUS_IMAGES: Record<FocusImage, StaticImageData> = {
 export const metadata: Metadata = {
   title: "Now",
   description:
-    "What Matt Kerkstra is currently focused on — day job, side projects, open source, and recent GitHub activity.",
+    "What Matt Kerkstra is currently focused on - day job, side projects, open source, and recent GitHub activity.",
   alternates: { canonical: "/now" },
   openGraph: {
     title: "Now · kerkstra.dev",
     description:
-      "What Matt Kerkstra is currently focused on — day job, side projects, open source, and recent GitHub activity.",
+      "What Matt Kerkstra is currently focused on - day job, side projects, open source, and recent GitHub activity.",
     url: "https://www.kerkstra.dev/now",
     type: "profile",
   },

@@ -48,7 +48,7 @@ const mono = JetBrains_Mono({
 
 const SITE_URL = "https://www.kerkstra.dev";
 const SITE_NAME = "kerkstra.dev";
-const DEFAULT_TITLE = "Matt Kerkstra — Software Engineer";
+const DEFAULT_TITLE = "Matt Kerkstra - Software Engineer";
 const DEFAULT_DESCRIPTION =
   "Staff-level platform engineer with seven years building production ML infrastructure and the systems other engineers run on.";
 
