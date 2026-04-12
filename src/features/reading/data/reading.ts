@@ -49,6 +49,12 @@ export const reading: ReadingShelf[] = [
         year: 2017,
         url: "https://dataintensive.net/",
       },
+      {
+        title: "A Pattern Language",
+        author: "Christopher Alexander",
+        year: 1977,
+        url: "https://bookpeople.com/book/9780195019193",
+      },
     ],
   },
   {
