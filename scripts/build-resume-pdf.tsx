@@ -8,6 +8,8 @@
  * Run with `pnpm build:pdf`. Wired into `pnpm build`.
  */
 import { Document, Page, StyleSheet, Text, View, renderToFile } from "@react-pdf/renderer";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
 import * as React from "react";
 
@@ -457,9 +459,26 @@ function ResumeDocument() {
 }
 
 const outputPath = path.resolve(process.cwd(), "public/resume.pdf");
+const hashPath = path.resolve(process.cwd(), "public/resume.pdf.hash");
+
+// Hash all input data to detect when a re-render is actually needed.
+// @react-pdf/renderer embeds a CreationDate timestamp that makes the binary
+// differ on every run even when content is identical. Skipping the render
+// when inputs haven't changed keeps `public/resume.pdf` stable in git.
+const inputHash = createHash("sha256")
+  .update(JSON.stringify({ aboutMe, education, experience, projects, toolbox }))
+  .digest("hex");
+
+const existingHash = existsSync(hashPath) ? readFileSync(hashPath, "utf-8").trim() : "";
+
+if (existingHash === inputHash && existsSync(outputPath)) {
+  console.log("✓ resume.pdf unchanged, skipping render.");
+  process.exit(0);
+}
 
 renderToFile(<ResumeDocument />, outputPath)
   .then(() => {
+    writeFileSync(hashPath, inputHash + "\n");
     console.log(`✓ resume.pdf written to ${outputPath}`);
   })
   .catch((err) => {

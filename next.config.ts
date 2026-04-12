@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  experimental: {
+    optimizePackageImports: ["lucide-react", "date-fns"],
+  },
   // Modern browsers fetch /icon.svg via the <link rel="icon"> tag, but
   // some legacy paths (and Lighthouse audits) hit /favicon.ico directly.
   // Redirect to the SVG so we don't 404 the legacy fallback path.

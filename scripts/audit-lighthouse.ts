@@ -6,7 +6,7 @@
  * Skips gracefully if Chrome isn't installed (e.g. Vercel build container).
  */
 
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const OUTPUT_PATH = resolve("src/features/colophon/data/lighthouse.json");
@@ -60,8 +60,24 @@ async function main() {
     mkdirSync(dir, { recursive: true });
   }
 
-  writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2) + "\n");
-  console.log("[audit] Scores written to", OUTPUT_PATH);
+  // Only write if scores actually changed (avoid dirty git from timestamp-only diffs)
+  let shouldWrite = true;
+  if (existsSync(OUTPUT_PATH)) {
+    try {
+      const existing = JSON.parse(readFileSync(OUTPUT_PATH, "utf-8"));
+      if (JSON.stringify(existing.scores) === JSON.stringify(output.scores)) {
+        shouldWrite = false;
+        console.log("[audit] Scores unchanged, skipping write.");
+      }
+    } catch {
+      // corrupt file, overwrite
+    }
+  }
+
+  if (shouldWrite) {
+    writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2) + "\n");
+    console.log("[audit] Scores written to", OUTPUT_PATH);
+  }
   console.log("[audit]", JSON.stringify(scores));
 
   // Log failing audits for debugging

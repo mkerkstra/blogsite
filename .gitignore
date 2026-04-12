@@ -35,6 +35,10 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+next-env.d.ts
+
+# build artifacts with non-deterministic output
+public/resume.pdf.hash
 
 #vscode
 /.vscode
