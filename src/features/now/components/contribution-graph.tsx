@@ -45,15 +45,12 @@ export function ContributionGraphView({ graph }: { graph: ContributionGraph }) {
       </div>
 
       {/*
-        suppressHydrationWarning on every rect: per-cell tooltip dates
-        can drift between SSR and Turbopack HMR re-renders during dev
-        (the GitHub fetch refreshes between passes, shifting the
-        12-month window by a day). React 19 flags this as a hydration
-        mismatch at each <title> leaf. In production the page is
-        statically prerendered once so no drift is possible — the
-        suppression is dev-console silence, not a masked bug.
-        suppressHydrationWarning doesn't cascade, so it has to land on
-        the diffed leaf elements, not the svg parent.
+        Per-cell <title> children were removed because React 19 hoists
+        <title> elements in ways that conflict with the SVG content model,
+        producing a hydration mismatch warning in dev. The parent <svg>
+        carries an aggregate aria-label that covers accessibility. If
+        per-cell hover tooltips are ever wanted back, implement them via
+        client-side hover state + an overlay <div>, not SVG <title>.
       */}
       <svg
         role="img"
@@ -73,12 +70,7 @@ export function ContributionGraphView({ graph }: { graph: ContributionGraph }) {
               rx={1}
               ry={1}
               className={LEVEL_FILL[day.level]}
-              suppressHydrationWarning
-            >
-              <title suppressHydrationWarning>
-                {day.date}: {day.count} contributions
-              </title>
-            </rect>
+            />
           )),
         )}
       </svg>

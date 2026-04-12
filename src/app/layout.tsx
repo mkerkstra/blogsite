@@ -3,10 +3,10 @@ import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Hanken_Grotesk, JetBrains_Mono, Newsreader } from "next/font/google";
+import Script from "next/script";
 
-import { Providers } from "@/app/providers";
+import { ThemeProvider } from "@/app/theme-provider";
 import { CommandPalette } from "@/components/command-palette";
-import { DevConsoleFilter } from "@/components/dev-console-filter";
 import { Footer } from "@/features/resume/components/footer";
 import { Navbar } from "@/features/resume/components/navbar";
 
@@ -14,6 +14,15 @@ import { Navbar } from "@/features/resume/components/navbar";
 // - Hanken Grotesk for body + headings (sans)
 // - Newsreader italic for display accents (the hero name, "at" connectors, ledes)
 // - JetBrains Mono for labels, chips, metadata
+//
+// Theme-init script — runs synchronously before hydration to set
+// the `light`/`dark` class on <html> based on localStorage +
+// prefers-color-scheme, preventing FOUC. next/script with
+// strategy="beforeInteractive" auto-hoists this to <head> regardless
+// of where it lives in the JSX tree, which is Next's idiomatic way
+// to inject an inline script at the top of the document without
+// manually declaring a <head> element (which Next 16 discourages).
+const THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem('theme');var m=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';var r=(s==='light'||s==='dark')?s:m;var h=document.documentElement;h.classList.remove('light','dark');h.classList.add(r);h.style.colorScheme=r;}catch(e){}})();`;
 
 const sans = Hanken_Grotesk({
   subsets: ["latin"],
@@ -112,8 +121,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="grain min-h-screen bg-background font-sans text-foreground antialiased">
-        <Providers>
-          <DevConsoleFilter />
+        <Script id="theme-init" strategy="beforeInteractive">
+          {THEME_INIT_SCRIPT}
+        </Script>
+        <ThemeProvider>
           <a
             href="#main"
             className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-background focus:px-3 focus:py-2 focus:font-mono focus:text-xs focus:text-foreground focus:outline focus:outline-2 focus:outline-accent"
@@ -129,7 +140,7 @@ export default function RootLayout({
           </div>
           <CommandPalette />
           <Analytics />
-        </Providers>
+        </ThemeProvider>
       </body>
     </html>
   );
