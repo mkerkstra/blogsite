@@ -6,7 +6,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Navbar() {
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur-sm">
       <div className="mx-auto flex h-12 w-full max-w-3xl items-center justify-between gap-3 px-5 md:px-8">
         <Link
           href="/"

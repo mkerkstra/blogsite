@@ -185,7 +185,7 @@ export function CommandPalette() {
       open={open}
       onOpenChange={setOpen}
       label="Command palette"
-      className="fixed inset-0 z-[100] flex items-start justify-center bg-black/50 backdrop-blur-sm pt-[15vh]"
+      className="fixed inset-0 z-100 flex items-start justify-center bg-black/50 backdrop-blur-xs pt-[15vh]"
     >
       <div
         className="w-full max-w-xl border border-border bg-background font-mono text-sm shadow-2xl"
@@ -197,7 +197,7 @@ export function CommandPalette() {
           </span>
           <Command.Input
             placeholder="search…"
-            className="w-full bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none"
+            className="w-full bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-hidden"
             autoFocus
           />
           <kbd className="ml-auto border border-border px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground">
@@ -249,7 +249,7 @@ function CommandGroup({ label, children }: { label: string; children: React.Reac
   return (
     <Command.Group
       heading={label}
-      className="mb-1 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:text-[9px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.2em] [&_[cmdk-group-heading]]:text-muted-foreground"
+      className="mb-1 **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:pb-1.5 **:[[cmdk-group-heading]]:pt-2 **:[[cmdk-group-heading]]:font-mono **:[[cmdk-group-heading]]:text-[9px] **:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:tracking-[0.2em] **:[[cmdk-group-heading]]:text-muted-foreground"
     >
       {children}
     </Command.Group>
