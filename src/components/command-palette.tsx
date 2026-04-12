@@ -3,13 +3,16 @@
 import { Command } from "cmdk";
 import {
   ArrowUpRight,
+  BookOpen,
   Briefcase,
   Code,
   Copy,
   Download,
   GraduationCap,
+  Info,
   Mail,
   Moon,
+  PawPrint,
   Sparkles,
   Sun,
   User,
@@ -21,6 +24,8 @@ import { useTheme } from "@/app/theme-provider";
 import * as React from "react";
 
 import { aboutMe } from "@/features/resume/data/about-me";
+import { usePathname, useRouter } from "next/navigation";
+import { reading } from "@/features/reading/data/reading";
 
 type ItemDef = {
   id: string;
@@ -52,13 +57,21 @@ export function CommandPalette() {
   const [open, setOpen] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
   const { setTheme, resolvedTheme } = useTheme();
+  const pathname = usePathname();
+  const router = useRouter();
 
-  // Toggle on ⌘K / Ctrl+K
+  // Toggle on ⌘K / Ctrl+K, open on /
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen((v) => !v);
+      }
+      if (e.key === "/" && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        const tag = (e.target as HTMLElement)?.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+        e.preventDefault();
+        setOpen(true);
       }
     };
     document.addEventListener("keydown", onKey);
@@ -77,38 +90,97 @@ export function CommandPalette() {
 
   const isDark = resolvedTheme === "dark";
 
-  const sections: ItemDef[] = [
-    { id: "jump-top", label: "Top of page", icon: User, perform: jumpTo("main") },
-    { id: "jump-experience", label: "Experience", icon: Briefcase, perform: jumpTo("experience") },
-    { id: "jump-projects", label: "Side projects", icon: Sparkles, perform: jumpTo("projects") },
-    { id: "jump-tools", label: "Tools", icon: Wrench, perform: jumpTo("tools") },
-    { id: "jump-education", label: "Education", icon: GraduationCap, perform: jumpTo("education") },
-  ];
+  const sections: ItemDef[] = React.useMemo(() => {
+    switch (pathname) {
+      case "/":
+        return [
+          { id: "jump-top", label: "Top of page", icon: User, perform: jumpTo("main") },
+          {
+            id: "jump-experience",
+            label: "Experience",
+            icon: Briefcase,
+            perform: jumpTo("experience"),
+          },
+          {
+            id: "jump-projects",
+            label: "Side projects",
+            icon: Sparkles,
+            perform: jumpTo("projects"),
+          },
+          { id: "jump-tools", label: "Tools", icon: Wrench, perform: jumpTo("tools") },
+          {
+            id: "jump-education",
+            label: "Education",
+            icon: GraduationCap,
+            perform: jumpTo("education"),
+          },
+        ];
+      case "/now":
+        return [
+          { id: "jump-focus", label: "Focus", icon: Sparkles, perform: jumpTo("focus") },
+          {
+            id: "jump-github",
+            label: "GitHub activity",
+            icon: Code,
+            perform: jumpTo("github-activity"),
+          },
+        ];
+      case "/reading":
+        return reading.map((shelf) => ({
+          id: `jump-${shelf.id}`,
+          label: shelf.label,
+          icon: BookOpen,
+          perform: jumpTo(shelf.id),
+        }));
+      case "/colophon":
+        return [
+          { id: "jump-stack", label: "Stack", icon: Wrench, perform: jumpTo("stack") },
+          { id: "jump-typography", label: "Typography", icon: User, perform: jumpTo("typography") },
+          { id: "jump-colors", label: "Color tokens", icon: Sparkles, perform: jumpTo("colors") },
+          { id: "jump-craft", label: "Craft", icon: Code, perform: jumpTo("craft") },
+          {
+            id: "jump-performance",
+            label: "Performance",
+            icon: Briefcase,
+            perform: jumpTo("performance"),
+          },
+          {
+            id: "jump-accessibility",
+            label: "Accessibility",
+            icon: GraduationCap,
+            perform: jumpTo("accessibility"),
+          },
+        ];
+      default:
+        return [];
+    }
+  }, [pathname]);
 
   const pages: ItemDef[] = [
-    {
-      id: "page-resume",
-      label: "/  ·  resume",
-      icon: User,
-      perform: () => {
-        window.location.href = "/";
-      },
-    },
+    { id: "page-resume", label: "/  ·  resume", icon: User, perform: () => router.push("/") },
     {
       id: "page-now",
       label: "/now  ·  what I'm doing now",
       icon: Sparkles,
-      perform: () => {
-        window.location.href = "/now";
-      },
+      perform: () => router.push("/now"),
     },
     {
       id: "page-reading",
       label: "/reading  ·  books I keep reaching for",
       icon: GraduationCap,
-      perform: () => {
-        window.location.href = "/reading";
-      },
+      perform: () => router.push("/reading"),
+    },
+    {
+      id: "page-colophon",
+      label: "/colophon  ·  how this site is built",
+      icon: Info,
+      perform: () => router.push("/colophon"),
+    },
+    {
+      id: "page-ollie",
+      label: "/ollie  ·  meet the dog",
+      icon: PawPrint,
+      perform: () => router.push("/ollie"),
     },
   ];
 
@@ -216,11 +288,13 @@ export function CommandPalette() {
             ))}
           </CommandGroup>
 
-          <CommandGroup label="Sections">
-            {sections.map((item) => (
-              <CommandItem key={item.id} item={item} onRun={run} />
-            ))}
-          </CommandGroup>
+          {sections.length > 0 ? (
+            <CommandGroup label="Sections">
+              {sections.map((item) => (
+                <CommandItem key={item.id} item={item} onRun={run} />
+              ))}
+            </CommandGroup>
+          ) : null}
 
           <CommandGroup label="Actions">
             {actions.map((item) => (

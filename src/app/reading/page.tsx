@@ -47,7 +47,7 @@ function BookRow({ book }: { book: Book }) {
 
 function Shelf({ shelf, index }: { shelf: ReadingShelf; index: string }) {
   return (
-    <section className="reveal flex flex-col gap-4">
+    <section id={shelf.id} className="reveal flex flex-col gap-4 scroll-mt-20">
       <SectionLabel index={index}>{shelf.label}</SectionLabel>
       {shelf.blurb ? (
         <p className="text-[13px] leading-relaxed text-muted-foreground">{shelf.blurb}</p>

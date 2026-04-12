@@ -74,7 +74,7 @@ export default async function NowPage() {
       </header>
 
       {/* Focus blocks — static */}
-      <section className="reveal reveal-1 flex flex-col gap-4">
+      <section id="focus" className="reveal reveal-1 flex flex-col gap-4 scroll-mt-20">
         <SectionLabel index="01">Focus</SectionLabel>
         <div className="flex flex-col">
           {nowState.focus.map((item) => {
@@ -108,7 +108,7 @@ export default async function NowPage() {
       </section>
 
       {/* GitHub activity — derived */}
-      <section className="reveal reveal-2 flex flex-col gap-4">
+      <section id="github-activity" className="reveal reveal-2 flex flex-col gap-4 scroll-mt-20">
         <SectionLabel index="02">GitHub activity</SectionLabel>
 
         {graph ? (

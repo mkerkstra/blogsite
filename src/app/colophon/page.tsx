@@ -29,7 +29,7 @@ export default function ColophonPage() {
       </header>
 
       {/* Stack */}
-      <section className="reveal reveal-1 flex flex-col gap-4">
+      <section id="stack" className="reveal reveal-1 flex flex-col gap-4 scroll-mt-20">
         <SectionLabel index="01">Stack</SectionLabel>
         <div className="flex flex-col">
           {stack.map((item) => (
@@ -47,7 +47,7 @@ export default function ColophonPage() {
       </section>
 
       {/* Typography */}
-      <section className="reveal reveal-2 flex flex-col gap-4">
+      <section id="typography" className="reveal reveal-2 flex flex-col gap-4 scroll-mt-20">
         <SectionLabel index="02">Typography</SectionLabel>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-1 border-t border-border pt-4">
@@ -86,7 +86,7 @@ export default function ColophonPage() {
       </section>
 
       {/* Color Tokens */}
-      <section className="reveal reveal-3 flex flex-col gap-4">
+      <section id="colors" className="reveal reveal-3 flex flex-col gap-4 scroll-mt-20">
         <SectionLabel index="03">Color tokens</SectionLabel>
         <div className="flex flex-col gap-6">
           {tokenGroups.map((group) => (
@@ -116,7 +116,7 @@ export default function ColophonPage() {
       </section>
 
       {/* Craft Notes */}
-      <section className="reveal reveal-4 flex flex-col gap-4">
+      <section id="craft" className="reveal reveal-4 flex flex-col gap-4 scroll-mt-20">
         <SectionLabel index="04">Craft</SectionLabel>
         <ul className="flex flex-col gap-2">
           {craftNotes.map((note) => (
@@ -134,13 +134,13 @@ export default function ColophonPage() {
       </section>
 
       {/* Performance */}
-      <section className="reveal reveal-4 flex flex-col gap-4">
+      <section id="performance" className="reveal reveal-4 flex flex-col gap-4 scroll-mt-20">
         <SectionLabel index="05">Performance</SectionLabel>
         <LighthouseScores />
       </section>
 
       {/* Accessibility */}
-      <section className="reveal reveal-4 flex flex-col gap-4">
+      <section id="accessibility" className="reveal reveal-4 flex flex-col gap-4 scroll-mt-20">
         <SectionLabel index="06">How this site builds accessibility in</SectionLabel>
         <p className="text-[13px] leading-[1.7] text-muted-foreground">
           These are the choices behind the 100.
