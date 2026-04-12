@@ -1,6 +1,8 @@
 import { ArrowUpRight } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { projects } from "../data/projects";
+import { Widget } from "./widgets";
 
 export function Projects() {
   return (
@@ -8,7 +10,12 @@ export function Projects() {
       {projects.map((project) => (
         <div
           key={project.name}
-          className="grid grid-cols-1 gap-2 border-t border-border py-4 md:grid-cols-[7rem_1fr] md:gap-8"
+          className={cn(
+            "grid gap-2 border-t border-border py-4 md:gap-8",
+            project.widget
+              ? "grid-cols-1 md:grid-cols-[7rem_1fr_200px]"
+              : "grid-cols-1 md:grid-cols-[7rem_1fr]",
+          )}
         >
           <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground md:text-right">
             {project.url}
@@ -26,6 +33,7 @@ export function Projects() {
             <p className="text-[12.5px] text-muted-foreground">{project.blurb}</p>
             <p className="font-mono text-[11px] text-muted-foreground">{project.role}</p>
           </div>
+          {project.widget ? <Widget id={project.widget} /> : null}
         </div>
       ))}
     </div>

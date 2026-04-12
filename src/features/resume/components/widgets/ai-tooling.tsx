@@ -6,10 +6,10 @@ export function AiTooling() {
       <svg
         viewBox="0 0 220 96"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-[88px] w-full"
+        className="h-[88px] w-full font-mono"
         aria-hidden="true"
       >
-        <g fontFamily="monospace" fontSize="7" fill="hsl(var(--muted-foreground))">
+        <g fontSize="7" fill="hsl(var(--muted-foreground))">
           <text x="18" y="22">
             01
           </text>
@@ -42,15 +42,7 @@ export function AiTooling() {
           stroke="currentColor"
         />
         <rect x="132" y="42" width="1.5" height="12" fill="currentColor" className="widget-blink" />
-        <text
-          x="200"
-          y="50"
-          textAnchor="end"
-          fontFamily="monospace"
-          fontSize="6"
-          fill="currentColor"
-          opacity="0.6"
-        >
+        <text x="200" y="50" textAnchor="end" fontSize="6" fill="currentColor" opacity="0.6">
           ↩ accept
         </text>
       </svg>

@@ -1,8 +1,10 @@
 import { ArrowUpRight } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { experience, type Job } from "../data/experience";
 import { calculateDuration, formatMonthYear, formatYear } from "../lib/dates";
 import { renderBold } from "../lib/render-bold";
+import { Widget } from "./widgets";
 
 function JobBlock({ job }: { job: Job }) {
   const end = job.role.time.end ?? new Date();
@@ -49,18 +51,30 @@ function JobBlock({ job }: { job: Job }) {
           </div>
         </div>
         {job.role.overview ? (
-          <p className="font-mono text-[12px] italic text-muted-foreground">{job.role.overview}</p>
+          <p className="font-display text-[13px] italic text-muted-foreground">
+            {job.role.overview}
+          </p>
         ) : null}
         <ul className="flex flex-col gap-2.5 text-[12.5px] leading-[1.65]">
           {job.highlights.map((h, i) => (
-            <li key={h.text} className="flex gap-2.5">
-              <span
-                aria-hidden
-                className="mt-[3px] shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground"
-              >
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span className="text-foreground/90">{renderBold(h.text)}</span>
+            <li
+              key={h.text}
+              className={cn(
+                h.widget
+                  ? "flex flex-col gap-2.5 md:grid md:grid-cols-[auto_1fr_200px] md:items-start md:gap-3"
+                  : "flex gap-2.5",
+              )}
+            >
+              <div className="flex gap-2.5 md:contents">
+                <span
+                  aria-hidden
+                  className="mt-[3px] shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground"
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="text-foreground/90">{renderBold(h.text)}</span>
+              </div>
+              {h.widget ? <Widget id={h.widget} /> : null}
             </li>
           ))}
         </ul>

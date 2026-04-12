@@ -6,11 +6,11 @@ export function CompoundingArc() {
       <svg
         viewBox="0 0 220 96"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-[88px] w-full"
+        className="h-[88px] w-full font-mono"
         aria-hidden="true"
       >
         <line x1="14" y1="80" x2="210" y2="80" stroke="currentColor" opacity="0.4" />
-        <g fontFamily="monospace" fontSize="7" fill="hsl(var(--muted-foreground))">
+        <g fontSize="7" fill="hsl(var(--muted-foreground))">
           <text x="18" y="90">
             {"'23"}
           </text>

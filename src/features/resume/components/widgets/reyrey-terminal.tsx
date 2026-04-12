@@ -6,7 +6,7 @@ export function ReyreyTerminal() {
       <svg
         viewBox="0 0 220 96"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-[88px] w-full"
+        className="h-[88px] w-full font-mono"
         aria-hidden="true"
       >
         {/* frame */}
@@ -20,18 +20,11 @@ export function ReyreyTerminal() {
         />
         {/* title bar */}
         <rect x="10" y="10" width="200" height="14" fill="currentColor" />
-        <text
-          x="16"
-          y="20"
-          fontFamily="monospace"
-          fontSize="7"
-          fill="hsl(var(--background))"
-          fontWeight="500"
-        >
+        <text x="16" y="20" fontSize="7" fill="hsl(var(--background))" fontWeight="500">
           ▌ FORM-VCS · VB6→PICK · 0042 FORMS
         </text>
         {/* content */}
-        <g fontFamily="monospace" fontSize="7" fill="currentColor">
+        <g fontSize="7" fill="currentColor">
           <text x="16" y="36">
             {"> LIST ACTIVE"}
           </text>

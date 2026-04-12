@@ -6,7 +6,7 @@ export function FraudFilter() {
       <svg
         viewBox="0 0 220 96"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-[88px] w-full"
+        className="h-[88px] w-full font-mono"
         aria-hidden="true"
       >
         <g fill="currentColor" opacity="0.6">
@@ -25,14 +25,7 @@ export function FraudFilter() {
           strokeWidth="1.5"
           strokeDasharray="2 2"
         />
-        <text
-          x="58"
-          y="92"
-          textAnchor="middle"
-          fontFamily="monospace"
-          fontSize="6"
-          fill="hsl(var(--muted-foreground))"
-        >
+        <text x="58" y="92" textAnchor="middle" fontSize="6" fill="hsl(var(--muted-foreground))">
           check
         </text>
         <g fill="hsl(var(--background))" stroke="currentColor">
@@ -42,25 +35,13 @@ export function FraudFilter() {
         </g>
         <rect x="84" y="44" width="24" height="6" fill="hsl(var(--accent))" stroke="currentColor" />
         <rect x="84" y="68" width="24" height="6" fill="hsl(var(--accent))" stroke="currentColor" />
-        <text
-          x="128"
-          y="26"
-          fontFamily="monospace"
-          fontSize="8"
-          fill="hsl(var(--muted-foreground))"
-        >
+        <text x="128" y="26" fontSize="8" fill="hsl(var(--muted-foreground))">
           accept
         </text>
-        <text x="128" y="72" fontFamily="monospace" fontSize="8" fill="currentColor">
+        <text x="128" y="72" fontSize="8" fill="currentColor">
           reject
         </text>
-        <text
-          x="128"
-          y="82"
-          fontFamily="monospace"
-          fontSize="7"
-          fill="hsl(var(--muted-foreground))"
-        >
+        <text x="128" y="82" fontSize="7" fill="hsl(var(--muted-foreground))">
           embargoed / risk
         </text>
       </svg>

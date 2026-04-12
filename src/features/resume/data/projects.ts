@@ -17,5 +17,6 @@ export const projects: Project[] = [
     blurb:
       "AI-powered companion for tabletop RPG dungeon masters. Co-built with a group of long-time friends who are also software devs.",
     role: "TypeScript · Next.js · Go",
+    widget: "battle-map",
   },
 ];

@@ -6,11 +6,11 @@ export function Huddle() {
       <svg
         viewBox="0 0 220 96"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-[88px] w-full"
+        className="h-[88px] w-full font-mono"
         aria-hidden="true"
       >
         {/* Row 1 — 08:30 */}
-        <text x="14" y="25" fontFamily="monospace" fontSize="7" fill="hsl(var(--muted-foreground))">
+        <text x="14" y="25" fontSize="7" fill="hsl(var(--muted-foreground))">
           08:30
         </text>
         <rect x="44" y="18" width="90" height="10" fill="currentColor" opacity="0.55" />
@@ -35,7 +35,7 @@ export function Huddle() {
         <circle cx="192" cy="23" r="3" fill="currentColor" opacity="0.5" />
 
         {/* Row 2 — 09:00 */}
-        <text x="14" y="43" fontFamily="monospace" fontSize="7" fill="hsl(var(--muted-foreground))">
+        <text x="14" y="43" fontSize="7" fill="hsl(var(--muted-foreground))">
           09:00
         </text>
         <rect x="44" y="36" width="76" height="10" fill="currentColor" opacity="0.55" />
@@ -51,14 +51,7 @@ export function Huddle() {
         <circle cx="192" cy="41" r="3" fill="currentColor" opacity="0.5" />
 
         {/* Row 3 — 09:30 ACTIVE */}
-        <text
-          x="14"
-          y="61"
-          fontFamily="monospace"
-          fontSize="7"
-          fill="currentColor"
-          fontWeight="500"
-        >
+        <text x="14" y="61" fontSize="7" fill="currentColor" fontWeight="500">
           09:30
         </text>
         <rect x="44" y="54" width="96" height="10" fill="currentColor" opacity="0.9" />
@@ -92,7 +85,7 @@ export function Huddle() {
         <circle cx="202" cy="59" r="3.5" fill="hsl(var(--accent))" stroke="currentColor" />
 
         {/* Row 4 — 10:00 */}
-        <text x="14" y="79" fontFamily="monospace" fontSize="7" fill="hsl(var(--muted-foreground))">
+        <text x="14" y="79" fontSize="7" fill="hsl(var(--muted-foreground))">
           10:00
         </text>
         <rect x="44" y="72" width="82" height="10" fill="currentColor" opacity="0.55" />
