@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   experimental: {
+    inlineCss: true,
     optimizePackageImports: ["lucide-react", "date-fns"],
   },
   // Modern browsers fetch /icon.svg via the <link rel="icon"> tag, but

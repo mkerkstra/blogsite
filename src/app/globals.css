@@ -273,13 +273,15 @@
   }
 }
 
+/* Opacity removed — reveal elements are the LCP candidates on most pages.
+   Chromium excludes opacity:0 from LCP, so animating from opacity:0 delays
+   LCP measurement by the full animation duration (~3s render delay observed).
+   The translateY rise is preserved for the settling aesthetic. */
 @keyframes reveal {
   from {
-    opacity: 0;
     transform: translateY(8px);
   }
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }
