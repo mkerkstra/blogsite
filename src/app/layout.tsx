@@ -7,7 +7,7 @@ import { Hanken_Grotesk, JetBrains_Mono, Newsreader } from "next/font/google";
 import Script from "next/script";
 
 import { ThemeProvider } from "@/app/theme-provider";
-import { CommandPalette } from "@/components/command-palette";
+import { CommandPaletteLazy } from "@/components/command-palette-lazy";
 import { Footer } from "@/features/resume/components/footer";
 import { Navbar } from "@/features/resume/components/navbar";
 
@@ -27,14 +27,14 @@ const THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem('theme');v
 
 const sans = Hanken_Grotesk({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600"],
   variable: "--font-sans",
   display: "swap",
 });
 
 const display = Newsreader({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400"],
   style: ["italic"],
   variable: "--font-display",
   display: "swap",
@@ -42,7 +42,7 @@ const display = Newsreader({
 
 const mono = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "600"],
   variable: "--font-mono",
   display: "swap",
 });
@@ -140,7 +140,7 @@ export default function RootLayout({
             </main>
             <Footer />
           </div>
-          <CommandPalette />
+          <CommandPaletteLazy />
           <Analytics />
           <SpeedInsights />
         </ThemeProvider>
