@@ -24,6 +24,9 @@ export function Navbar() {
           <Link href="/reading" className="no-underline transition-colors hover:text-accent">
             /reading
           </Link>
+          <Link href="/lab" className="no-underline transition-colors hover:text-accent">
+            /lab
+          </Link>
         </nav>
         <div className="flex items-center gap-1">
           <CommandPaletteHint />
