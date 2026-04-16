@@ -51,7 +51,7 @@ export const sections: ExperimentSection[] = [
       {
         slug: "sorting",
         title: "Sorting",
-        description: "Quicksort vs mergesort vs heapsort. Side-by-side race.",
+        description: "Eight algorithms race side-by-side. Pick three, tune the input.",
       },
       {
         slug: "pathfinding",

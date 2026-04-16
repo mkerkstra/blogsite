@@ -24,6 +24,18 @@ interface AlgoState {
 
 type RunState = "idle" | "running" | "paused" | "done";
 
+type AlgoId =
+  | "quicksort"
+  | "mergesort"
+  | "heapsort"
+  | "insertion"
+  | "selection"
+  | "bubble"
+  | "shell"
+  | "radix";
+
+type Distribution = "random" | "reversed" | "nearly" | "few";
+
 /* ────────────────────────────────────────────
    Generator-based sorting algorithms
    Each yields after every comparison or swap.
@@ -125,12 +137,10 @@ function* heapsortGen(arr: number[]): Generator<Step, void, undefined> {
     }
   }
 
-  // Build max-heap
   for (let i = (n >> 1) - 1; i >= 0; i--) {
     yield* heapify(n, i);
   }
 
-  // Extract
   for (let end = n - 1; end > 0; end--) {
     yield { type: "swap", indices: [0, end] };
     [arr[0], arr[end]] = [arr[end], arr[0]];
@@ -140,12 +150,168 @@ function* heapsortGen(arr: number[]): Generator<Step, void, undefined> {
   yield { type: "done", indices: [0, 0] };
 }
 
+function* insertionGen(arr: number[]): Generator<Step, void, undefined> {
+  for (let i = 1; i < arr.length; i++) {
+    let j = i;
+    while (j > 0) {
+      yield { type: "compare", indices: [j - 1, j] };
+      if (arr[j - 1] <= arr[j]) break;
+      yield { type: "swap", indices: [j - 1, j] };
+      [arr[j - 1], arr[j]] = [arr[j], arr[j - 1]];
+      j--;
+    }
+  }
+  yield { type: "done", indices: [0, 0] };
+}
+
+function* selectionGen(arr: number[]): Generator<Step, void, undefined> {
+  for (let i = 0; i < arr.length - 1; i++) {
+    let minIdx = i;
+    for (let j = i + 1; j < arr.length; j++) {
+      yield { type: "compare", indices: [j, minIdx] };
+      if (arr[j] < arr[minIdx]) minIdx = j;
+    }
+    if (minIdx !== i) {
+      yield { type: "swap", indices: [i, minIdx] };
+      [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
+    }
+  }
+  yield { type: "done", indices: [0, 0] };
+}
+
+function* bubbleGen(arr: number[]): Generator<Step, void, undefined> {
+  for (let i = 0; i < arr.length - 1; i++) {
+    let swapped = false;
+    for (let j = 0; j < arr.length - 1 - i; j++) {
+      yield { type: "compare", indices: [j, j + 1] };
+      if (arr[j] > arr[j + 1]) {
+        yield { type: "swap", indices: [j, j + 1] };
+        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+        swapped = true;
+      }
+    }
+    if (!swapped) break;
+  }
+  yield { type: "done", indices: [0, 0] };
+}
+
+function* shellGen(arr: number[]): Generator<Step, void, undefined> {
+  // Ciura gap sequence
+  const gaps = [701, 301, 132, 57, 23, 10, 4, 1].filter((g) => g < arr.length);
+  if (gaps.length === 0 || gaps[gaps.length - 1] !== 1) gaps.push(1);
+
+  for (const gap of gaps) {
+    for (let i = gap; i < arr.length; i++) {
+      let j = i;
+      while (j >= gap) {
+        yield { type: "compare", indices: [j - gap, j] };
+        if (arr[j - gap] <= arr[j]) break;
+        yield { type: "swap", indices: [j - gap, j] };
+        [arr[j - gap], arr[j]] = [arr[j], arr[j - gap]];
+        j -= gap;
+      }
+    }
+  }
+  yield { type: "done", indices: [0, 0] };
+}
+
+function* radixGen(arr: number[]): Generator<Step, void, undefined> {
+  // LSD radix sort (base 10) on integer part of values 0-99
+  // We treat the array as integers for bucketing, preserving exact values
+  const maxVal = Math.max(...arr);
+  const digits = maxVal > 0 ? Math.floor(Math.log10(maxVal)) + 1 : 1;
+
+  for (let d = 0; d < digits; d++) {
+    const buckets: number[][] = Array.from({ length: 10 }, () => []);
+    const divisor = 10 ** d;
+
+    // Distribute into buckets
+    for (let i = 0; i < arr.length; i++) {
+      const digit = Math.floor(arr[i] / divisor) % 10;
+      buckets[digit].push(arr[i]);
+      yield { type: "compare", indices: [i, i] };
+    }
+
+    // Collect from buckets back into array
+    let idx = 0;
+    for (const bucket of buckets) {
+      for (const val of bucket) {
+        arr[idx] = val;
+        yield { type: "swap", indices: [idx, idx] };
+        idx++;
+      }
+    }
+  }
+  yield { type: "done", indices: [0, 0] };
+}
+
+/* ────────────────────────────────────────────
+   Algorithm registry
+   ──────────────────────────────────────────── */
+
+const ALGO_REGISTRY: Record<
+  AlgoId,
+  { label: string; gen: (a: number[]) => Generator<Step, void, undefined> }
+> = {
+  quicksort: { label: "Quick", gen: quicksortGen },
+  mergesort: { label: "Merge", gen: mergesortGen },
+  heapsort: { label: "Heap", gen: heapsortGen },
+  insertion: { label: "Insertion", gen: insertionGen },
+  selection: { label: "Selection", gen: selectionGen },
+  bubble: { label: "Bubble", gen: bubbleGen },
+  shell: { label: "Shell", gen: shellGen },
+  radix: { label: "Radix", gen: radixGen },
+};
+
+const ALL_ALGOS: AlgoId[] = [
+  "quicksort",
+  "mergesort",
+  "heapsort",
+  "insertion",
+  "selection",
+  "bubble",
+  "shell",
+  "radix",
+];
+
+const SIZES = [30, 60, 120, 200] as const;
+
+const DISTRIBUTIONS: { id: Distribution; label: string }[] = [
+  { id: "random", label: "Random" },
+  { id: "reversed", label: "Reversed" },
+  { id: "nearly", label: "Nearly" },
+  { id: "few", label: "Few unique" },
+];
+
 /* ────────────────────────────────────────────
    Helpers
    ──────────────────────────────────────────── */
 
-function generateArray(len: number): number[] {
-  return Array.from({ length: len }, () => 5 + Math.random() * 90);
+function generateArray(len: number, dist: Distribution): number[] {
+  switch (dist) {
+    case "random":
+      return Array.from({ length: len }, () => 5 + Math.random() * 90);
+    case "reversed":
+      return Array.from({ length: len }, (_, i) => 5 + ((len - 1 - i) / (len - 1)) * 90);
+    case "nearly": {
+      // Sorted with ~10% elements swapped
+      const arr = Array.from({ length: len }, (_, i) => 5 + (i / (len - 1)) * 90);
+      const swapCount = Math.max(1, Math.floor(len * 0.1));
+      for (let s = 0; s < swapCount; s++) {
+        const a = Math.floor(Math.random() * len);
+        const b = Math.floor(Math.random() * len);
+        [arr[a], arr[b]] = [arr[b], arr[a]];
+      }
+      return arr;
+    }
+    case "few": {
+      // Only 5-8 distinct values
+      const values = Array.from({ length: 5 + Math.floor(Math.random() * 4) }, () =>
+        Math.round(5 + Math.random() * 90),
+      );
+      return Array.from({ length: len }, () => values[Math.floor(Math.random() * values.length)]);
+    }
+  }
 }
 
 function createAlgoState(
@@ -178,6 +344,27 @@ export function Sorting() {
 
   const [runState, setRunState] = useState<RunState>("idle");
   const [speed, setSpeed] = useState(5);
+  const [selected, setSelected] = useState<[AlgoId, AlgoId, AlgoId]>([
+    "quicksort",
+    "mergesort",
+    "heapsort",
+  ]);
+  const [arraySize, setArraySize] = useState<number>(60);
+  const [distribution, setDistribution] = useState<Distribution>("random");
+
+  // Refs for config so animation loop can read latest values
+  const selectedRef = useRef(selected);
+  const arraySizeRef = useRef(arraySize);
+  const distributionRef = useRef(distribution);
+  useEffect(() => {
+    selectedRef.current = selected;
+  }, [selected]);
+  useEffect(() => {
+    arraySizeRef.current = arraySize;
+  }, [arraySize]);
+  useEffect(() => {
+    distributionRef.current = distribution;
+  }, [distribution]);
 
   /* ── Advance one algorithm by one step ── */
   const stepAlgo = useCallback((algo: AlgoState): void => {
@@ -227,6 +414,7 @@ export function Sorting() {
     const algos = algosRef.current;
     if (algos.length === 0) return;
 
+    const panelCount = algos.length;
     const w = canvas.width;
     const h = canvas.height;
     const isDark = document.documentElement.classList.contains("dark");
@@ -242,18 +430,18 @@ export function Sorting() {
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
-    const panelW = w / 3;
+    const panelW = w / panelCount;
     const headerH = 48;
     const bottomPad = 80;
     const barAreaH = h - headerH - bottomPad;
     const dpr = window.devicePixelRatio || 1;
 
-    for (let p = 0; p < 3; p++) {
+    for (let p = 0; p < panelCount; p++) {
       const algo = algos[p];
       const x0 = p * panelW;
       const arr = algo.arr;
       const n = arr.length;
-      const gap = 1;
+      const gap = n > 100 ? 0 : 1;
       const totalGap = gap * (n - 1);
       const barW = Math.max(1, (panelW - 20 - totalGap) / n);
       const barStartX = x0 + 10;
@@ -283,7 +471,7 @@ export function Sorting() {
       }
 
       // Panel divider
-      if (p < 2) {
+      if (p < panelCount - 1) {
         ctx.strokeStyle = dividerColor;
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -294,19 +482,24 @@ export function Sorting() {
     }
   }, []);
 
+  /* ── Build algo states from current config ── */
+  const buildAlgos = useCallback(() => {
+    const sel = selectedRef.current;
+    const base = generateArray(arraySizeRef.current, distributionRef.current);
+    algosRef.current = sel.map((id) => {
+      const reg = ALGO_REGISTRY[id];
+      return createAlgoState(reg.label, base, reg.gen);
+    });
+  }, []);
+
   /* ── Reset / generate ── */
   const reset = useCallback(() => {
     cancelAnimationFrame(rafRef.current);
-    const base = generateArray(60);
-    algosRef.current = [
-      createAlgoState("quicksort", base, quicksortGen),
-      createAlgoState("mergesort", base, mergesortGen),
-      createAlgoState("heapsort", base, heapsortGen),
-    ];
+    buildAlgos();
     stateRef.current = "idle";
     setRunState("idle");
     draw();
-  }, [draw]);
+  }, [draw, buildAlgos]);
 
   /* ── Animation loop ── */
   const loop = useCallback(() => {
@@ -357,12 +550,7 @@ export function Sorting() {
     resize();
 
     // Generate initial array
-    const base = generateArray(60);
-    algosRef.current = [
-      createAlgoState("quicksort", base, quicksortGen),
-      createAlgoState("mergesort", base, mergesortGen),
-      createAlgoState("heapsort", base, heapsortGen),
-    ];
+    buildAlgos();
     draw();
 
     // Auto-start unless reduced motion
@@ -382,7 +570,7 @@ export function Sorting() {
       cancelAnimationFrame(rafRef.current);
       observer.disconnect();
     };
-  }, [draw, loop]);
+  }, [draw, loop, buildAlgos]);
 
   const handleSpeedChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const v = Number(e.target.value);
@@ -392,7 +580,6 @@ export function Sorting() {
 
   const handleGenerate = useCallback(() => {
     reset();
-    // Auto-start after generating
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!reduced) {
       stateRef.current = "running";
@@ -400,6 +587,35 @@ export function Sorting() {
       rafRef.current = requestAnimationFrame(loop);
     }
   }, [reset, loop]);
+
+  /* ── Slot cycling: click a panel header to cycle its algorithm ── */
+  const cycleSlot = useCallback((slot: 0 | 1 | 2) => {
+    setSelected((prev) => {
+      const next = [...prev] as [AlgoId, AlgoId, AlgoId];
+      const current = prev[slot];
+      const currentIdx = ALL_ALGOS.indexOf(current);
+      // Find the next algorithm not already selected in another slot
+      for (let offset = 1; offset <= ALL_ALGOS.length; offset++) {
+        const candidate = ALL_ALGOS[(currentIdx + offset) % ALL_ALGOS.length];
+        if (!prev.includes(candidate) || candidate === current) {
+          next[slot] = candidate;
+          break;
+        }
+      }
+      return next;
+    });
+  }, []);
+
+  // When config changes, rebuild and restart
+  useEffect(() => {
+    handleGenerate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, arraySize, distribution]);
+
+  const btnBase =
+    "font-mono text-[10px] uppercase tracking-[0.12em] transition-colors px-1.5 py-0.5";
+  const btnActive = "text-foreground/80";
+  const btnInactive = "text-foreground/30 hover:text-foreground/50";
 
   return (
     <>
@@ -411,44 +627,87 @@ export function Sorting() {
       />
       {/* Controls overlay */}
       <div
-        className="fixed bottom-16 left-1/2 z-10 flex -translate-x-1/2 items-center gap-3 rounded bg-background/60 px-4 py-2 backdrop-blur-sm"
+        className="fixed bottom-16 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1.5 rounded bg-background/60 px-4 py-2.5 backdrop-blur-sm"
         style={{ zIndex: 10 }}
       >
-        <button
-          onClick={handleGenerate}
-          className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60 transition-colors hover:text-foreground/90"
-        >
-          generate
-        </button>
-        <span className="text-foreground/10">|</span>
-        <button
-          onClick={runState === "running" ? pause : play}
-          disabled={runState === "done"}
-          className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60 transition-colors hover:text-foreground/90 disabled:text-foreground/20"
-        >
-          {runState === "running" ? "pause" : "play"}
-        </button>
-        <span className="text-foreground/10">|</span>
-        <button
-          onClick={manualStep}
-          disabled={runState === "running" || runState === "done"}
-          className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60 transition-colors hover:text-foreground/90 disabled:text-foreground/20"
-        >
-          step
-        </button>
-        <span className="text-foreground/10">|</span>
-        <label className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40">
-          spd
-          <input
-            type="range"
-            min={1}
-            max={50}
-            value={speed}
-            onChange={handleSpeedChange}
-            className="h-1 w-16 cursor-pointer appearance-none rounded bg-foreground/10 accent-foreground/40"
-          />
-          <span className="w-5 text-right tabular-nums text-foreground/60">{speed}</span>
-        </label>
+        {/* Row 1: Algorithm slots */}
+        <div className="flex items-center gap-1">
+          {([0, 1, 2] as const).map((slot) => (
+            <button
+              key={slot}
+              onClick={() => cycleSlot(slot)}
+              title="Click to cycle algorithm"
+              className={`${btnBase} ${btnActive} rounded border border-foreground/10 px-2 py-0.5`}
+            >
+              {ALGO_REGISTRY[selected[slot]].label}
+            </button>
+          ))}
+
+          <span className="mx-1 h-3 w-px bg-foreground/10" />
+
+          {/* Array size */}
+          {SIZES.map((n) => (
+            <button
+              key={n}
+              onClick={() => setArraySize(n)}
+              className={`${btnBase} ${arraySize === n ? btnActive : btnInactive}`}
+            >
+              {n}
+            </button>
+          ))}
+
+          <span className="mx-1 h-3 w-px bg-foreground/10" />
+
+          {/* Distribution */}
+          {DISTRIBUTIONS.map((d) => (
+            <button
+              key={d.id}
+              onClick={() => setDistribution(d.id)}
+              className={`${btnBase} ${distribution === d.id ? btnActive : btnInactive}`}
+            >
+              {d.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Row 2: Playback controls */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleGenerate}
+            className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60 transition-colors hover:text-foreground/90"
+          >
+            generate
+          </button>
+          <span className="text-foreground/10">|</span>
+          <button
+            onClick={runState === "running" ? pause : play}
+            disabled={runState === "done"}
+            className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60 transition-colors hover:text-foreground/90 disabled:text-foreground/20"
+          >
+            {runState === "running" ? "pause" : "play"}
+          </button>
+          <span className="text-foreground/10">|</span>
+          <button
+            onClick={manualStep}
+            disabled={runState === "running" || runState === "done"}
+            className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60 transition-colors hover:text-foreground/90 disabled:text-foreground/20"
+          >
+            step
+          </button>
+          <span className="text-foreground/10">|</span>
+          <label className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40">
+            spd
+            <input
+              type="range"
+              min={1}
+              max={50}
+              value={speed}
+              onChange={handleSpeedChange}
+              className="h-1 w-16 cursor-pointer appearance-none rounded bg-foreground/10 accent-foreground/40"
+            />
+            <span className="w-5 text-right tabular-nums text-foreground/60">{speed}</span>
+          </label>
+        </div>
       </div>
     </>
   );

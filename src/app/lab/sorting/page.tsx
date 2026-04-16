@@ -4,7 +4,7 @@ import { Sorting } from "@/features/lab/components/sorting";
 
 export const metadata: Metadata = {
   title: "Sorting",
-  description: "Quicksort vs mergesort vs heapsort — side-by-side race.",
+  description: "Eight sorting algorithms race side-by-side. Pick three, tune the input.",
   alternates: { canonical: "/lab/sorting" },
 };
 
@@ -24,14 +24,14 @@ export default function SortingPage() {
         <div className="mt-2 rounded bg-background/80 p-3 backdrop-blur-sm">
           <div className="space-y-2 font-mono text-[10px] leading-relaxed text-foreground/50">
             <p>
-              Three sorting algorithms race on identical copies of a random array. Quicksort
-              partitions around a pivot. Mergesort divides and conquers. Heapsort builds a max-heap
-              and extracts.
+              Pick any three from eight algorithms. Quick, merge, heap, shell are O(n log n).
+              Insertion, selection, bubble are O(n&#178;). Radix is O(d*n). Click an algorithm name
+              to cycle it.
             </p>
             <p>
-              Each bar is one element. Highlighted bars show the current comparison. The counter
-              tracks total comparisons. Same input, different strategies, different performance
-              profiles.
+              Try reversed input with bubble sort vs quicksort, or nearly-sorted with insertion
+              sort. Each bar is one element. The counter tracks comparisons and swaps. Same input,
+              different strategies.
             </p>
           </div>
         </div>

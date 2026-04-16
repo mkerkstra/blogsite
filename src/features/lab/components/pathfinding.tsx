@@ -341,6 +341,8 @@ export function Pathfinding() {
     s.cols = cols;
     s.cellSize = cellSize;
 
+    if (rows === 0 || cols === 0) return;
+
     // Preserve walls that still fit; rebuild grid
     const oldGrid = s.grid;
     s.grid = Array.from({ length: rows }, (_, r) =>
@@ -350,8 +352,11 @@ export function Pathfinding() {
     );
 
     // Clamp start/end
-    s.start = [Math.min(s.start[0], rows - 1), Math.min(s.start[1], cols - 1)];
-    s.end = [Math.min(s.end[0], rows - 1), Math.min(s.end[1], cols - 1)];
+    s.start = [
+      Math.max(0, Math.min(s.start[0], rows - 1)),
+      Math.max(0, Math.min(s.start[1], cols - 1)),
+    ];
+    s.end = [Math.max(0, Math.min(s.end[0], rows - 1)), Math.max(0, Math.min(s.end[1], cols - 1))];
 
     // Default positions
     if (oldGrid.length === 0 || s.start[0] >= rows || s.start[1] >= cols) {
