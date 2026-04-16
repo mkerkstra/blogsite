@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 import { RayMarch } from "@/features/lab/components/ray-march";
 
-export const metadata: Metadata = {
-  title: "Ray March",
-  description: "Signed distance field rendering in a fragment shader.",
-  alternates: { canonical: "/lab/ray-march" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "ray-march",
+  "Ray March",
+  "Signed distance field rendering in a fragment shader.",
+);
 
 export default function RayMarchPage() {
   return (
@@ -22,6 +23,7 @@ export default function RayMarchPage() {
           move to orbit
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           Every pixel fires a ray into a 3D scene defined entirely by a{" "}

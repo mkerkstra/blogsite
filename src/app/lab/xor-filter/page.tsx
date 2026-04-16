@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { XorFilter } from "@/features/lab/components/xor-filter";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "XOR Filter",
-  description: "Hypergraph peeling builds a fingerprint table. Three XORs answer membership.",
-  alternates: { canonical: "/lab/xor-filter" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "xor-filter",
+  "XOR Filter",
+  "Hypergraph peeling builds a fingerprint table. Three XORs answer membership.",
+);
 
 export default function XorFilterPage() {
   return (
@@ -22,6 +23,7 @@ export default function XorFilterPage() {
           watch the peel, then query
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           An XOR filter encodes set membership in a compact{" "}

@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { DoublePendulum } from "@/features/lab/components/double-pendulum";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Double Pendulum",
-  description: "Chaos in two arms. Nearly identical starts, wildly different paths.",
-  alternates: { canonical: "/lab/double-pendulum" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "double-pendulum",
+  "Double Pendulum",
+  "Chaos in two arms. Nearly identical starts, wildly different paths.",
+);
 
 export default function DoublePendulumPage() {
   return (
@@ -22,6 +23,7 @@ export default function DoublePendulumPage() {
           space to pause · r to reset
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           A <Term id="double-pendulum">double pendulum</Term> is two rigid arms connected end to

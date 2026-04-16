@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { Tokenizer } from "@/features/lab/components/tokenizer";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Tokenizer (BPE)",
-  description: "Byte-pair encoding. How text becomes tokens before the model ever sees it.",
-  alternates: { canonical: "/lab/tokenizer" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "tokenizer",
+  "Tokenizer (BPE)",
+  "Byte-pair encoding. How text becomes tokens before the model ever sees it.",
+);
 
 export default function TokenizerPage() {
   return (
@@ -22,6 +23,7 @@ export default function TokenizerPage() {
           space to pause · r to reset
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           Before a language model sees any text, a <Term id="bpe-tokenizer">tokenizer</Term> breaks

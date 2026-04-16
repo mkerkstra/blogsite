@@ -244,6 +244,17 @@
   }
 }
 
+/* Theme-conditional visibility for paired assets (e.g. /lab thumbnails
+   that ship dark + light variants). The theme-init script in layout.tsx
+   sets .light or .dark on <html> before paint, so the off-theme element
+   is never displayed and Chromium skips loading its image. */
+html.light .theme-only-dark {
+  display: none !important;
+}
+html.dark .theme-only-light {
+  display: none !important;
+}
+
 /* Page load — staggered reveal */
 .reveal {
   animation: reveal 700ms cubic-bezier(0.2, 0.6, 0.2, 1) backwards;

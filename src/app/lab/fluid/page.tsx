@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { Fluid } from "@/features/lab/components/fluid";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Fluid",
-  description: "Real-time Navier-Stokes fluid simulation on the GPU.",
-  alternates: { canonical: "/lab/fluid" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "fluid",
+  "Fluid",
+  "Real-time Navier-Stokes fluid simulation on the GPU.",
+);
 
 export default function FluidPage() {
   return (
@@ -22,6 +23,7 @@ export default function FluidPage() {
           drag to inject
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           A 2D velocity field evolves under the <Term id="navier-stokes">Navier-Stokes</Term>{" "}

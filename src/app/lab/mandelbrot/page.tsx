@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 import { Mandelbrot } from "@/features/lab/components/mandelbrot";
 
-export const metadata: Metadata = {
-  title: "Mandelbrot",
-  description: "GPU-rendered Mandelbrot set. Click to zoom, drag to pan.",
-  alternates: { canonical: "/lab/mandelbrot" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "mandelbrot",
+  "Mandelbrot",
+  "GPU-rendered Mandelbrot set. Click to zoom, drag to pan.",
+);
 
 export default function MandelbrotPage() {
   return (
@@ -22,6 +23,7 @@ export default function MandelbrotPage() {
           click to zoom, drag to pan
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           For each pixel, map its screen coordinates to a complex number c and iterate z = z*z + c

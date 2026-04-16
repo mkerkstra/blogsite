@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { Graph } from "@/features/lab/components/graph";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Graph",
-  description: "Tarjan's algorithm — find strongly connected components.",
-  alternates: { canonical: "/lab/graph" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "graph",
+  "Graph",
+  "Tarjan's algorithm — find strongly connected components.",
+);
 
 export default function GraphPage() {
   return (
@@ -22,6 +23,7 @@ export default function GraphPage() {
           tarjan&apos;s algorithm
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           A <Term id="scc">strongly connected component</Term> is a maximal set of nodes where every

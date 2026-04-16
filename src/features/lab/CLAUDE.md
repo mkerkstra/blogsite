@@ -53,3 +53,9 @@ src/
 9. **Command palette.** Experiment pages register a "How it works" entry in the command palette that dispatches a `toggle-lab-info` custom event.
 
 10. **Glossary terms.** Add definitions to `glossary.ts`, wrap jargon with `<Term id="...">`. Keep definitions under ~25 words. Use explicit `{" "}` spacers around `<Term>` when adjacent text crosses JSX line breaks.
+
+11. **Preview thumbnails.** After adding a lab, run `pnpm build:lab-thumbs` (dev server must be on :3000). The script captures both theme variants — `public/lab-previews/[slug].dark.png` and `[slug].light.png` — and copies the dark variant into `src/app/lab/[slug]/opengraph-image.png` automatically. The index grid swaps the visible variant via the `theme-only-dark` / `theme-only-light` CSS classes (defined in `globals.css`). Override with `LAB_THUMBS_THEME=dark|light|both` and `LAB_THUMBS_ONLY=slug,slug` for partial regenerations.
+
+12. **Per-lab metadata.** Use the `labMetadata(slug, title, description)` helper from `@/features/lab/lib/metadata` instead of hand-writing `metadata: Metadata`. It sets canonical, og:title, og:description, and og:url consistently.
+
+13. **LabActions chrome.** Every lab page already includes `<LabActions />` next to `<LabInfoPanel>`. It renders the top-right Fullscreen (`f`) + Record-WebM (`r`) controls. The recorder finds the largest `<canvas>` on the page via `findLargestCanvas()` and downloads up to 30s of `video/webm` (vp9 when supported). No per-lab config needed.

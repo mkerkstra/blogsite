@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { Fourier } from "@/features/lab/components/fourier";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Fourier",
-  description: "Draw a shape. Watch rotating circles recreate it.",
-  alternates: { canonical: "/lab/fourier" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "fourier",
+  "Fourier",
+  "Draw a shape. Watch rotating circles recreate it.",
+);
 
 export default function FourierPage() {
   return (
@@ -22,6 +23,7 @@ export default function FourierPage() {
           draw a shape
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           Any closed curve can be decomposed into a sum of rotating circles at different

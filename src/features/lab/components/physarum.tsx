@@ -41,8 +41,11 @@ in vec2 vUv;
 out vec4 fragColor;
 
 const float SENSOR_ANGLE = 0.45;
-const float SENSOR_DIST  = 9.0;
-const float STEP_SIZE    = 1.0;
+// Sensor + step distances doubled vs the original Jones reference because the
+// trail texture is now full canvas resolution (was canvas/2). Keeps agents
+// covering the same screen-space distance per frame.
+const float SENSOR_DIST  = 18.0;
+const float STEP_SIZE    = 2.0;
 const float TURN_SPEED   = 0.4;
 const float PI2 = 6.28318530718;
 
@@ -87,15 +90,18 @@ void main() {
     angle -= TURN_SPEED;
   }
 
-  // Mouse attraction — gentle bias toward cursor
-  vec2 toMouse = uMouse - vec2(x, y);
-  float mouseDist = length(toMouse);
-  float mouseInfluence = smoothstep(0.1, 0.0, mouseDist) * 0.15;
-  if (mouseInfluence > 0.0) {
-    float mouseAngle = atan(toMouse.y, toMouse.x);
-    float diff = mouseAngle - angle;
-    diff = mod(diff + 3.14159265, PI2) - 3.14159265;
-    angle += diff * mouseInfluence;
+  // Mouse attraction — only when cursor is on-canvas (uMouse.x < 0 sentinel
+   // disables it so agents don't pile at the default (0.5, 0.5) center).
+  if (uMouse.x >= 0.0) {
+    vec2 toMouse = uMouse - vec2(x, y);
+    float mouseDist = length(toMouse);
+    float mouseInfluence = smoothstep(0.22, 0.0, mouseDist) * 0.45;
+    if (mouseInfluence > 0.0) {
+      float mouseAngle = atan(toMouse.y, toMouse.x);
+      float diff = mouseAngle - angle;
+      diff = mod(diff + 3.14159265, PI2) - 3.14159265;
+      angle += diff * mouseInfluence;
+    }
   }
 
   // Move forward
@@ -129,7 +135,9 @@ void main() {
   ivec2 coord = ivec2(id % int(uAgentTexSize.x), id / int(uAgentTexSize.x));
   vec4 agent = texelFetch(uAgents, coord, 0);
   gl_Position = vec4(agent.xy * 2.0 - 1.0, 0.0, 1.0);
-  gl_PointSize = 1.0;
+  // 2px point compensates for the 4× larger trail texture so trail density
+  // per CSS pixel matches the original canvas/2 trail.
+  gl_PointSize = 2.0;
 }`;
 
 const DEPOSIT_FRAG = `#version 300 es
@@ -159,16 +167,20 @@ out vec4 fragColor;
 
 const float DECAY = 0.96;
 const float MAX_PHEROMONE = 0.6;
+// Weighted 3x3 kernel — center-heavy preserves sharper filaments than the
+// uniform box blur. Sums to 1.0 (0.5 + 8 * 0.0625).
+const float CENTER = 0.5;
+const float NEIGHBOR = 0.0625;
 
 void main() {
   float sum = 0.0;
   for (int dy = -1; dy <= 1; dy++) {
     for (int dx = -1; dx <= 1; dx++) {
-      sum += texture(uTrail, vUv + vec2(float(dx), float(dy)) * uTexel).r;
+      float w = (dx == 0 && dy == 0) ? CENTER : NEIGHBOR;
+      sum += texture(uTrail, vUv + vec2(float(dx), float(dy)) * uTexel).r * w;
     }
   }
-  float blurred = sum / 9.0;
-  fragColor = vec4(min(blurred * DECAY, MAX_PHEROMONE), 0.0, 0.0, 1.0);
+  fragColor = vec4(min(sum * DECAY, MAX_PHEROMONE), 0.0, 0.0, 1.0);
 }`;
 
 /* ────────────────────────────────────────────
@@ -202,8 +214,8 @@ void main() {
     f.y
   );
 
-  // Tone-map with wide dynamic range
-  float t = 1.0 - exp(-v * 3.0);
+  // Sharper tone-map — steep ramp then plateau gives crisper filament edges.
+  float t = 1.0 - exp(-v * 8.0);
 
   // Base: bg -> fg
   vec3 c = mix(uBg, uFg, t);
@@ -248,7 +260,14 @@ function createFBO(gl: WebGL2RenderingContext, tex: WebGLTexture) {
    Constants
    ──────────────────────────────────────────── */
 
-const AGENT_TEX_SIZE = 384; // 384*384 = 147456 agents
+// Agent count is computed at mount time as a function of the trail texture
+// area. Target ~12.5% raw deposit coverage; combined with gl_PointSize=2 each
+// agent paints ~4 trail texels per step, yielding ~50% effective coverage —
+// the original Jones-feel from a 384² grid on a 1454×810 viewport.
+const AGENT_DENSITY = 0.125;
+// Hard caps so very large or very small viewports stay reasonable.
+const MIN_AGENT_TEX = 256; // 65k agents
+const MAX_AGENT_TEX = 1024; // ~1M agents
 
 /* ────────────────────────────────────────────
    Component
@@ -281,11 +300,23 @@ export function Physarum() {
     gl.getExtension("OES_texture_float_linear");
 
     // ── Canvas & sim dimensions ──
+    // Backing buffer scaled by DPR; trail texture matches canvas 1:1 so the
+    // network is rendered at native pixel density (no bilinear-upsample blur).
+    const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    canvas.width = Math.round(rect.width);
-    canvas.height = Math.round(rect.height);
-    const tw = Math.ceil(canvas.width / 2);
-    const th = Math.ceil(canvas.height / 2);
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    const tw = canvas.width;
+    const th = canvas.height;
+
+    // Agent count proportional to viewport so the network density stays
+    // consistent across screen sizes / DPR.
+    const targetAgents = Math.floor(tw * th * AGENT_DENSITY);
+    const agentTexSize = Math.max(
+      MIN_AGENT_TEX,
+      Math.min(MAX_AGENT_TEX, Math.ceil(Math.sqrt(targetAgents))),
+    );
+    const agentCount = agentTexSize * agentTexSize;
 
     // ── Compile shaders ──
     const fullscreenVs = compileShader(gl, gl.VERTEX_SHADER, FULLSCREEN_VERT);
@@ -331,26 +362,30 @@ export function Physarum() {
     };
 
     // ── Agent textures (ping-pong) ──
-    const agentData = new Float32Array(AGENT_TEX_SIZE * AGENT_TEX_SIZE * 4);
-    for (let i = 0; i < AGENT_TEX_SIZE * AGENT_TEX_SIZE; i++) {
-      agentData[i * 4 + 0] = Math.random(); // x
-      agentData[i * 4 + 1] = Math.random(); // y
-      agentData[i * 4 + 2] = Math.random() * Math.PI * 2; // angle
-      agentData[i * 4 + 3] = 1.0;
-    }
+    const seedAgents = () => {
+      const data = new Float32Array(agentCount * 4);
+      for (let i = 0; i < agentCount; i++) {
+        data[i * 4 + 0] = Math.random();
+        data[i * 4 + 1] = Math.random();
+        data[i * 4 + 2] = Math.random() * Math.PI * 2;
+        data[i * 4 + 3] = 1.0;
+      }
+      return data;
+    };
+    const agentData = seedAgents();
 
     const agentTex0 = createFloatTex(
       gl,
-      AGENT_TEX_SIZE,
-      AGENT_TEX_SIZE,
+      agentTexSize,
+      agentTexSize,
       agentData,
       gl.CLAMP_TO_EDGE,
       gl.NEAREST,
     );
     const agentTex1 = createFloatTex(
       gl,
-      AGENT_TEX_SIZE,
-      AGENT_TEX_SIZE,
+      agentTexSize,
+      agentTexSize,
       null,
       gl.CLAMP_TO_EDGE,
       gl.NEAREST,
@@ -395,18 +430,69 @@ export function Physarum() {
     const depositVao = gl.createVertexArray();
 
     // ── Mouse state ──
-    const mouse = { x: 0.5, y: 0.5 };
+    // mouse.{x,y} drives the attractor; -1 disables it via the shader gate.
+    // Hover does nothing — only press-and-hold attracts. Shift-click resets.
+    const mouse = { x: -1, y: -1 };
+    const pointerPos = { x: 0.5, y: 0.5 };
+    let attracting = false;
+    const setMouseFromPointer = () => {
+      if (attracting) {
+        mouse.x = pointerPos.x;
+        mouse.y = pointerPos.y;
+      } else {
+        mouse.x = -1;
+        mouse.y = -1;
+      }
+    };
     const onMove = (e: PointerEvent) => {
-      mouse.x = e.clientX / window.innerWidth;
-      mouse.y = 1.0 - e.clientY / window.innerHeight;
+      pointerPos.x = e.clientX / window.innerWidth;
+      pointerPos.y = 1.0 - e.clientY / window.innerHeight;
+      setMouseFromPointer();
+    };
+    const dispersePulse = () => {
+      const fresh = seedAgents();
+      gl.bindTexture(gl.TEXTURE_2D, agentFbos[agentCur].tex);
+      gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        0,
+        0,
+        agentTexSize,
+        agentTexSize,
+        gl.RGBA,
+        gl.FLOAT,
+        fresh,
+      );
+      for (const { fbo } of trailFbos) {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+      }
+    };
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.shiftKey) {
+        dispersePulse();
+        return;
+      }
+      attracting = true;
+      pointerPos.x = e.clientX / window.innerWidth;
+      pointerPos.y = 1.0 - e.clientY / window.innerHeight;
+      setMouseFromPointer();
+    };
+    const onPointerUp = () => {
+      attracting = false;
+      setMouseFromPointer();
     };
     window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
+    canvas.addEventListener("pointerdown", onPointerDown);
 
     // ── Resize observer ──
     const observer = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      canvas.width = Math.round(width);
-      canvas.height = Math.round(height);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
     });
     observer.observe(canvas);
 
@@ -426,7 +512,7 @@ export function Physarum() {
         // ── Pass 1: Agent update ──
         const agentDst = 1 - agentCur;
         gl.bindFramebuffer(gl.FRAMEBUFFER, agentFbos[agentDst].fbo);
-        gl.viewport(0, 0, AGENT_TEX_SIZE, AGENT_TEX_SIZE);
+        gl.viewport(0, 0, agentTexSize, agentTexSize);
         gl.disable(gl.BLEND);
         gl.useProgram(agentProg);
 
@@ -438,7 +524,7 @@ export function Physarum() {
         gl.bindTexture(gl.TEXTURE_2D, trailFbos[trailCur].tex);
         gl.uniform1i(agentLoc.trail, 1);
 
-        gl.uniform2f(agentLoc.agentTexSize, AGENT_TEX_SIZE, AGENT_TEX_SIZE);
+        gl.uniform2f(agentLoc.agentTexSize, agentTexSize, agentTexSize);
         gl.uniform2f(agentLoc.trailTexel, 1 / tw, 1 / th);
         gl.uniform2f(agentLoc.mouse, mouse.x, mouse.y);
 
@@ -465,10 +551,10 @@ export function Physarum() {
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, agentFbos[agentCur].tex);
         gl.uniform1i(depositLoc.agents, 0);
-        gl.uniform2f(depositLoc.agentTexSize, AGENT_TEX_SIZE, AGENT_TEX_SIZE);
+        gl.uniform2f(depositLoc.agentTexSize, agentTexSize, agentTexSize);
 
         gl.bindVertexArray(depositVao);
-        gl.drawArrays(gl.POINTS, 0, AGENT_TEX_SIZE * AGENT_TEX_SIZE);
+        gl.drawArrays(gl.POINTS, 0, agentCount);
         gl.disable(gl.BLEND);
 
         trailCur = trailDst;
@@ -513,6 +599,9 @@ export function Physarum() {
       cancelAnimationFrame(raf);
       observer.disconnect();
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
+      canvas.removeEventListener("pointerdown", onPointerDown);
       gl.deleteVertexArray(fullscreenVao);
       gl.deleteVertexArray(depositVao);
       for (const { tex, fbo } of agentFbos) {

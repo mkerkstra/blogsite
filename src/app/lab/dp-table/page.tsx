@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { DpTable } from "@/features/lab/components/dp-table";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "DP Table",
-  description: "Edit distance — watch dynamic programming fill a table.",
-  alternates: { canonical: "/lab/dp-table" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "dp-table",
+  "DP Table",
+  "Edit distance — watch dynamic programming fill a table.",
+);
 
 export default function DpTablePage() {
   return (
@@ -22,6 +23,7 @@ export default function DpTablePage() {
           edit distance
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           <Term id="edit-distance">Edit distance</Term> measures the minimum insertions, deletions,

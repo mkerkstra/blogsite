@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { FlowField } from "@/features/lab/components/flow-field";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Flow Field",
-  description: "GPU particle system driven by curl noise.",
-  alternates: { canonical: "/lab/flow-field" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "flow-field",
+  "Flow Field",
+  "GPU particle system driven by curl noise.",
+);
 
 export default function FlowFieldPage() {
   return (
@@ -22,6 +23,7 @@ export default function FlowFieldPage() {
           move to attract
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           100,000 particles are advected through a <Term id="curl-noise">curl noise</Term> velocity

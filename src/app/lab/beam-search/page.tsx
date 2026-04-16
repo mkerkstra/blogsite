@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { BeamSearch } from "@/features/lab/components/beam-search";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Beam Search",
-  description: "Tree of candidates, pruned by score. Greedy vs beam width comparison.",
-  alternates: { canonical: "/lab/beam-search" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "beam-search",
+  "Beam Search",
+  "Tree of candidates, pruned by score. Greedy vs beam width comparison.",
+);
 
 export default function BeamSearchPage() {
   return (
@@ -22,6 +23,7 @@ export default function BeamSearchPage() {
           space to pause · r to reset
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           <Term id="greedy-decoding">Greedy decoding</Term> picks the highest-probability token at

@@ -184,9 +184,10 @@ export function ReactionDiffusion() {
     }
 
     // ── Canvas & sim dimensions ──
+    const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    canvas.width = Math.round(rect.width);
-    canvas.height = Math.round(rect.height);
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
     const sw = Math.ceil(canvas.width / 2);
     const sh = Math.ceil(canvas.height / 2);
 
@@ -271,8 +272,8 @@ export function ReactionDiffusion() {
     // ── Resize observer ──
     const observer = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      canvas.width = Math.round(width);
-      canvas.height = Math.round(height);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
     });
     observer.observe(canvas);
 

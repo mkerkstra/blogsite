@@ -71,9 +71,10 @@ export function StrangeAttractor() {
     const canvas = cvs;
     const gl = ctx;
 
+    const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    canvas.width = Math.round(rect.width);
-    canvas.height = Math.round(rect.height);
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
 
     // ── Shaders ──
     const fadeVs = compile(gl, gl.VERTEX_SHADER, FADE_VERT);
@@ -131,8 +132,8 @@ export function StrangeAttractor() {
 
     // ── Resize ──
     const observer = new ResizeObserver(([entry]) => {
-      canvas.width = Math.round(entry.contentRect.width);
-      canvas.height = Math.round(entry.contentRect.height);
+      canvas.width = Math.round(entry.contentRect.width * dpr);
+      canvas.height = Math.round(entry.contentRect.height * dpr);
       const theme = getTheme();
       const bg = PALETTE[theme].bg;
       gl.clearColor(bg[0], bg[1], bg[2], 1.0);

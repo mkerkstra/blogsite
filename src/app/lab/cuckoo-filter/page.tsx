@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { CuckooFilter } from "@/features/lab/components/cuckoo-filter";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Cuckoo Filter",
-  description: "Fingerprints in a cuckoo hash table. Insertions kick, chains cascade.",
-  alternates: { canonical: "/lab/cuckoo-filter" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "cuckoo-filter",
+  "Cuckoo Filter",
+  "Fingerprints in a cuckoo hash table. Insertions kick, chains cascade.",
+);
 
 export default function CuckooFilterPage() {
   return (
@@ -22,6 +23,7 @@ export default function CuckooFilterPage() {
           insert to trigger kicks
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           A cuckoo filter stores set membership using <Term id="fingerprint">fingerprints</Term> in

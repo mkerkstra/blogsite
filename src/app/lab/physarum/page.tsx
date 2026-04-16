@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 import { Physarum } from "@/features/lab/components/physarum";
 
-export const metadata: Metadata = {
-  title: "Physarum",
-  description: "Slime mold simulation with 262k agents on the GPU.",
-  alternates: { canonical: "/lab/physarum" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "physarum",
+  "Physarum",
+  "Slime mold simulation with 262k agents on the GPU.",
+);
 
 export default function PhysarumPage() {
   return (
@@ -19,9 +20,10 @@ export default function PhysarumPage() {
           physarum slime mold
         </p>
         <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/25">
-          move to attract
+          click + hold to attract · shift-click to disperse
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           262,144 agents wander a 2D surface, each sensing pheromone concentration at three points

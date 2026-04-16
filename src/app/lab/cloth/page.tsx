@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { Cloth } from "@/features/lab/components/cloth";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Cloth",
-  description: "Verlet integration cloth. Drag to interact, pull to tear.",
-  alternates: { canonical: "/lab/cloth" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "cloth",
+  "Cloth",
+  "Verlet integration cloth. Drag to interact, pull to tear.",
+);
 
 export default function ClothPage() {
   return (
@@ -22,6 +23,7 @@ export default function ClothPage() {
           drag to interact, pull to tear
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           <Term id="verlet-integration">Verlet integration</Term>: each particle stores its current

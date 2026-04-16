@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { Boids } from "@/features/lab/components/boids";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Boids",
-  description: "Flocking simulation. Separation, alignment, cohesion.",
-  alternates: { canonical: "/lab/boids" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "boids",
+  "Boids",
+  "Flocking simulation. Separation, alignment, cohesion.",
+);
 
 export default function BoidsPage() {
   return (
@@ -22,6 +23,7 @@ export default function BoidsPage() {
           flocking behavior
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           Craig Reynolds proposed boids in 1987 for procedural animation of bird flocks and fish

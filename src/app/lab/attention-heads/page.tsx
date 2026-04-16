@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { AttentionHeads } from "@/features/lab/components/attention-heads";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Attention Heads",
-  description: "Multi-head self-attention. Different heads learn different patterns.",
-  alternates: { canonical: "/lab/attention-heads" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "attention-heads",
+  "Attention Heads",
+  "Multi-head self-attention. Different heads learn different patterns.",
+);
 
 export default function AttentionHeadsPage() {
   return (
@@ -22,6 +23,7 @@ export default function AttentionHeadsPage() {
           hover tokens · click heads
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           Each transformer layer has multiple <Term id="attention-head">attention heads</Term> that

@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { EmbeddingSpace } from "@/features/lab/components/embedding-space";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Embedding Space",
-  description: "Words as vectors. Semantic meaning emerges from learned geometry.",
-  alternates: { canonical: "/lab/embedding-space" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "embedding-space",
+  "Embedding Space",
+  "Words as vectors. Semantic meaning emerges from learned geometry.",
+);
 
 export default function EmbeddingSpacePage() {
   return (
@@ -22,6 +23,7 @@ export default function EmbeddingSpacePage() {
           hover words · drag to move
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           Computers don&apos;t understand words. A <Term id="word-embedding">word embedding</Term>{" "}

@@ -184,9 +184,10 @@ export function RayMarch() {
     const canvas = cvs;
     const gl = glCtx;
 
+    const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    canvas.width = Math.round(rect.width);
-    canvas.height = Math.round(rect.height);
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
 
     const vs = compileShader(gl, gl.VERTEX_SHADER, VERT);
     const fs = compileShader(gl, gl.FRAGMENT_SHADER, FRAG);
@@ -215,8 +216,8 @@ export function RayMarch() {
 
     const observer = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      canvas.width = Math.round(width);
-      canvas.height = Math.round(height);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
     });
     observer.observe(canvas);
 

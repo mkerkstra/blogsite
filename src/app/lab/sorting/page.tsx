@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
-
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Sorting } from "@/features/lab/components/sorting";
 
-export const metadata: Metadata = {
-  title: "Sorting",
-  description: "Eight sorting algorithms race side-by-side. Pick three, tune the input.",
-  alternates: { canonical: "/lab/sorting" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "sorting",
+  "Sorting",
+  "Eight sorting algorithms race side-by-side. Pick three, tune the input.",
+);
 
 export default function SortingPage() {
   return (
@@ -18,6 +19,7 @@ export default function SortingPage() {
           sorting race
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           Pick any three from eight algorithms. Quick, merge, heap, shell are O(n log n). Insertion,

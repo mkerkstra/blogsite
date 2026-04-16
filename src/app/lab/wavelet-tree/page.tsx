@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { WaveletTree } from "@/features/lab/components/wavelet-tree";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Wavelet Tree",
-  description: "Recursive alphabet splitting with bitvector rank queries.",
-  alternates: { canonical: "/lab/wavelet-tree" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "wavelet-tree",
+  "Wavelet Tree",
+  "Recursive alphabet splitting with bitvector rank queries.",
+);
 
 export default function WaveletTreePage() {
   return (
@@ -22,6 +23,7 @@ export default function WaveletTreePage() {
           pick a char, query rank
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           A wavelet tree represents a string over an alphabet of size sigma, supporting{" "}

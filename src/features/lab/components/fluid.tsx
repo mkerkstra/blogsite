@@ -233,9 +233,10 @@ export function Fluid() {
     gl.getExtension("OES_texture_float_linear");
 
     // ── Canvas & sim dimensions ──
+    const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    canvas.width = Math.round(rect.width);
-    canvas.height = Math.round(rect.height);
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
     let sw = Math.ceil(canvas.width / 2);
     let sh = Math.ceil(canvas.height / 2);
 
@@ -324,8 +325,8 @@ export function Fluid() {
     // ── Resize observer ──
     const observer = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      canvas.width = Math.round(width);
-      canvas.height = Math.round(height);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
       // Recreate sim textures at new half resolution
       const nsw = Math.ceil(canvas.width / 2);
       const nsh = Math.ceil(canvas.height / 2);

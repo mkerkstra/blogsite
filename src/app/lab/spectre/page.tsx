@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 import { Spectre } from "@/features/lab/components/spectre";
 
-export const metadata: Metadata = {
-  title: "Spectre",
-  description: "The aperiodic monotile. One shape, infinite non-repeating tiling.",
-  alternates: { canonical: "/lab/spectre" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "spectre",
+  "Spectre",
+  "The aperiodic monotile. One shape, infinite non-repeating tiling.",
+);
 
 export default function SpectrePage() {
   return (
@@ -22,6 +23,7 @@ export default function SpectrePage() {
           aperiodic monotile (2023)
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           For over sixty years, mathematicians asked the{" "}

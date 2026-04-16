@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { MoeRouting } from "@/features/lab/components/moe-routing";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Mixture of Experts",
-  description: "Sparse routing. Each token activates a fraction of the network.",
-  alternates: { canonical: "/lab/moe-routing" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "moe-routing",
+  "Mixture of Experts",
+  "Sparse routing. Each token activates a fraction of the network.",
+);
 
 export default function MoeRoutingPage() {
   return (
@@ -22,6 +23,7 @@ export default function MoeRoutingPage() {
           space to pause &middot; r to reset
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           A dense transformer sends every token through every parameter. Mixture of Experts replaces

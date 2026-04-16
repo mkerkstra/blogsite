@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 import { StrangeAttractor } from "@/features/lab/components/strange-attractor";
 
-export const metadata: Metadata = {
-  title: "Strange Attractor",
-  description: "Thomas attractor visualized as 150k particle trails.",
-  alternates: { canonical: "/lab/strange-attractor" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "strange-attractor",
+  "Strange Attractor",
+  "Thomas attractor visualized as 150k particle trails.",
+);
 
 export default function StrangeAttractorPage() {
   return (
@@ -22,6 +23,7 @@ export default function StrangeAttractorPage() {
           move to orbit
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           150,000 particles trace paths through Thomas&apos; cyclically symmetric attractor, a

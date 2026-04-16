@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { GameOfLife } from "@/features/lab/components/game-of-life";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Game of Life",
-  description: "Conway's cellular automaton. Draw cells and watch them evolve.",
-  alternates: { canonical: "/lab/game-of-life" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "game-of-life",
+  "Game of Life",
+  "Conway's cellular automaton. Draw cells and watch them evolve.",
+);
 
 export default function GameOfLifePage() {
   return (
@@ -22,6 +23,7 @@ export default function GameOfLifePage() {
           draw cells, watch them evolve
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           Four rules. A live cell with 2 or 3 neighbors survives. A dead cell with exactly 3

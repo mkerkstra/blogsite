@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { KvCache } from "@/features/lab/components/kv-cache";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "KV Cache",
-  description: "How key-value caching makes autoregressive generation fast.",
-  alternates: { canonical: "/lab/kv-cache" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "kv-cache",
+  "KV Cache",
+  "How key-value caching makes autoregressive generation fast.",
+);
 
 export default function KvCachePage() {
   return (
@@ -22,6 +23,7 @@ export default function KvCachePage() {
           space to pause · r to reset
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           During <Term id="autoregressive">autoregressive generation</Term>, each new token attends

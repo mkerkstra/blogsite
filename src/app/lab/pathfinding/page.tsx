@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Pathfinding } from "@/features/lab/components/pathfinding";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Pathfinding",
-  description: "A* vs Dijkstra vs BFS — draw walls, watch the search.",
-  alternates: { canonical: "/lab/pathfinding" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "pathfinding",
+  "Pathfinding",
+  "A* vs Dijkstra vs BFS — draw walls, watch the search.",
+);
 
 export default function PathfindingPage() {
   return (
@@ -22,6 +23,7 @@ export default function PathfindingPage() {
           draw walls, then run
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           Draw walls on the grid, then watch three search strategies find a path. BFS explores

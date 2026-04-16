@@ -324,11 +324,14 @@ export function GameOfLife() {
     const s = simRef.current;
     const reduced = prefersReducedMotion();
 
-    // Size canvas
+    // Size canvas — backing buffer × DPR for sharp render, but ctx is scaled
+    // so all draw ops continue working in CSS pixels (same code, sharper output).
+    const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    canvas.width = Math.round(rect.width);
-    canvas.height = Math.round(rect.height);
-    initGrid(canvas.width, canvas.height);
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    initGrid(rect.width, rect.height);
 
     // Seed with a glider gun so the board starts alive
     {
@@ -350,11 +353,12 @@ export function GameOfLife() {
 
     // Resize observer
     const observer = new ResizeObserver(([entry]) => {
-      const newW = Math.round(entry.contentRect.width);
-      const newH = Math.round(entry.contentRect.height);
-      canvas.width = newW;
-      canvas.height = newH;
-      initGrid(newW, newH);
+      const cssW = Math.round(entry.contentRect.width);
+      const cssH = Math.round(entry.contentRect.height);
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      initGrid(cssW, cssH);
     });
     observer.observe(canvas);
 

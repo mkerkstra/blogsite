@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
-
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { LSystem } from "@/features/lab/components/lsystem";
 
-export const metadata: Metadata = {
-  title: "L-System",
-  description: "Lindenmayer systems. Fractal trees from simple rewriting rules.",
-  alternates: { canonical: "/lab/lsystem" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "lsystem",
+  "L-System",
+  "Lindenmayer systems. Fractal trees from simple rewriting rules.",
+);
 
 export default function LSystemPage() {
   return (
@@ -21,6 +22,7 @@ export default function LSystemPage() {
           fractal rewriting
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           Start with a string and a set of replacement rules. Apply the rules repeatedly. Interpret

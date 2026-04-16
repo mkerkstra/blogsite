@@ -242,6 +242,13 @@ export function LSystem() {
     if (!maybeCtx) return;
     const ctx = maybeCtx;
 
+    // Backing buffer is scaled by DPR; we render in CSS pixels by setting the
+    // ctx transform so layout math + stroke widths stay legible at any density.
+    const dpr = window.devicePixelRatio || 1;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cssW = canvas.width / dpr;
+    const cssH = canvas.height / dpr;
+
     // Cancel any existing animation
     cancelAnimationFrame(rafRef.current);
     isAnimatingRef.current = false;
@@ -265,11 +272,11 @@ export function LSystem() {
     const bw = bounds.maxX - bounds.minX || 1;
     const bh = bounds.maxY - bounds.minY || 1;
     const padding = 60;
-    const scaleX = (canvas.width - padding * 2) / bw;
-    const scaleY = (canvas.height - padding * 2) / bh;
+    const scaleX = (cssW - padding * 2) / bw;
+    const scaleY = (cssH - padding * 2) / bh;
     const scale = Math.min(scaleX, scaleY);
-    const offsetX = (canvas.width - bw * scale) / 2 - bounds.minX * scale;
-    const offsetY = (canvas.height - bh * scale) / 2 - bounds.minY * scale;
+    const offsetX = (cssW - bw * scale) / 2 - bounds.minX * scale;
+    const offsetY = (cssH - bh * scale) / 2 - bounds.minY * scale;
 
     // Color params
     const darkStart = { r: 224, g: 226, b: 220, a: 0.5 };
@@ -309,9 +316,9 @@ export function LSystem() {
       ctx.stroke();
     }
 
-    // Clear canvas
+    // Clear canvas (in CSS-pixel space thanks to setTransform above)
     ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, cssW, cssH);
 
     if (shouldAnimate) {
       // Animated drawing: N segments per frame, scaled to total count
@@ -358,15 +365,16 @@ export function LSystem() {
     if (!maybeCanvas) return;
     const canvas = maybeCanvas;
 
+    const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    canvas.width = Math.round(rect.width);
-    canvas.height = Math.round(rect.height);
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
 
     const observer = new ResizeObserver(([entry]) => {
-      const newW = Math.round(entry.contentRect.width);
-      const newH = Math.round(entry.contentRect.height);
-      canvas.width = newW;
-      canvas.height = newH;
+      const cssW = Math.round(entry.contentRect.width);
+      const cssH = Math.round(entry.contentRect.height);
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
       generate();
     });
     observer.observe(canvas);

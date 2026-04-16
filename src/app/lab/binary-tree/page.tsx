@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { BinaryTree } from "@/features/lab/components/binary-tree";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Binary Tree",
-  description: "AVL tree insertions with animated rotations.",
-  alternates: { canonical: "/lab/binary-tree" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "binary-tree",
+  "Binary Tree",
+  "AVL tree insertions with animated rotations.",
+);
 
 export default function BinaryTreePage() {
   return (
@@ -22,6 +23,7 @@ export default function BinaryTreePage() {
           insert to grow
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           An AVL tree is a self-balancing <Term id="bst">binary search tree</Term>. After every

@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 import { ReactionDiffusion } from "@/features/lab/components/reaction-diffusion";
 
-export const metadata: Metadata = {
-  title: "Reaction Diffusion",
-  description: "Gray-Scott reaction diffusion simulation running on the GPU.",
-  alternates: { canonical: "/lab/reaction-diffusion" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "reaction-diffusion",
+  "Reaction Diffusion",
+  "Gray-Scott reaction diffusion simulation running on the GPU.",
+);
 
 export default function ReactionDiffusionPage() {
   return (
@@ -22,6 +23,7 @@ export default function ReactionDiffusionPage() {
           click to seed
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           Two virtual chemicals (U and V) diffuse across a 2D grid and react with each other

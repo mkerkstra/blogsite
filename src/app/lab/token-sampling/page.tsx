@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { TokenSampling } from "@/features/lab/components/token-sampling";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Token Sampling",
-  description: "Temperature, top-K, top-P. How LLMs choose the next word.",
-  alternates: { canonical: "/lab/token-sampling" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "token-sampling",
+  "Token Sampling",
+  "Temperature, top-K, top-P. How LLMs choose the next word.",
+);
 
 export default function TokenSamplingPage() {
   return (
@@ -22,6 +23,7 @@ export default function TokenSamplingPage() {
           space to auto-sample · r to reset
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           After the model computes <Term id="logits">logits</Term> for every token in its

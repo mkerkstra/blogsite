@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
-
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { ParticleLife } from "@/features/lab/components/particle-life";
 
-export const metadata: Metadata = {
-  title: "Particle Life",
-  description: "Emergent chemistry from simple attraction rules between colored particles.",
-  alternates: { canonical: "/lab/particle-life" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "particle-life",
+  "Particle Life",
+  "Emergent chemistry from simple attraction rules between colored particles.",
+);
 
 export default function ParticleLifePage() {
   return (
@@ -21,6 +22,7 @@ export default function ParticleLifePage() {
           emergent chemistry
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           Six species of particles interact through a 6x6 force matrix. Each entry controls whether

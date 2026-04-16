@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { Voronoi } from "@/features/lab/components/voronoi";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Voronoi",
-  description: "Nearest-neighbor tessellation. Every point owns the space closest to it.",
-  alternates: { canonical: "/lab/voronoi" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "voronoi",
+  "Voronoi",
+  "Nearest-neighbor tessellation. Every point owns the space closest to it.",
+);
 
 export default function VoronoiPage() {
   return (
@@ -22,6 +23,7 @@ export default function VoronoiPage() {
           click to add · drag to move
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           A <Term id="voronoi-diagram">Voronoi diagram</Term> partitions space so that every point

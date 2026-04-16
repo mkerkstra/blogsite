@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { LearnedIndex } from "@/features/lab/components/learned-index";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Learned Index",
-  description: "ALEX. Piecewise linear models replace B-tree pages. The CDF is the index.",
-  alternates: { canonical: "/lab/learned-index" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "learned-index",
+  "Learned Index",
+  "ALEX. Piecewise linear models replace B-tree pages. The CDF is the index.",
+);
 
 export default function LearnedIndexPage() {
   return (
@@ -22,6 +23,7 @@ export default function LearnedIndexPage() {
           insert keys, watch the CDF
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           ALEX is a learned index that replaces B-tree pages with linear regression models. Each

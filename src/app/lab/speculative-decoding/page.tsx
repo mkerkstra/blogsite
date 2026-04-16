@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-
 import { SpeculativeDecoding } from "@/features/lab/components/speculative-decoding";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { LabActions } from "@/features/lab/components/lab-actions";
 import { Term } from "@/features/lab/components/term";
 
-export const metadata: Metadata = {
-  title: "Speculative Decoding",
-  description: "Draft fast, verify once. How speculative decoding accelerates LLM inference.",
-  alternates: { canonical: "/lab/speculative-decoding" },
-};
+import { labMetadata } from "@/features/lab/lib/metadata";
+
+export const metadata = labMetadata(
+  "speculative-decoding",
+  "Speculative Decoding",
+  "Draft fast, verify once. How speculative decoding accelerates LLM inference.",
+);
 
 export default function SpeculativeDecodingPage() {
   return (
@@ -22,6 +23,7 @@ export default function SpeculativeDecodingPage() {
           space to pause · r to reset
         </p>
       </div>
+      <LabActions />
       <LabInfoPanel>
         <p>
           <Term id="autoregressive">Autoregressive generation</Term> is sequential: each token waits
