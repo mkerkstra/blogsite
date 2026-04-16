@@ -3,22 +3,55 @@
 import { Command } from "cmdk";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import {
+  Activity,
+  ArrowDownAZ,
   ArrowUpRight,
+  Atom,
+  AudioWaveform,
+  Binary,
+  Bird,
   BookOpen,
   Briefcase,
   Code,
   Copy,
   Cpu,
+  Database,
+  Diamond,
+  Dices,
   Download,
+  Droplets,
+  Filter,
+  Focus,
+  GitFork,
+  GitGraph,
   GraduationCap,
+  Grid2x2,
+  Hexagon,
+  Infinity as InfinityIcon,
   Info,
+  LineChart,
+  ListTree,
   Mail,
   Moon,
+  Network,
+  Orbit,
   PawPrint,
+  ScatterChart,
+  Scissors,
+  Shapes,
+  Shirt,
   Sparkles,
+  Spline,
+  Split,
   Sun,
+  TreePine,
   User,
+  Waves,
+  Waypoints,
+  Wind,
   Wrench,
+  Zap,
+  ZoomIn,
 } from "lucide-react";
 
 import { Github, Linkedin } from "@/components/brand-icons";
@@ -28,6 +61,49 @@ import * as React from "react";
 import { aboutMe } from "@/features/resume/data/about-me";
 import { usePathname, useRouter } from "next/navigation";
 import { reading } from "@/features/reading/data/reading";
+import { sections as labSections } from "@/features/lab/data/experiments";
+
+const LAB_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  // GPU
+  "reaction-diffusion": Droplets,
+  "ray-march": Orbit,
+  "flow-field": Wind,
+  physarum: Spline,
+  fluid: Waves,
+  "strange-attractor": InfinityIcon,
+  mandelbrot: ZoomIn,
+  // Simulation
+  cloth: Shirt,
+  boids: Bird,
+  "particle-life": Atom,
+  "game-of-life": Grid2x2,
+  "double-pendulum": Activity,
+  // Math
+  fourier: AudioWaveform,
+  lsystem: TreePine,
+  spectre: Shapes,
+  voronoi: Hexagon,
+  // Algorithms
+  sorting: ArrowDownAZ,
+  pathfinding: Waypoints,
+  "binary-tree": Binary,
+  "dp-table": GitGraph,
+  graph: Network,
+  // ML / AI
+  "attention-heads": Focus,
+  "kv-cache": Database,
+  "token-sampling": Dices,
+  "speculative-decoding": Zap,
+  "moe-routing": Split,
+  "embedding-space": ScatterChart,
+  tokenizer: Scissors,
+  "beam-search": GitFork,
+  // Data Structures
+  "wavelet-tree": ListTree,
+  "xor-filter": Filter,
+  "learned-index": LineChart,
+  "cuckoo-filter": Diamond,
+};
 
 type ItemDef = {
   id: string;
@@ -187,101 +263,23 @@ export function CommandPalette() {
     },
     {
       id: "page-lab",
-      label: "/lab  ·  gpu experiments",
+      label: "/lab  ·  experiments",
       icon: Cpu,
       perform: () => router.push("/lab"),
     },
-    {
-      id: "page-lab-rd",
-      label: "/lab/reaction-diffusion",
-      icon: Cpu,
-      perform: () => router.push("/lab/reaction-diffusion"),
-      keywords: ["gray", "scott", "coral"],
-    },
-    {
-      id: "page-lab-rm",
-      label: "/lab/ray-march",
-      icon: Cpu,
-      perform: () => router.push("/lab/ray-march"),
-      keywords: ["sdf", "3d", "shader"],
-    },
-    {
-      id: "page-lab-ff",
-      label: "/lab/flow-field",
-      icon: Cpu,
-      perform: () => router.push("/lab/flow-field"),
-      keywords: ["particles", "curl", "noise"],
-    },
-    {
-      id: "page-lab-ah",
-      label: "/lab/attention-heads",
-      icon: Cpu,
-      perform: () => router.push("/lab/attention-heads"),
-      keywords: ["attention", "transformer", "heads", "self-attention"],
-    },
-    {
-      id: "page-lab-kv",
-      label: "/lab/kv-cache",
-      icon: Cpu,
-      perform: () => router.push("/lab/kv-cache"),
-      keywords: ["cache", "key", "value", "inference", "prompt"],
-    },
-    {
-      id: "page-lab-ts",
-      label: "/lab/token-sampling",
-      icon: Cpu,
-      perform: () => router.push("/lab/token-sampling"),
-      keywords: ["llm", "temperature", "top-k", "top-p", "nucleus", "softmax"],
-    },
-    {
-      id: "page-lab-sd",
-      label: "/lab/speculative-decoding",
-      icon: Cpu,
-      perform: () => router.push("/lab/speculative-decoding"),
-      keywords: ["speculative", "draft", "verify", "inference"],
-    },
-    {
-      id: "page-lab-moe",
-      label: "/lab/moe-routing",
-      icon: Cpu,
-      perform: () => router.push("/lab/moe-routing"),
-      keywords: ["mixture", "experts", "sparse", "routing", "gating"],
-    },
-    {
-      id: "page-lab-embed",
-      label: "/lab/embedding-space",
-      icon: Cpu,
-      perform: () => router.push("/lab/embedding-space"),
-      keywords: ["embedding", "word2vec", "vectors", "semantic", "similarity", "cosine"],
-    },
-    {
-      id: "page-lab-tok",
-      label: "/lab/tokenizer",
-      icon: Cpu,
-      perform: () => router.push("/lab/tokenizer"),
-      keywords: ["tokenizer", "bpe", "byte", "pair", "encoding", "subword", "vocabulary"],
-    },
-    {
-      id: "page-lab-beam",
-      label: "/lab/beam-search",
-      icon: Cpu,
-      perform: () => router.push("/lab/beam-search"),
-      keywords: ["beam", "search", "greedy", "decoding", "tree", "prune"],
-    },
-    {
-      id: "page-lab-dp",
-      label: "/lab/double-pendulum",
-      icon: Cpu,
-      perform: () => router.push("/lab/double-pendulum"),
-      keywords: ["double", "pendulum", "chaos", "butterfly", "physics"],
-    },
-    {
-      id: "page-lab-vor",
-      label: "/lab/voronoi",
-      icon: Cpu,
-      perform: () => router.push("/lab/voronoi"),
-      keywords: ["voronoi", "delaunay", "tessellation", "triangulation"],
-    },
+    ...labSections.flatMap((section) =>
+      section.experiments.map(
+        (exp): ItemDef => ({
+          id: `page-lab-${exp.slug}`,
+          label: exp.title,
+          icon: LAB_ICONS[exp.slug] ?? Cpu,
+          perform: () => router.push(`/lab/${exp.slug}`),
+          // Fold slug + category + description into keywords so fuzzy
+          // search still hits on "bpe", "sdf", "moe", "chaos", etc.
+          keywords: [exp.slug, section.label.toLowerCase(), exp.description.toLowerCase()],
+        }),
+      ),
+    ),
     {
       id: "page-colophon",
       label: "/colophon  ·  how this site is built",
