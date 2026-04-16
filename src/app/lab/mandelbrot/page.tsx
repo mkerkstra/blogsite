@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { Term } from "@/features/lab/components/term";
 import { Mandelbrot } from "@/features/lab/components/mandelbrot";
 
 export const metadata: Metadata = {
@@ -20,24 +22,46 @@ export default function MandelbrotPage() {
           click to zoom, drag to pan
         </p>
       </div>
-      <details className="fixed bottom-6 right-5 z-10 max-w-xs md:right-8">
-        <summary className="cursor-pointer text-right font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/30 hover:text-foreground/50">
-          how it works
-        </summary>
-        <div className="mt-2 rounded bg-background/80 p-3 backdrop-blur-sm">
-          <div className="space-y-2 font-mono text-[10px] leading-relaxed text-foreground/50">
-            <p>
-              For each pixel, iterate z = z*z + c until escape or max iterations. The escape time
-              determines the color. Smooth coloring interpolates between iteration bands using the
-              final magnitude.
-            </p>
-            <p>
-              Rendered in a single fragment shader on the GPU. Iterations scale with zoom depth to
-              reveal finer detail at higher magnification.
-            </p>
-          </div>
-        </div>
-      </details>
+      <LabInfoPanel>
+        <p>
+          For each pixel, map its screen coordinates to a complex number c and iterate z = z*z + c
+          starting from z = 0. If the magnitude of z exceeds 2, the point has escaped and lies
+          outside the Mandelbrot set. Points that never escape are inside the set and render black.
+          The set&apos;s boundary has infinite perimeter but encloses finite area, a fractal with{" "}
+          <Term id="hausdorff-dimension">Hausdorff dimension</Term> 2.
+        </p>
+        <p>
+          The escape iteration count determines the color. Naive integer banding produces harsh
+          contour lines, so this implementation uses smooth coloring: n - log2(log2(|z|)) at the
+          escape point, which interpolates continuously between iteration bands. The result is a
+          gradient that flows smoothly across the exterior, revealing the underlying potential
+          function of the iteration.
+        </p>
+        <p>
+          Rendered in a single <Term id="fragment-shader">fragment shader</Term> on the GPU. Every
+          pixel evaluates the iteration loop independently, making the Mandelbrot set embarrassingly
+          parallel and ideal for GPU computation. Zooming multiplies the maximum iteration count
+          because finer structure near the boundary needs more iterations to resolve. Deep zooms
+          eventually hit the precision limit of 32-bit floats, around 10^7x magnification, where the
+          image pixelates.
+        </p>
+        <p>
+          Click to zoom into any region. Drag to pan. Look for miniature copies of the full set
+          embedded along filaments. Every bulb and antenna contains self-similar structure at
+          arbitrary depth. The largest cardioid corresponds to period-1 orbits, the main bulb to
+          period-2, and each smaller satellite to higher periods.
+        </p>
+        <p className="border-t border-foreground/10 pt-2">
+          <a
+            href="https://en.wikipedia.org/wiki/Mandelbrot_set"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-foreground/70"
+          >
+            Wikipedia
+          </a>
+        </p>
+      </LabInfoPanel>
     </>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Boids } from "@/features/lab/components/boids";
+import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
 
 export const metadata: Metadata = {
   title: "Boids",
@@ -20,23 +21,38 @@ export default function BoidsPage() {
           flocking behavior
         </p>
       </div>
-      <details className="fixed bottom-6 right-5 z-10 max-w-xs md:right-8">
-        <summary className="cursor-pointer text-right font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/30 hover:text-foreground/50">
-          how it works
-        </summary>
-        <div className="mt-2 rounded bg-background/80 p-3 backdrop-blur-sm">
-          <div className="space-y-2 font-mono text-[10px] leading-relaxed text-foreground/50">
-            <p>
-              Three rules per boid: separate from nearby neighbors, align heading with the local
-              flock, and cohere toward the group center. No leader, no global plan.
-            </p>
-            <p>
-              Move your cursor to attract the flock. Hold shift to scatter them. Tune the three
-              force weights to see how behavior changes.
-            </p>
-          </div>
-        </div>
-      </details>
+      <LabInfoPanel>
+        <p>
+          Craig Reynolds proposed boids in 1987 for procedural animation of bird flocks and fish
+          schools. Three rules per agent: separate from nearby neighbors, align heading with the
+          local flock, and cohere toward the group&apos;s center of mass. No leader, no global plan.
+        </p>
+        <p>
+          Each rule operates within a limited perception radius, so a boid only sees its nearest
+          neighbors. The emergent flocking, lane formation, and obstacle splitting all arise from
+          purely local decisions. No agent has any knowledge of the flock&apos;s overall shape.
+        </p>
+        <p>
+          The three force weights act as personality knobs. High separation produces nervous,
+          jittery swarms that avoid contact. High cohesion creates tight schools that move as a
+          dense mass. High alignment yields parallel columns that stream in formation. The balance
+          between them determines the character of the flock.
+        </p>
+        <p>
+          Move your cursor to attract the flock. Hold shift to scatter them. Tune the weights to see
+          how the collective behavior shifts.
+        </p>
+        <p className="border-t border-foreground/10 pt-2">
+          <a
+            href="https://www.red3d.com/cwr/boids/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-foreground/70"
+          >
+            Craig Reynolds (1987)
+          </a>
+        </p>
+      </LabInfoPanel>
     </>
   );
 }

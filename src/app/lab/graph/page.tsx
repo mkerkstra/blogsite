@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { Graph } from "@/features/lab/components/graph";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { Term } from "@/features/lab/components/term";
 
 export const metadata: Metadata = {
   title: "Graph",
@@ -23,14 +24,26 @@ export default function GraphPage() {
       </div>
       <LabInfoPanel>
         <p>
-          A strongly connected component is a maximal set of nodes where every node can reach every
-          other node through directed edges. Tarjan&apos;s algorithm finds all SCCs in a single
-          depth-first traversal.
+          A <Term id="scc">strongly connected component</Term> is a maximal set of nodes where every
+          node can reach every other node through directed edges. Tarjan&apos;s algorithm finds all
+          SCCs in a single depth-first traversal. Robert Tarjan published it in 1972.
         </p>
         <p>
-          Each node tracks a discovery time and a low-link value. The low-link propagates backward
-          through the DFS, and when a node&apos;s low-link equals its discovery time, everything
-          above it on the stack forms an SCC. One pass, linear time.
+          The algorithm maintains a stack of nodes in the current DFS path. Each node tracks a
+          discovery time (when DFS first visits it) and a <Term id="low-link">low-link value</Term>{" "}
+          (the smallest discovery time reachable from its subtree through back edges). As DFS
+          unwinds, low-link values propagate upward.
+        </p>
+        <p>
+          When a node&apos;s low-link equals its own discovery time, it is the root of an SCC.
+          Everything above it on the stack, up to and including itself, forms the component. Those
+          nodes are popped and grouped together. The algorithm runs in O(V + E) time, making a
+          single pass over the graph.
+        </p>
+        <p>
+          Watch the discovery times increment as DFS visits each node, and the low-link values
+          update as back edges are found. When a root is identified, the entire component highlights
+          at once. Add edges to create cycles and see how the SCC structure changes.
         </p>
         <p className="border-t border-foreground/10 pt-2">
           <a

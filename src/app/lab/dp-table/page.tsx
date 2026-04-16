@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
 import { DpTable } from "@/features/lab/components/dp-table";
+import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { Term } from "@/features/lab/components/term";
 
 export const metadata: Metadata = {
   title: "DP Table",
@@ -20,25 +22,40 @@ export default function DpTablePage() {
           edit distance
         </p>
       </div>
-      <details className="fixed bottom-6 right-5 z-10 max-w-xs md:right-8">
-        <summary className="cursor-pointer text-right font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/30 hover:text-foreground/50">
-          how it works
-        </summary>
-        <div className="mt-2 rounded bg-background/80 p-3 backdrop-blur-sm">
-          <div className="space-y-2 font-mono text-[10px] leading-relaxed text-foreground/50">
-            <p>
-              Edit distance measures the minimum insertions, deletions, and substitutions to
-              transform one string into another. Each cell depends on three neighbors: left
-              (insert), above (delete), and diagonal (match or substitute).
-            </p>
-            <p>
-              Watch the table fill left to right, top to bottom. The highlighted arrows show which
-              subproblems feed each cell. When complete, the traceback reveals the optimal sequence
-              of operations. The bottom-right cell is the answer.
-            </p>
-          </div>
-        </div>
-      </details>
+      <LabInfoPanel>
+        <p>
+          <Term id="edit-distance">Edit distance</Term> measures the minimum insertions, deletions,
+          and substitutions to transform one string into another. Vladimir Levenshtein defined this
+          distance in 1965, and the Wagner-Fischer algorithm fills the table in O(mn) time and
+          space, where m and n are the lengths of the two strings.
+        </p>
+        <p>
+          Each cell&apos;s value is the minimum of three options: the cell above plus 1 (deletion),
+          the cell to the left plus 1 (insertion), or the diagonal cell plus 0 if the characters
+          match (or plus 1 for a substitution). This recurrence guarantees that every cell captures
+          the cheapest way to align the prefixes up to that point.
+        </p>
+        <p>
+          The traceback follows the path of minimum-cost decisions backward from the bottom-right
+          corner to the top-left, revealing the optimal edit script. Each step in the path
+          corresponds to a keep, insert, delete, or substitute operation.
+        </p>
+        <p>
+          Watch the table fill left to right, top to bottom. The highlighted arrows show which
+          subproblems feed each cell. When complete, the traceback reveals the optimal sequence of
+          operations. The bottom-right cell is the answer.
+        </p>
+        <p className="border-t border-foreground/10 pt-2">
+          <a
+            href="https://en.wikipedia.org/wiki/Levenshtein_distance"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-foreground/70"
+          >
+            Wikipedia
+          </a>
+        </p>
+      </LabInfoPanel>
     </>
   );
 }

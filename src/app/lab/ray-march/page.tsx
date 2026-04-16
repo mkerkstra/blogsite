@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { Term } from "@/features/lab/components/term";
 import { RayMarch } from "@/features/lab/components/ray-march";
 
 export const metadata: Metadata = {
@@ -20,26 +22,58 @@ export default function RayMarchPage() {
           move to orbit
         </p>
       </div>
-      <details className="fixed bottom-6 right-5 z-10 max-w-xs md:right-8">
-        <summary className="cursor-pointer text-right font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/30 hover:text-foreground/50">
-          how it works
-        </summary>
-        <div className="mt-2 rounded bg-background/80 p-3 backdrop-blur-sm">
-          <div className="space-y-2 font-mono text-[10px] leading-relaxed text-foreground/50">
-            <p>
-              Every pixel fires a ray into a 3D scene. The scene is a math function: given any
-              point, return the distance to the nearest surface. The ray steps forward by that
-              distance until it hits something.
-            </p>
-            <p>
-              The shapes are signed distance fields for sphere, box, torus, and octahedron, blended
-              with a smooth minimum. Domain repetition tiles them infinitely. Each cell morphs at
-              its own phase. Normals, AO, and soft shadows all derive from the same distance
-              function. No geometry, no vertices. Just math per pixel.
-            </p>
-          </div>
-        </div>
-      </details>
+      <LabInfoPanel>
+        <p>
+          Every pixel fires a ray into a 3D scene defined entirely by a{" "}
+          <Term id="sdf">signed distance function (SDF)</Term>. Given any point in space, the SDF
+          returns the distance to the nearest surface. The ray marcher uses{" "}
+          <Term id="sphere-tracing">sphere tracing</Term>: it steps forward by exactly that distance
+          each iteration. Because the SDF is a lower bound on the true distance, the ray is
+          guaranteed never to overshoot a surface. Convergence is fast in open space and slows
+          gracefully near geometry.
+        </p>
+        <p>
+          The shapes are SDFs for sphere, box, torus, and octahedron, blended together with a smooth
+          minimum (polynomial or exponential) that produces organic-looking joins instead of hard
+          intersections. The infinite grid comes from applying fmod to the ray position before
+          evaluating the SDF, effectively tiling a single cell across all of space. Each cell morphs
+          at its own phase offset, so the grid breathes.
+        </p>
+        <p>
+          Ambient occlusion is computed by sampling the distance field at a few points along the
+          surface normal. If those samples return distances much smaller than their offset from the
+          surface, the point is recessed and gets darkened. Soft shadows work by a similar
+          principle: as a shadow ray marches toward the light, it tracks the closest pass to any
+          geometry. The closer the near-miss, the darker the penumbra. Both effects cost only a few
+          extra SDF evaluations per pixel.
+        </p>
+        <p>
+          Normals are the gradient of the distance field, estimated with central differences. No
+          geometry buffers, no vertices, no triangles. The entire scene is a single fullscreen{" "}
+          <Term id="fragment-shader">fragment shader</Term> evaluating math per pixel. Move your
+          mouse to orbit the camera and watch how the soft shadows shift across the infinite
+          lattice.
+        </p>
+        <p className="border-t border-foreground/10 pt-2">
+          <a
+            href="https://iquilezles.org/articles/distfunctions/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-foreground/70"
+          >
+            Inigo Quilez, SDF
+          </a>
+          {" · "}
+          <a
+            href="https://en.wikipedia.org/wiki/Ray_marching"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-foreground/70"
+          >
+            Wikipedia
+          </a>
+        </p>
+      </LabInfoPanel>
     </>
   );
 }
