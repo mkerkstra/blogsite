@@ -20,6 +20,7 @@ interface AlgoState {
   swaps: number;
   active: [number, number] | null;
   done: boolean;
+  finishRank: number | null;
 }
 
 type RunState = "idle" | "running" | "paused" | "done";
@@ -328,6 +329,7 @@ function createAlgoState(
     swaps: 0,
     active: null,
     done: false,
+    finishRank: null,
   };
 }
 
@@ -373,12 +375,20 @@ export function Sorting() {
     if (result.done) {
       algo.done = true;
       algo.active = null;
+      if (algo.finishRank === null) {
+        const finished = algosRef.current.filter((a) => a.done).length;
+        algo.finishRank = finished;
+      }
       return;
     }
     const step = result.value;
     if (step.type === "done") {
       algo.done = true;
       algo.active = null;
+      if (algo.finishRank === null) {
+        const finished = algosRef.current.filter((a) => a.done).length;
+        algo.finishRank = finished;
+      }
     } else if (step.type === "compare") {
       algo.comparisons++;
       algo.active = step.indices;
@@ -431,10 +441,12 @@ export function Sorting() {
     ctx.fillRect(0, 0, w, h);
 
     const panelW = w / panelCount;
-    const headerH = 48;
-    const bottomPad = 80;
-    const barAreaH = h - headerH - bottomPad;
     const dpr = window.devicePixelRatio || 1;
+    const navH = 52 * dpr;
+    const headerH = navH + 40 * dpr;
+    const bottomPad = 80 * dpr;
+    const barAreaH = h - headerH - bottomPad;
+    const rankLabels = ["1ST", "2ND", "3RD"];
 
     for (let p = 0; p < panelCount; p++) {
       const algo = algos[p];
@@ -443,18 +455,11 @@ export function Sorting() {
       const n = arr.length;
       const gap = n > 100 ? 0 : 1;
       const totalGap = gap * (n - 1);
-      const barW = Math.max(1, (panelW - 20 - totalGap) / n);
-      const barStartX = x0 + 10;
+      const barW = Math.max(1, (panelW - 20 * dpr - totalGap) / n);
+      const barStartX = x0 + 10 * dpr;
+      const ops = algo.comparisons + algo.swaps;
 
-      // Panel header
-      ctx.font = `${10 * dpr}px monospace`;
-      ctx.textBaseline = "top";
-      ctx.fillStyle = textColor;
-      ctx.fillText(algo.name.toUpperCase(), x0 + 10, 14);
-      ctx.fillStyle = mutedColor;
-      ctx.fillText(`CMP ${algo.comparisons}  SWP ${algo.swaps}`, x0 + 10, 14 + (14 * dpr) / dpr);
-
-      // Bars
+      // Bars (drawn first, header overlays on top)
       for (let i = 0; i < n; i++) {
         const barH = (arr[i] / 100) * barAreaH;
         const bx = barStartX + i * (barW + gap);
@@ -469,6 +474,40 @@ export function Sorting() {
         }
         ctx.fillRect(bx, by, barW, barH);
       }
+
+      // Header backdrop — gradient fading from bg to transparent
+      const grad = ctx.createLinearGradient(x0, navH, x0, headerH + 12 * dpr);
+      grad.addColorStop(0, bg);
+      grad.addColorStop(0.6, bg);
+      grad.addColorStop(1, isDark ? "rgba(10,10,10,0)" : "rgba(245,241,232,0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(x0, navH, panelW, headerH - navH + 12 * dpr);
+
+      // Panel header — name + rank badge
+      const textX = x0 + 10 * dpr;
+      const nameY = navH + 6 * dpr;
+      ctx.font = `bold ${11 * dpr}px monospace`;
+      ctx.textBaseline = "top";
+      ctx.fillStyle = algo.done ? sortedColor : textColor;
+      ctx.fillText(algo.name.toUpperCase(), textX, nameY);
+
+      if (algo.finishRank !== null && algo.finishRank <= 3) {
+        const nameW = ctx.measureText(algo.name.toUpperCase()).width;
+        ctx.font = `bold ${9 * dpr}px monospace`;
+        ctx.fillStyle = algo.finishRank === 1 ? accentColor : mutedColor;
+        ctx.fillText(rankLabels[algo.finishRank - 1], textX + nameW + 8 * dpr, nameY + 1 * dpr);
+      }
+
+      // Stats line
+      ctx.font = `${9 * dpr}px monospace`;
+      ctx.fillStyle = mutedColor;
+      const statsY = nameY + 16 * dpr;
+      ctx.fillText(`CMP ${algo.comparisons}`, textX, statsY);
+      const cmpW = ctx.measureText(`CMP ${algo.comparisons}`).width;
+      ctx.fillText(`SWP ${algo.swaps}`, textX + cmpW + 10 * dpr, statsY);
+      const swpW = ctx.measureText(`SWP ${algo.swaps}`).width;
+      ctx.fillStyle = algo.done ? textColor : mutedColor;
+      ctx.fillText(`OPS ${ops}`, textX + cmpW + 10 * dpr + swpW + 10 * dpr, statsY);
 
       // Panel divider
       if (p < panelCount - 1) {
