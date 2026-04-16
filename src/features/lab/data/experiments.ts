@@ -88,6 +88,11 @@ export const sections: ExperimentSection[] = [
         title: "L-System",
         description: "Fractal trees from simple rewriting rules.",
       },
+      {
+        slug: "spectre",
+        title: "Spectre",
+        description: "The 2023 aperiodic monotile. One shape, infinite non-repeating tiling.",
+      },
     ],
   },
   {
