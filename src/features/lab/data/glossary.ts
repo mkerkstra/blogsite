@@ -181,6 +181,12 @@ export const glossary: Record<string, string> = {
     "A measure of angle between two vectors, from -1 (opposite) to 1 (identical). Used to quantify semantic similarity.",
   "contextual-embedding":
     "An embedding that changes based on surrounding words. 'Bank' gets different vectors near 'river' vs 'money.'",
+  umap: "Uniform Manifold Approximation and Projection. Reduces high-dimensional vectors to 2D or 3D for visualization while preserving local neighborhoods.",
+  "approximate-nearest-neighbor":
+    "A class of algorithms (HNSW, IVF, ScaNN) that trade a little recall for huge speed wins on large vector sets. Standard for production retrieval.",
+  hnsw: "Hierarchical Navigable Small World. A layered graph index for approximate nearest-neighbor search. Sub-millisecond at ~0.98 recall on millions of vectors.",
+  pgvector:
+    "A Postgres extension that stores vectors as a column type and supports <=> (cosine distance), <-> (L2), and <#> (inner product) with HNSW/IVFFlat indexes.",
 
   // Tokenization
   "bpe-tokenizer":

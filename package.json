@@ -6,6 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "pnpm build:pdf && next build && pnpm build:postprocess && pnpm audit:lighthouse",
     "build:pdf": "tsx scripts/build-resume-pdf.tsx",
+    "build:embeddings": "tsx scripts/build-embeddings.ts",
     "build:lab-thumbs": "tsx scripts/build-lab-thumbnails.ts",
     "build:postprocess": "tsx scripts/post-process-html.ts",
     "audit:lighthouse": "tsx scripts/audit-lighthouse.ts",
@@ -30,6 +31,7 @@
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
+    "@huggingface/transformers": "^4.1.0",
     "@react-pdf/renderer": "^4.4.1",
     "@tailwindcss/postcss": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",
@@ -50,10 +52,17 @@
     "tailwindcss": "^4.2.2",
     "tsx": "^4.21.0",
     "typescript": "^5.7.3",
+    "umap-js": "^1.4.0",
     "vitest": "^4.0.18"
   },
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@10.29.2"
+  "packageManager": "pnpm@10.29.2",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "onnxruntime-node",
+      "protobufjs"
+    ]
+  }
 }

@@ -1,171 +1,52 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import {
+  ANALOGIES,
+  CLUSTER_LABELS,
+  EMBEDDING_DIM,
+  EMBEDDING_MODEL,
+  VOCAB_SIZE,
+  WORDS,
+} from "@/features/lab/data/embedding-data";
 import { getTheme } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Embedding Space — Canvas2D
 
-   2D projection of word embeddings showing
-   semantic clusters, nearest neighbors, and
-   vector arithmetic (analogy) relationships.
+   Real word embeddings (Xenova/all-MiniLM-L6-v2,
+   384D, unit-norm) projected to 2D via UMAP at
+   build time. Cosine similarities and analogy
+   arithmetic are computed in the full 384D
+   space, so dragging a word in the plane does
+   not change its true neighbors.
    ──────────────────────────────────────────── */
 
-/* ── Cluster definitions ── */
+/* ── Palette ── */
 
-interface WordEntry {
-  word: string;
-  cluster: number;
-  /** Pre-computed 2D position (normalized 0-1, mapped to viewport at render time) */
-  baseX: number;
-  baseY: number;
-}
-
-const CLUSTER_LABELS = ["animals", "actions", "emotions", "colors", "size", "food", "royalty"];
-
-/** Muted cluster colors — [dark, light] pairs */
+/** One [dark, light] pair per cluster in CLUSTER_LABELS. */
 const CLUSTER_COLORS: [string, string][] = [
-  ["rgba(120,180,255,C)", "rgba(40,100,200,C)"], // animals — blue
-  ["rgba(255,160,100,C)", "rgba(200,100,40,C)"], // actions — orange
-  ["rgba(200,130,255,C)", "rgba(140,60,200,C)"], // emotions — purple
-  ["rgba(255,100,120,C)", "rgba(200,50,70,C)"], // colors — red/pink
-  ["rgba(100,220,180,C)", "rgba(30,160,120,C)"], // size — teal
-  ["rgba(240,200,80,C)", "rgba(180,140,20,C)"], // food — gold
-  ["rgba(212,255,0,C)", "rgba(42,138,14,C)"], // royalty — accent
+  ["rgba(120,180,255,C)", "rgba(40,100,200,C)"], // 0 animals — blue
+  ["rgba(255,160,100,C)", "rgba(200,100,40,C)"], // 1 actions — orange
+  ["rgba(200,130,255,C)", "rgba(140,60,200,C)"], // 2 emotions — purple
+  ["rgba(255,100,120,C)", "rgba(200,50,70,C)"], // 3 colors — red/pink
+  ["rgba(100,220,180,C)", "rgba(30,160,120,C)"], // 4 size — teal
+  ["rgba(240,200,80,C)", "rgba(180,140,20,C)"], // 5 food — gold
+  ["rgba(212,255,0,C)", "rgba(42,138,14,C)"], // 6 capitals — accent
+  ["rgba(210,170,130,C)", "rgba(130,85,40,C)"], // 7 countries — earth
 ];
 
 function clusterColor(ci: number, isDark: boolean, opacity: number): string {
   const pair = CLUSTER_COLORS[ci % CLUSTER_COLORS.length];
-  const template = isDark ? pair[0] : pair[1];
+  const template = (isDark ? pair?.[0] : pair?.[1]) ?? "rgba(128,128,128,C)";
   return template.replace("C", String(opacity));
 }
 
-/* ── Word data with pre-computed 2D positions ── */
+/** One representative word per cluster for the auto-demo cycle. */
+const CLUSTER_REP_WORDS = ["cat", "run", "happy", "red", "big", "bread", "paris", "france"];
 
-const WORDS: WordEntry[] = [
-  // Cluster 0: Animals (top-left)
-  { word: "cat", cluster: 0, baseX: 0.12, baseY: 0.16 },
-  { word: "dog", cluster: 0, baseX: 0.17, baseY: 0.21 },
-  { word: "fish", cluster: 0, baseX: 0.08, baseY: 0.24 },
-  { word: "bird", cluster: 0, baseX: 0.14, baseY: 0.1 },
-  { word: "horse", cluster: 0, baseX: 0.2, baseY: 0.17 },
-  { word: "mouse", cluster: 0, baseX: 0.1, baseY: 0.28 },
-  { word: "lion", cluster: 0, baseX: 0.18, baseY: 0.12 },
-  { word: "wolf", cluster: 0, baseX: 0.22, baseY: 0.23 },
-  { word: "bear", cluster: 0, baseX: 0.15, baseY: 0.26 },
-  { word: "tiger", cluster: 0, baseX: 0.2, baseY: 0.09 },
-  { word: "eagle", cluster: 0, baseX: 0.09, baseY: 0.14 },
-  { word: "shark", cluster: 0, baseX: 0.06, baseY: 0.2 },
-
-  // Cluster 1: Actions (left-center)
-  { word: "run", cluster: 1, baseX: 0.06, baseY: 0.48 },
-  { word: "walk", cluster: 1, baseX: 0.1, baseY: 0.52 },
-  { word: "jump", cluster: 1, baseX: 0.08, baseY: 0.44 },
-  { word: "swim", cluster: 1, baseX: 0.04, baseY: 0.55 },
-  { word: "fly", cluster: 1, baseX: 0.12, baseY: 0.46 },
-  { word: "climb", cluster: 1, baseX: 0.07, baseY: 0.58 },
-  { word: "sprint", cluster: 1, baseX: 0.05, baseY: 0.42 },
-  { word: "leap", cluster: 1, baseX: 0.11, baseY: 0.56 },
-  { word: "crawl", cluster: 1, baseX: 0.09, baseY: 0.6 },
-  { word: "dash", cluster: 1, baseX: 0.13, baseY: 0.5 },
-
-  // Cluster 2: Emotions (upper-center)
-  { word: "happy", cluster: 2, baseX: 0.42, baseY: 0.15 },
-  { word: "sad", cluster: 2, baseX: 0.46, baseY: 0.18 },
-  { word: "angry", cluster: 2, baseX: 0.44, baseY: 0.22 },
-  { word: "calm", cluster: 2, baseX: 0.48, baseY: 0.14 },
-  { word: "excited", cluster: 2, baseX: 0.4, baseY: 0.19 },
-  { word: "fearful", cluster: 2, baseX: 0.5, baseY: 0.21 },
-  { word: "proud", cluster: 2, baseX: 0.43, baseY: 0.12 },
-  { word: "shy", cluster: 2, baseX: 0.47, baseY: 0.24 },
-  { word: "brave", cluster: 2, baseX: 0.41, baseY: 0.16 },
-  { word: "gentle", cluster: 2, baseX: 0.49, baseY: 0.17 },
-
-  // Cluster 3: Colors (top-right)
-  { word: "red", cluster: 3, baseX: 0.78, baseY: 0.12 },
-  { word: "blue", cluster: 3, baseX: 0.82, baseY: 0.16 },
-  { word: "green", cluster: 3, baseX: 0.76, baseY: 0.18 },
-  { word: "yellow", cluster: 3, baseX: 0.84, baseY: 0.14 },
-  { word: "purple", cluster: 3, baseX: 0.8, baseY: 0.2 },
-  { word: "orange", cluster: 3, baseX: 0.86, baseY: 0.18 },
-  { word: "black", cluster: 3, baseX: 0.77, baseY: 0.1 },
-  { word: "white", cluster: 3, baseX: 0.83, baseY: 0.09 },
-  { word: "pink", cluster: 3, baseX: 0.85, baseY: 0.12 },
-  { word: "gray", cluster: 3, baseX: 0.81, baseY: 0.22 },
-
-  // Cluster 4: Size/Scale (bottom-left)
-  { word: "big", cluster: 4, baseX: 0.12, baseY: 0.74 },
-  { word: "small", cluster: 4, baseX: 0.16, baseY: 0.77 },
-  { word: "tiny", cluster: 4, baseX: 0.18, baseY: 0.8 },
-  { word: "huge", cluster: 4, baseX: 0.1, baseY: 0.72 },
-  { word: "giant", cluster: 4, baseX: 0.08, baseY: 0.76 },
-  { word: "large", cluster: 4, baseX: 0.14, baseY: 0.7 },
-  { word: "vast", cluster: 4, baseX: 0.09, baseY: 0.8 },
-  { word: "little", cluster: 4, baseX: 0.17, baseY: 0.73 },
-  { word: "massive", cluster: 4, baseX: 0.11, baseY: 0.78 },
-
-  // Cluster 5: Food (bottom-right)
-  { word: "bread", cluster: 5, baseX: 0.76, baseY: 0.72 },
-  { word: "rice", cluster: 5, baseX: 0.8, baseY: 0.75 },
-  { word: "meat", cluster: 5, baseX: 0.78, baseY: 0.78 },
-  { word: "fruit", cluster: 5, baseX: 0.82, baseY: 0.73 },
-  { word: "cake", cluster: 5, baseX: 0.84, baseY: 0.76 },
-  { word: "soup", cluster: 5, baseX: 0.77, baseY: 0.8 },
-  { word: "pasta", cluster: 5, baseX: 0.81, baseY: 0.79 },
-  { word: "salad", cluster: 5, baseX: 0.85, baseY: 0.77 },
-  { word: "cheese", cluster: 5, baseX: 0.79, baseY: 0.7 },
-
-  // Cluster 6: Royalty/hierarchy (center) — analogy demo
-  { word: "king", cluster: 6, baseX: 0.48, baseY: 0.48 },
-  { word: "queen", cluster: 6, baseX: 0.52, baseY: 0.52 },
-  { word: "man", cluster: 6, baseX: 0.44, baseY: 0.54 },
-  { word: "woman", cluster: 6, baseX: 0.48, baseY: 0.58 },
-  { word: "prince", cluster: 6, baseX: 0.5, baseY: 0.44 },
-  { word: "princess", cluster: 6, baseX: 0.54, baseY: 0.48 },
-  { word: "boy", cluster: 6, baseX: 0.42, baseY: 0.5 },
-  { word: "girl", cluster: 6, baseX: 0.46, baseY: 0.56 },
-];
-
-/* ── Analogy definitions ── */
-
-interface Analogy {
-  a: string;
-  b: string;
-  c: string;
-  d: string;
-  label: string;
-}
-
-const ANALOGIES: Analogy[] = [
-  { a: "king", b: "queen", c: "man", d: "woman", label: "king \u2212 man + woman \u2248 queen" },
-  {
-    a: "king",
-    b: "prince",
-    c: "queen",
-    d: "princess",
-    label: "king \u2212 queen + princess \u2248 prince",
-  },
-  { a: "boy", b: "girl", c: "man", d: "woman", label: "boy \u2212 man + woman \u2248 girl" },
-];
-
-/* ── Nearest-neighbor demo sequences ── */
-
-interface NeighborDemo {
-  word: string;
-  neighbors: string[];
-}
-
-const NEIGHBOR_DEMOS: NeighborDemo[] = [
-  { word: "cat", neighbors: ["dog", "mouse", "lion", "tiger"] },
-  { word: "happy", neighbors: ["excited", "proud", "brave", "calm"] },
-  { word: "run", neighbors: ["sprint", "dash", "jump", "walk"] },
-  { word: "red", neighbors: ["orange", "pink", "blue", "yellow"] },
-  { word: "king", neighbors: ["queen", "prince", "man", "boy"] },
-  { word: "bread", neighbors: ["rice", "pasta", "cake", "cheese"] },
-  { word: "big", neighbors: ["huge", "large", "giant", "massive"] },
-];
-
-/* ── Simulation state ── */
+/* ── Sim state ── */
 
 interface WordState {
   x: number;
@@ -174,7 +55,18 @@ interface WordState {
   vy: number;
   targetX: number;
   targetY: number;
+  // Label offset from the dot — tracked independently so overlapping labels can
+  // slide apart without disturbing the underlying UMAP geometry.
+  lx: number;
+  ly: number;
+  lvx: number;
+  lvy: number;
 }
+
+const LABEL_REST_X = 8;
+const LABEL_REST_Y = 0;
+const LABEL_FONT_PX = 10;
+const LABEL_LINE_H = 11;
 
 interface SimState {
   words: WordState[];
@@ -184,40 +76,28 @@ interface SimState {
   dragOffsetX: number;
   dragOffsetY: number;
 
-  // Auto-demo state
   demoMode: "neighbors" | "analogy";
   demoIndex: number;
   demoTimer: number;
-  demoFade: number; // 0-1 opacity for current demo
-  demoCycle: number; // total time in current demo
+  demoFade: number;
+  demoCycle: number;
 
-  // Search
-  searchQuery: string;
-  searchResults: number[];
+  queryText: string;
+  queryFocusIdx: number;
 }
 
-/* ── Easing ── */
-
-function easeOutCubic(t: number): number {
-  return 1 - Math.pow(1 - t, 3);
-}
-
-/* ── Distance helper ── */
+/* ── Helpers ── */
 
 function dist(x1: number, y1: number, x2: number, y2: number): number {
   return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
 }
 
-/* ── Cosine similarity (computed from base positions, viewport-independent) ── */
+function easeOutCubic(t: number): number {
+  return 1 - Math.pow(1 - t, 3);
+}
 
-function cosineSim(i: number, j: number): number {
-  const wi = WORDS[i];
-  const wj = WORDS[j];
-  if (!wi || !wj) return 0;
-  // Use normalized base positions so similarity is consistent across viewports
-  const d = dist(wi.baseX, wi.baseY, wj.baseX, wj.baseY);
-  // Max possible distance in unit square is ~1.41; scale so nearby words ≈ 0.9+
-  return Math.max(0, Math.min(1, 1 - d * 2.5));
+function findWordIdx(name: string): number {
+  return WORDS.findIndex((w) => w.word === name);
 }
 
 /* ── Theme ── */
@@ -243,7 +123,7 @@ function darkColors(): ThemeColors {
     accent: "#d4ff00",
     accentDim: "rgba(212,255,0,0.3)",
     grid: "rgba(224,226,220,0.04)",
-    analogyA: "rgba(212,255,0,0.6)",
+    analogyA: "rgba(212,255,0,0.65)",
     analogyB: "rgba(0,200,255,0.6)",
   };
 }
@@ -257,7 +137,7 @@ function lightColors(): ThemeColors {
     accent: "#2a8a0e",
     accentDim: "rgba(42,138,14,0.25)",
     grid: "rgba(10,10,10,0.04)",
-    analogyA: "rgba(42,138,14,0.6)",
+    analogyA: "rgba(42,138,14,0.65)",
     analogyB: "rgba(0,120,180,0.6)",
   };
 }
@@ -272,31 +152,31 @@ export function EmbeddingSpace() {
   const [paused, setPaused] = useState(false);
   const [showClusters, setShowClusters] = useState(true);
   const [showAnalogies, setShowAnalogies] = useState(true);
+  const [queryText, setQueryText] = useState("");
+
   const showClustersRef = useRef(true);
   const showAnalogiesRef = useRef(true);
   const resetRef = useRef(0);
 
-  /* ── Initialize simulation state ── */
   const initSim = useCallback((W: number, H: number): SimState => {
     const padX = 60;
-    const padTop = 80;
-    const padBot = 100;
+    const padTop = 110;
+    const padBot = 110;
     const usableW = W - padX * 2;
     const usableH = H - padTop - padBot;
 
-    const words: WordState[] = WORDS.map((w) => {
-      const tx = padX + w.baseX * usableW;
-      const ty = padTop + w.baseY * usableH;
-      // Start fully scattered — the settle animation IS the demo
-      return {
-        x: padX + Math.random() * usableW,
-        y: padTop + Math.random() * usableH,
-        vx: 0,
-        vy: 0,
-        targetX: tx,
-        targetY: ty,
-      };
-    });
+    const words: WordState[] = WORDS.map((w) => ({
+      x: padX + Math.random() * usableW,
+      y: padTop + Math.random() * usableH,
+      vx: 0,
+      vy: 0,
+      targetX: padX + w.baseX * usableW,
+      targetY: padTop + w.baseY * usableH,
+      lx: LABEL_REST_X,
+      ly: LABEL_REST_Y,
+      lvx: 0,
+      lvy: 0,
+    }));
 
     return {
       words,
@@ -309,13 +189,12 @@ export function EmbeddingSpace() {
       demoIndex: 0,
       demoTimer: 0,
       demoFade: 0,
-      demoCycle: -3, // negative = delay before first demo (settle animation plays first)
-      searchQuery: "",
-      searchResults: [],
+      demoCycle: -3,
+      queryText: "",
+      queryFocusIdx: -1,
     };
   }, []);
 
-  /* ── Main effect ── */
   useEffect(() => {
     const maybeCanvas = canvasRef.current;
     if (!maybeCanvas) return;
@@ -337,15 +216,28 @@ export function EmbeddingSpace() {
     const sim = initSim(rect.width, rect.height);
     simRef.current = sim;
 
-    const observer = new ResizeObserver(() => {
-      setSize();
-      // Recompute target positions on resize
-      const r = canvas.getBoundingClientRect();
+    // Measure each label once. Redo after web fonts load so widths are
+    // precise once JetBrains Mono resolves (fallback monospace is close).
+    const labelWidths: number[] = Array.from({ length: WORDS.length }, () => 0);
+    const measureLabels = () => {
+      ctx.font = `${LABEL_FONT_PX}px 'JetBrains Mono', monospace`;
+      for (let i = 0; i < WORDS.length; i++) {
+        const w = WORDS[i];
+        if (!w) continue;
+        labelWidths[i] = ctx.measureText(w.word).width;
+      }
+    };
+    measureLabels();
+    if (typeof document !== "undefined" && document.fonts?.ready) {
+      document.fonts.ready.then(measureLabels).catch(() => {});
+    }
+
+    const recomputeTargets = (W: number, H: number) => {
       const padX = 60;
-      const padTop = 80;
-      const padBot = 100;
-      const usableW = r.width - padX * 2;
-      const usableH = r.height - padTop - padBot;
+      const padTop = 110;
+      const padBot = 110;
+      const usableW = W - padX * 2;
+      const usableH = H - padTop - padBot;
       for (let i = 0; i < WORDS.length; i++) {
         const w = WORDS[i];
         const ws = sim.words[i];
@@ -353,6 +245,12 @@ export function EmbeddingSpace() {
         ws.targetX = padX + w.baseX * usableW;
         ws.targetY = padTop + w.baseY * usableH;
       }
+    };
+
+    const observer = new ResizeObserver(() => {
+      setSize();
+      const r = canvas.getBoundingClientRect();
+      recomputeTargets(r.width, r.height);
     });
     observer.observe(canvas);
 
@@ -375,9 +273,8 @@ export function EmbeddingSpace() {
         return;
       }
 
-      // Find nearest word
       let closest = -1;
-      let closestDist = 30; // max hover distance
+      let closestDist = 30;
       for (let i = 0; i < sim.words.length; i++) {
         const ws = sim.words[i];
         if (!ws) continue;
@@ -434,35 +331,10 @@ export function EmbeddingSpace() {
       }
       if (e.key === "r" || e.key === "R") {
         e.preventDefault();
-        // Re-scatter and re-settle
-        const r2 = canvas.getBoundingClientRect();
-        const padX = 60;
-        const padTop = 80;
-        const padBot = 100;
-        const usableW = r2.width - padX * 2;
-        const usableH = r2.height - padTop - padBot;
-        for (let i = 0; i < WORDS.length; i++) {
-          const w = WORDS[i];
-          const ws = sim.words[i];
-          if (!w || !ws) continue;
-          ws.targetX = padX + w.baseX * usableW;
-          ws.targetY = padTop + w.baseY * usableH;
-          ws.x = padX + Math.random() * usableW;
-          ws.y = padTop + Math.random() * usableH;
-          ws.vx = 0;
-          ws.vy = 0;
-        }
-        sim.demoTimer = 0;
-        sim.demoFade = 0;
-        sim.demoCycle = 0;
+        resetRef.current++;
       }
     };
     window.addEventListener("keydown", onKeyDown);
-
-    /* ── Find word index by name ── */
-    function findWord(name: string): number {
-      return WORDS.findIndex((w) => w.word === name);
-    }
 
     /* ── Render loop ── */
     let lastTime = performance.now();
@@ -471,7 +343,7 @@ export function EmbeddingSpace() {
     function render(now: number) {
       rafRef.current = requestAnimationFrame(render);
 
-      const dt = Math.min(32, now - lastTime) / 1000; // seconds, capped
+      const dt = Math.min(32, now - lastTime) / 1000;
       lastTime = now;
 
       const r = canvas.getBoundingClientRect();
@@ -479,12 +351,11 @@ export function EmbeddingSpace() {
       const H = r.height;
       if (W === 0 || H === 0) return;
 
-      // Check for reset from button
       if (resetRef.current !== lastResetCount) {
         lastResetCount = resetRef.current;
         const padX = 60;
-        const padTop = 80;
-        const padBot = 100;
+        const padTop = 110;
+        const padBot = 110;
         const usableW = W - padX * 2;
         const usableH = H - padTop - padBot;
         for (let i = 0; i < WORDS.length; i++) {
@@ -497,6 +368,10 @@ export function EmbeddingSpace() {
           ws.y = padTop + Math.random() * usableH;
           ws.vx = 0;
           ws.vy = 0;
+          ws.lx = LABEL_REST_X;
+          ws.ly = LABEL_REST_Y;
+          ws.lvx = 0;
+          ws.lvy = 0;
         }
         sim.demoTimer = 0;
         sim.demoFade = 0;
@@ -506,17 +381,15 @@ export function EmbeddingSpace() {
       const isDark = getTheme() === "dark";
       const c = isDark ? darkColors() : lightColors();
 
-      // Clear
       ctx.fillStyle = c.bg;
       ctx.fillRect(0, 0, W, H);
 
-      /* ── Physics: spring to target + subtle brownian ── */
+      /* ── Physics ── */
       if (!sim.paused) {
         for (let i = 0; i < sim.words.length; i++) {
           const ws = sim.words[i];
           if (!ws || i === sim.dragIndex) continue;
 
-          // Spring force toward target
           const dx = ws.targetX - ws.x;
           const dy = ws.targetY - ws.y;
           const springK = 3.0;
@@ -524,22 +397,84 @@ export function EmbeddingSpace() {
 
           ws.vx += dx * springK * dt;
           ws.vy += dy * springK * dt;
-
-          // Very subtle Brownian jitter — just enough to feel alive
           ws.vx += (Math.random() - 0.5) * 0.04;
           ws.vy += (Math.random() - 0.5) * 0.04;
-
           ws.vx *= damping;
           ws.vy *= damping;
-
           ws.x += ws.vx;
           ws.y += ws.vy;
         }
 
-        // Advance demo cycle
+        /* ── Label placement: spring toward rest + pairwise repulsion ── */
+        const focusIdxLocal = sim.hoverIndex >= 0 ? sim.hoverIndex : sim.queryFocusIdx;
+        const labelSpringK = 7.0;
+        const labelDamping = 0.72;
+        const halfH = LABEL_LINE_H / 2;
+
+        for (let i = 0; i < sim.words.length; i++) {
+          const ws = sim.words[i];
+          if (!ws) continue;
+          ws.lvx += (LABEL_REST_X - ws.lx) * labelSpringK * dt;
+          ws.lvy += (LABEL_REST_Y - ws.ly) * labelSpringK * dt;
+        }
+
+        for (let i = 0; i < sim.words.length; i++) {
+          const wi = sim.words[i];
+          if (!wi) continue;
+          const wiBoost = i === focusIdxLocal ? 1.5 : 1;
+          const wiWidth = (labelWidths[i] ?? 36) * wiBoost;
+          const aLeft = wi.x + wi.lx;
+          const aTop = wi.y + wi.ly - halfH * wiBoost;
+          const aRight = aLeft + wiWidth;
+          const aBot = aTop + LABEL_LINE_H * wiBoost;
+
+          for (let j = i + 1; j < sim.words.length; j++) {
+            const wj = sim.words[j];
+            if (!wj) continue;
+            const wjBoost = j === focusIdxLocal ? 1.5 : 1;
+            const wjWidth = (labelWidths[j] ?? 36) * wjBoost;
+            const bLeft = wj.x + wj.lx;
+            const bTop = wj.y + wj.ly - halfH * wjBoost;
+            const bRight = bLeft + wjWidth;
+            const bBot = bTop + LABEL_LINE_H * wjBoost;
+
+            const overlapX = Math.min(aRight, bRight) - Math.max(aLeft, bLeft);
+            const overlapY = Math.min(aBot, bBot) - Math.max(aTop, bTop);
+            if (overlapX <= 0 || overlapY <= 0) continue;
+
+            // Push along the axis of smaller overlap — minimizes disruption.
+            if (overlapX < overlapY) {
+              const push = (overlapX + 1) * 0.5;
+              const dir = aLeft + wiWidth / 2 < bLeft + wjWidth / 2 ? -1 : 1;
+              wi.lvx += dir * push * 18 * dt;
+              wj.lvx -= dir * push * 18 * dt;
+            } else {
+              const push = (overlapY + 1) * 0.5;
+              const dir = aTop + LABEL_LINE_H / 2 < bTop + LABEL_LINE_H / 2 ? -1 : 1;
+              wi.lvy += dir * push * 18 * dt;
+              wj.lvy -= dir * push * 18 * dt;
+            }
+          }
+        }
+
+        for (let i = 0; i < sim.words.length; i++) {
+          const ws = sim.words[i];
+          if (!ws) continue;
+          ws.lvx *= labelDamping;
+          ws.lvy *= labelDamping;
+          ws.lx += ws.lvx * dt * 60; // scale to per-frame units
+          ws.ly += ws.lvy * dt * 60;
+          // Clamp so labels never drift absurdly far from their dot.
+          const maxOff = 42;
+          if (ws.lx > maxOff) ws.lx = maxOff;
+          else if (ws.lx < -maxOff) ws.lx = -maxOff;
+          if (ws.ly > maxOff) ws.ly = maxOff;
+          else if (ws.ly < -maxOff) ws.ly = -maxOff;
+        }
+
         sim.demoCycle += dt;
 
-        const DEMO_DURATION = 4.5; // seconds per demo
+        const DEMO_DURATION = 4.5;
         const FADE_IN = 0.6;
         const FADE_OUT = 0.6;
         const HOLD = DEMO_DURATION - FADE_IN - FADE_OUT;
@@ -551,25 +486,23 @@ export function EmbeddingSpace() {
         } else if (sim.demoCycle < DEMO_DURATION) {
           sim.demoFade = 1 - easeOutCubic((sim.demoCycle - FADE_IN - HOLD) / FADE_OUT);
         } else {
-          // Next demo
           sim.demoCycle = 0;
           sim.demoFade = 0;
           sim.demoTimer++;
 
-          // Alternate between neighbor demos and analogies
-          const totalDemos = NEIGHBOR_DEMOS.length + ANALOGIES.length;
+          const totalDemos = CLUSTER_REP_WORDS.length + ANALOGIES.length;
           const idx = sim.demoTimer % totalDemos;
-          if (idx < NEIGHBOR_DEMOS.length) {
+          if (idx < CLUSTER_REP_WORDS.length) {
             sim.demoMode = "neighbors";
             sim.demoIndex = idx;
           } else {
             sim.demoMode = "analogy";
-            sim.demoIndex = idx - NEIGHBOR_DEMOS.length;
+            sim.demoIndex = idx - CLUSTER_REP_WORDS.length;
           }
         }
       }
 
-      /* ── Draw background grid ── */
+      /* ── Background grid ── */
       ctx.strokeStyle = c.grid;
       ctx.lineWidth = 1;
       const gridSpacing = 60;
@@ -586,269 +519,174 @@ export function EmbeddingSpace() {
         ctx.stroke();
       }
 
-      /* ── Draw cluster hulls ── */
+      /* ── Cluster hulls ── */
       if (showClustersRef.current) {
         for (let ci = 0; ci < CLUSTER_LABELS.length; ci++) {
-          const clusterWords: number[] = [];
+          const clusterWordIdxs: number[] = [];
           for (let i = 0; i < WORDS.length; i++) {
             const w = WORDS[i];
-            if (w && w.cluster === ci) clusterWords.push(i);
+            if (w && w.cluster === ci) clusterWordIdxs.push(i);
           }
-          if (clusterWords.length < 3) continue;
+          if (clusterWordIdxs.length < 3) continue;
 
-          // Compute convex hull centroid and draw soft circle
           let cx = 0;
           let cy = 0;
-          let maxR = 0;
-          for (const idx of clusterWords) {
+          for (const idx of clusterWordIdxs) {
             const ws = sim.words[idx];
             if (ws) {
               cx += ws.x;
               cy += ws.y;
             }
           }
-          cx /= clusterWords.length;
-          cy /= clusterWords.length;
+          cx /= clusterWordIdxs.length;
+          cy /= clusterWordIdxs.length;
 
-          for (const idx of clusterWords) {
+          let maxR = 0;
+          for (const idx of clusterWordIdxs) {
             const ws = sim.words[idx];
             if (!ws) continue;
             const d = dist(cx, cy, ws.x, ws.y);
             if (d > maxR) maxR = d;
           }
 
-          // Soft gradient circle for cluster region
-          const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR + 40);
+          const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR + 36);
           grad.addColorStop(0, clusterColor(ci, isDark, 0.06));
           grad.addColorStop(0.7, clusterColor(ci, isDark, 0.03));
           grad.addColorStop(1, clusterColor(ci, isDark, 0));
           ctx.fillStyle = grad;
           ctx.beginPath();
-          ctx.arc(cx, cy, maxR + 40, 0, Math.PI * 2);
+          ctx.arc(cx, cy, maxR + 36, 0, Math.PI * 2);
           ctx.fill();
 
-          // Cluster label — positioned at centroid, behind the words
           ctx.font = "11px 'JetBrains Mono', monospace";
-          ctx.fillStyle = clusterColor(ci, isDark, 0.2);
+          ctx.fillStyle = clusterColor(ci, isDark, 0.22);
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText(CLUSTER_LABELS[ci].toUpperCase(), cx, cy);
         }
       }
 
-      /* ── Draw auto-demo: neighbor connections or analogy arrows ── */
-      const hoverActive = sim.hoverIndex >= 0;
+      /* ── Determine focus mode: hover > query > demo ── */
+      const hoverIdx = sim.hoverIndex;
+      const queryIdx = sim.queryFocusIdx;
+      const focusIdx = hoverIdx >= 0 ? hoverIdx : queryIdx;
+      const focusSource: "hover" | "query" | "demo" =
+        hoverIdx >= 0 ? "hover" : queryIdx >= 0 ? "query" : "demo";
 
-      if (!hoverActive && sim.demoFade > 0) {
+      /* ── Auto-demo (only when no focus) ── */
+      if (focusSource === "demo" && sim.demoFade > 0) {
         ctx.globalAlpha = sim.demoFade;
 
         if (sim.demoMode === "neighbors") {
-          const demo = NEIGHBOR_DEMOS[sim.demoIndex % NEIGHBOR_DEMOS.length];
-          if (demo) {
-            const centerIdx = findWord(demo.word);
+          const repWord = CLUSTER_REP_WORDS[sim.demoIndex % CLUSTER_REP_WORDS.length];
+          if (repWord) {
+            const centerIdx = findWordIdx(repWord);
+            const centerWord = centerIdx >= 0 ? WORDS[centerIdx] : null;
             const centerWs = centerIdx >= 0 ? sim.words[centerIdx] : null;
 
-            if (centerWs) {
-              // Highlight ring around center word
-              ctx.strokeStyle = c.accent;
-              ctx.lineWidth = 1.5;
-              ctx.beginPath();
-              ctx.arc(centerWs.x, centerWs.y, 18, 0, Math.PI * 2);
-              ctx.stroke();
-
-              // Draw connections to neighbors
-              for (let ni = 0; ni < demo.neighbors.length; ni++) {
-                const nIdx = findWord(demo.neighbors[ni]);
-                const nWs = nIdx >= 0 ? sim.words[nIdx] : null;
-                if (!nWs) continue;
-
-                const similarity = cosineSim(centerIdx, nIdx);
-
-                // Connection line
-                ctx.strokeStyle = c.accentDim;
-                ctx.lineWidth = 1 + similarity * 2;
-                ctx.setLineDash([4, 3]);
-                ctx.beginPath();
-                ctx.moveTo(centerWs.x, centerWs.y);
-                ctx.lineTo(nWs.x, nWs.y);
-                ctx.stroke();
-                ctx.setLineDash([]);
-
-                // Similarity score at midpoint
-                const mx = (centerWs.x + nWs.x) / 2;
-                const my = (centerWs.y + nWs.y) / 2;
-                ctx.font = "9px 'JetBrains Mono', monospace";
-                ctx.fillStyle = c.text;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                ctx.fillText(similarity.toFixed(2), mx, my - 9);
-              }
-
-              // "nearest neighbors" label
+            if (centerWord && centerWs) {
+              drawNeighborFan(ctx, sim, centerIdx, centerWord, centerWs, c, 4);
               ctx.font = "10px 'JetBrains Mono', monospace";
               ctx.fillStyle = c.accent;
               ctx.textAlign = "center";
-              ctx.fillText(`nearest neighbors of "${demo.word}"`, centerWs.x, centerWs.y + 30);
+              ctx.fillText(`top cosine neighbors of "${repWord}"`, centerWs.x, centerWs.y + 32);
             }
           }
         } else if (sim.demoMode === "analogy" && showAnalogiesRef.current) {
           const analogy = ANALOGIES[sim.demoIndex % ANALOGIES.length];
-          if (analogy) {
-            const aIdx = findWord(analogy.a);
-            const bIdx = findWord(analogy.b);
-            const cIdx = findWord(analogy.c);
-            const dIdx = findWord(analogy.d);
-            const aW = aIdx >= 0 ? sim.words[aIdx] : null;
-            const bW = bIdx >= 0 ? sim.words[bIdx] : null;
-            const cW = cIdx >= 0 ? sim.words[cIdx] : null;
-            const dW = dIdx >= 0 ? sim.words[dIdx] : null;
-
-            if (aW && bW && cW && dW) {
-              // Draw analogy arrows: a→c parallel to b→d
-              const drawArrow = (x1: number, y1: number, x2: number, y2: number, color: string) => {
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 2;
-                ctx.setLineDash([6, 4]);
-                ctx.beginPath();
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
-                ctx.stroke();
-                ctx.setLineDash([]);
-
-                // Arrowhead
-                const angle = Math.atan2(y2 - y1, x2 - x1);
-                const headLen = 8;
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.moveTo(x2, y2);
-                ctx.lineTo(
-                  x2 - headLen * Math.cos(angle - 0.35),
-                  y2 - headLen * Math.sin(angle - 0.35),
-                );
-                ctx.lineTo(
-                  x2 - headLen * Math.cos(angle + 0.35),
-                  y2 - headLen * Math.sin(angle + 0.35),
-                );
-                ctx.closePath();
-                ctx.fill();
-              };
-
-              // a → c (e.g., king → man) — "gender direction"
-              drawArrow(aW.x, aW.y, cW.x, cW.y, c.analogyA);
-              // b → d (e.g., queen → woman) — parallel gender direction
-              drawArrow(bW.x, bW.y, dW.x, dW.y, c.analogyB);
-
-              // Highlight the four words with rings
-              for (const ws of [aW, bW, cW, dW]) {
-                ctx.strokeStyle = c.accent;
-                ctx.lineWidth = 1.5;
-                ctx.beginPath();
-                ctx.arc(ws.x, ws.y, 16, 0, Math.PI * 2);
-                ctx.stroke();
-              }
-
-              // Label
-              const labelX = (aW.x + bW.x + cW.x + dW.x) / 4;
-              const labelY = Math.min(aW.y, bW.y, cW.y, dW.y) - 34;
-              ctx.font = "11px 'JetBrains Mono', monospace";
-              ctx.fillStyle = c.textBright;
-              ctx.textAlign = "center";
-              ctx.fillText(analogy.label, labelX, labelY);
-            }
-          }
+          if (analogy) drawAnalogy(ctx, sim, analogy, c);
         }
 
         ctx.globalAlpha = 1;
       }
 
-      /* ── Draw hover state: nearest neighbors ── */
-      if (hoverActive) {
-        const hws = sim.words[sim.hoverIndex];
-        if (hws) {
-          // Find 4 nearest neighbors
-          const distances: { idx: number; d: number }[] = [];
-          for (let i = 0; i < sim.words.length; i++) {
-            if (i === sim.hoverIndex) continue;
-            const ws = sim.words[i];
-            if (!ws) continue;
-            distances.push({ idx: i, d: dist(hws.x, hws.y, ws.x, ws.y) });
-          }
-          distances.sort((a, b) => a.d - b.d);
-          const nearest = distances.slice(0, 5);
-
-          // Highlight ring
-          ctx.strokeStyle = c.accent;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(hws.x, hws.y, 20, 0, Math.PI * 2);
-          ctx.stroke();
-
-          // Draw connections
-          for (const n of nearest) {
-            const nws = sim.words[n.idx];
-            if (!nws) continue;
-            const similarity = cosineSim(sim.hoverIndex, n.idx);
-
-            ctx.strokeStyle = c.accentDim;
-            ctx.lineWidth = 1 + similarity * 2;
-            ctx.setLineDash([4, 3]);
-            ctx.beginPath();
-            ctx.moveTo(hws.x, hws.y);
-            ctx.lineTo(nws.x, nws.y);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            // Similarity label
-            const mx = (hws.x + nws.x) / 2;
-            const my = (hws.y + nws.y) / 2;
-            ctx.font = "9px 'JetBrains Mono', monospace";
-            ctx.fillStyle = c.textBright;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(`cos=${similarity.toFixed(2)}`, mx, my - 9);
-
-            // Highlight neighbor dot
+      /* ── Focus overlays (hover or query) ── */
+      if (focusSource !== "demo" && focusIdx >= 0) {
+        const fw = WORDS[focusIdx];
+        const fws = sim.words[focusIdx];
+        if (fw && fws) {
+          drawNeighborFan(ctx, sim, focusIdx, fw, fws, c, 5);
+          if (focusSource === "query") {
+            ctx.font = "10px 'JetBrains Mono', monospace";
             ctx.fillStyle = c.accent;
-            ctx.beginPath();
-            ctx.arc(nws.x, nws.y, 5, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.textAlign = "center";
+            ctx.fillText(`query: "${fw.word}" · top 5 by cosine`, fws.x, fws.y + 32);
           }
         }
       }
 
-      /* ── Draw word dots and labels ── */
+      /* ── Word dots + labels ── */
       for (let i = 0; i < sim.words.length; i++) {
         const ws = sim.words[i];
         const wd = WORDS[i];
         if (!ws || !wd) continue;
 
-        const isHovered = i === sim.hoverIndex;
+        const isFocus = i === focusIdx;
         const ci = wd.cluster;
 
-        // Dot
-        const dotR = isHovered ? 6 : 3.5;
-        ctx.fillStyle = isHovered ? c.accent : clusterColor(ci, isDark, 0.7);
+        const dotR = isFocus ? 6 : 3.5;
+        ctx.fillStyle = isFocus ? c.accent : clusterColor(ci, isDark, 0.72);
         ctx.beginPath();
         ctx.arc(ws.x, ws.y, dotR, 0, Math.PI * 2);
         ctx.fill();
 
-        // Label
-        const fontSize = isHovered ? 12 : 10;
+        const labelX = ws.x + ws.lx;
+        const labelY = ws.y + ws.ly;
+
+        // Leader line when the label has been pushed off its rest position.
+        const offDx = ws.lx - LABEL_REST_X;
+        const offDy = ws.ly - LABEL_REST_Y;
+        if (offDx * offDx + offDy * offDy > 144) {
+          ctx.strokeStyle = c.grid;
+          ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(ws.x, ws.y);
+          ctx.lineTo(labelX - 2, labelY);
+          ctx.stroke();
+        }
+
+        const fontSize = isFocus ? 12 : 10;
         ctx.font = `${fontSize}px 'JetBrains Mono', monospace`;
-        ctx.fillStyle = isHovered ? c.textBright : c.text;
+        ctx.fillStyle = isFocus ? c.textBright : c.text;
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
-        ctx.fillText(wd.word, ws.x + dotR + 4, ws.y);
+        ctx.fillText(wd.word, labelX, labelY);
       }
 
-      /* ── Title ── */
-      ctx.font = "10px 'JetBrains Mono', monospace";
-      ctx.fillStyle = c.textDim;
+      /* ── Title block (top-left) ── */
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
+      ctx.font = "10px 'JetBrains Mono', monospace";
+      ctx.fillStyle = c.textDim;
       ctx.fillText("EMBEDDING SPACE", 20, 58);
       ctx.font = "9px 'JetBrains Mono', monospace";
-      ctx.fillText(`${WORDS.length} WORDS \u00B7 768D \u2192 2D`, 20, 73);
+      ctx.fillText(
+        `${EMBEDDING_MODEL.split("/").pop()} · ${EMBEDDING_DIM}D \u2192 2D (UMAP)`,
+        20,
+        73,
+      );
+      ctx.fillText(`${VOCAB_SIZE} words · ${CLUSTER_LABELS.length} clusters`, 20, 86);
+
+      /* ── Scale / cost panel (bottom-right) ── */
+      const bytesPerVec = EMBEDDING_DIM * 4;
+      const kbPerVec = (bytesPerVec / 1024).toFixed(2);
+      const gbPerMillion = ((bytesPerVec * 1_000_000) / 1024 ** 3).toFixed(2);
+
+      ctx.textAlign = "right";
+      ctx.textBaseline = "bottom";
+      ctx.font = "9px 'JetBrains Mono', monospace";
+      const panelX = W - 20;
+      const lineH = 13;
+      const lines = [
+        `cos(a,b) = a\u00B7b / \u2016a\u2016\u2016b\u2016`,
+        `float32 \u00D7 ${EMBEDDING_DIM} = ${kbPerVec} KB/vec`,
+        `1M vectors \u2248 ${gbPerMillion} GB (+HNSW)`,
+        `SELECT ... ORDER BY emb <=> $1 LIMIT 5`,
+      ];
+      for (let i = 0; i < lines.length; i++) {
+        ctx.fillStyle = i === 0 ? c.text : c.textDim;
+        ctx.fillText(lines[i], panelX, H - 20 - (lines.length - 1 - i) * lineH);
+      }
     }
 
     rafRef.current = requestAnimationFrame(render);
@@ -875,9 +713,19 @@ export function EmbeddingSpace() {
   useEffect(() => {
     showAnalogiesRef.current = showAnalogies;
   }, [showAnalogies]);
+  useEffect(() => {
+    const s = simRef.current;
+    if (!s) return;
+    const q = queryText.trim().toLowerCase();
+    s.queryText = q;
+    s.queryFocusIdx = q ? findWordIdx(q) : -1;
+  }, [queryText]);
 
   const btnBase =
     "px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.15em] transition-colors cursor-pointer";
+
+  const queryResolved =
+    queryText.trim() && findWordIdx(queryText.trim().toLowerCase()) < 0 ? "not in vocab" : null;
 
   return (
     <>
@@ -888,8 +736,28 @@ export function EmbeddingSpace() {
         aria-hidden="true"
       />
 
-      {/* Controls */}
       <div className="fixed right-5 top-16 z-10 flex items-center gap-2 md:right-8">
+        <div className="relative">
+          <input
+            type="text"
+            value={queryText}
+            onChange={(e) => setQueryText(e.target.value)}
+            placeholder="query…"
+            aria-label="semantic search query"
+            spellCheck={false}
+            autoCorrect="off"
+            autoCapitalize="off"
+            className="w-28 border border-foreground/15 bg-transparent px-2 py-1.5 font-mono text-[10px] lowercase tracking-[0.1em] text-foreground/70 placeholder:text-foreground/25 focus:border-accent focus:outline-none"
+          />
+          {queryResolved ? (
+            <span className="pointer-events-none absolute -bottom-4 right-0 font-mono text-[8px] uppercase tracking-[0.15em] text-foreground/35">
+              {queryResolved}
+            </span>
+          ) : null}
+        </div>
+
+        <span className="h-4 w-px bg-foreground/10" />
+
         <button
           onClick={() => setShowClusters(!showClusters)}
           className={`${btnBase} ${showClusters ? "text-foreground/60 hover:text-foreground/80" : "text-foreground/25 hover:text-foreground/40"}`}
@@ -932,4 +800,128 @@ export function EmbeddingSpace() {
       </div>
     </>
   );
+}
+
+/* ────────────────────────────────────────────
+   Drawing helpers
+   ──────────────────────────────────────────── */
+
+function drawNeighborFan(
+  ctx: CanvasRenderingContext2D,
+  sim: SimState,
+  centerIdx: number,
+  centerWord: (typeof WORDS)[number],
+  centerWs: WordState,
+  c: ThemeColors,
+  k: number,
+) {
+  ctx.strokeStyle = c.accent;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(centerWs.x, centerWs.y, 18, 0, Math.PI * 2);
+  ctx.stroke();
+
+  const neighbors = centerWord.neighbors.slice(0, k);
+  for (const n of neighbors) {
+    const nws = sim.words[n.idx];
+    if (!nws) continue;
+
+    ctx.strokeStyle = c.accentDim;
+    ctx.lineWidth = 1 + n.score * 2;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(centerWs.x, centerWs.y);
+    ctx.lineTo(nws.x, nws.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const mx = (centerWs.x + nws.x) / 2;
+    const my = (centerWs.y + nws.y) / 2;
+    ctx.font = "9px 'JetBrains Mono', monospace";
+    ctx.fillStyle = c.textBright;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`cos=${n.score.toFixed(2)}`, mx, my - 9);
+
+    ctx.fillStyle = c.accent;
+    ctx.beginPath();
+    ctx.arc(nws.x, nws.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawAnalogy(
+  ctx: CanvasRenderingContext2D,
+  sim: SimState,
+  analogy: (typeof ANALOGIES)[number],
+  c: ThemeColors,
+) {
+  const aIdx = findWordIdx(analogy.a);
+  const bIdx = findWordIdx(analogy.b);
+  const cIdx = findWordIdx(analogy.c);
+  const dIdx = analogy.top[0]?.idx ?? -1;
+  if (aIdx < 0 || bIdx < 0 || cIdx < 0 || dIdx < 0) return;
+
+  const aW = sim.words[aIdx];
+  const bW = sim.words[bIdx];
+  const cW = sim.words[cIdx];
+  const dW = sim.words[dIdx];
+  if (!aW || !bW || !cW || !dW) return;
+
+  /* Draw b→a parallel to c→d — the shared direction vector. */
+  drawArrow(ctx, bW.x, bW.y, aW.x, aW.y, c.analogyA);
+  drawArrow(ctx, cW.x, cW.y, dW.x, dW.y, c.analogyB);
+
+  for (const ws of [aW, bW, cW, dW]) {
+    ctx.strokeStyle = c.accent;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(ws.x, ws.y, 16, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  const labelX = (aW.x + bW.x + cW.x + dW.x) / 4;
+  const labelY = Math.min(aW.y, bW.y, cW.y, dW.y) - 38;
+  const predictedWord = WORDS[dIdx]?.word ?? "?";
+  const score = analogy.top[0]?.score.toFixed(2) ?? "?";
+
+  ctx.font = "11px 'JetBrains Mono', monospace";
+  ctx.fillStyle = c.textBright;
+  ctx.textAlign = "center";
+  ctx.fillText(
+    `${analogy.a} \u2212 ${analogy.b} + ${analogy.c} \u2248 ${predictedWord}`,
+    labelX,
+    labelY,
+  );
+  ctx.font = "9px 'JetBrains Mono', monospace";
+  ctx.fillStyle = c.text;
+  ctx.fillText(`top match cos=${score}`, labelX, labelY + 14);
+}
+
+function drawArrow(
+  ctx: CanvasRenderingContext2D,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  color: string,
+) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  const headLen = 8;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - headLen * Math.cos(angle - 0.35), y2 - headLen * Math.sin(angle - 0.35));
+  ctx.lineTo(x2 - headLen * Math.cos(angle + 0.35), y2 - headLen * Math.sin(angle + 0.35));
+  ctx.closePath();
+  ctx.fill();
 }
