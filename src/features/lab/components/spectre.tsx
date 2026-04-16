@@ -4,10 +4,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 /* ────────────────────────────────────────────
    Spectre aperiodic monotile — Canvas2D
-   Smith, Myers, Kaplan, Goodman-Strauss (2023)
 
-   Based on the reference implementation by Craig S. Kaplan.
-   Uses the 9-metatile substitution system (Gamma, Delta, Theta,
+   "A chiral aperiodic monotile"
+   Smith, Myers, Kaplan, Goodman-Strauss (2023)
+   https://arxiv.org/abs/2305.17743
+
+   Substitution system and tile geometry ported from
+   Craig S. Kaplan's reference implementation:
+   https://cs.uwaterloo.ca/~csk/spectre/
+   https://github.com/isohedral/hatviz (MIT License)
+
+   Uses the 9-metatile hierarchy (Gamma, Delta, Theta,
    Lambda, Xi, Pi, Sigma, Phi, Psi) with recursive inflation.
    ──────────────────────────────────────────── */
 

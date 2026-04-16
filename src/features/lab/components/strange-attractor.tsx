@@ -2,6 +2,15 @@
 
 import { useEffect, useRef } from "react";
 
+/* ────────────────────────────────────────────
+   Thomas' cyclically symmetric attractor — WebGL2
+
+   René Thomas (1999), "Deterministic chaos seen in terms
+   of feedback circuits: Analysis, synthesis, 'labyrinth chaos'"
+   doi:10.1142/S0218127499001383
+   b = 0.208186
+   ──────────────────────────────────────────── */
+
 /* ── Fullscreen triangle for fade pass ── */
 
 const FADE_VERT = `#version 300 es

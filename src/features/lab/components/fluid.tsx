@@ -3,6 +3,16 @@
 import { useEffect, useRef } from "react";
 
 /* ────────────────────────────────────────────
+   Navier-Stokes fluid simulation — WebGL2
+
+   Implements Jos Stam's "Stable Fluids" (1999)
+   https://www.dgp.toronto.edu/public_user/stam/reality/Research/pdf/ns.pdf
+
+   Splat → advect → divergence → Jacobi pressure solve →
+   gradient subtract → dye advect
+   ──────────────────────────────────────────── */
+
+/* ────────────────────────────────────────────
    GLSL — fullscreen-triangle vertex shader
    shared by all programs
    ──────────────────────────────────────────── */

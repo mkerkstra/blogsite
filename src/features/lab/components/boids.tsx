@@ -3,6 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /* ────────────────────────────────────────────
+   Boids flocking simulation — Canvas2D
+
+   Craig Reynolds, "Flocks, Herds, and Schools:
+   A Distributed Behavioral Model" (SIGGRAPH 1987)
+   https://www.red3d.com/cwr/boids/
+   ──────────────────────────────────────────── */
+
+/* ────────────────────────────────────────────
    Constants
    ──────────────────────────────────────────── */
 

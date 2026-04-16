@@ -3,6 +3,18 @@
 import { useEffect, useRef } from "react";
 
 /* ────────────────────────────────────────────
+   Physarum polycephalum slime mold — WebGL2
+
+   Agent model based on Jeff Jones (2010)
+   "Characteristics of pattern formation and evolution in
+   approximations of Physarum transport networks"
+   https://doi.org/10.1162/artl.2010.16.2.16202
+
+   Agents sense, rotate, deposit pheromone; a diffuse-decay
+   pass blurs the trail map each frame.
+   ──────────────────────────────────────────── */
+
+/* ────────────────────────────────────────────
    GLSL — fullscreen-triangle vertex shader
    shared by sim, diffuse, and render passes
    ──────────────────────────────────────────── */

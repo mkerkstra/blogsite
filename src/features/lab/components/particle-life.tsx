@@ -3,6 +3,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /* ────────────────────────────────────────────
+   Particle Life — Canvas2D
+
+   Inspired by Jeffrey Ventrella's "Clusters" and
+   Hunar Ahmad's "Particle Life" simulation.
+   https://www.ventrella.com/Clusters/
+   https://particle-life.com
+   ──────────────────────────────────────────── */
+
+/* ────────────────────────────────────────────
    Colors per species, by theme
    ──────────────────────────────────────────── */
 
