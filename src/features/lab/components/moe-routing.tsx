@@ -494,7 +494,7 @@ export function MoeRouting() {
   const simRef = useRef<SimState>({
     numExperts: 8,
     topK: 2,
-    inputType: "code",
+    inputType: "mixed",
     affinityMatrix: buildAffinityMatrix(8),
     expertLoads: Array.from({ length: 8 }, () => 0),
     totalTokens: 0,
@@ -509,7 +509,7 @@ export function MoeRouting() {
 
   const [numExperts, setNumExperts] = useState(8);
   const [topK, setTopK] = useState(2);
-  const [inputType, setInputType] = useState<InputType>("code");
+  const [inputType, setInputType] = useState<InputType>("mixed");
 
   /* ── Initializer ── */
 

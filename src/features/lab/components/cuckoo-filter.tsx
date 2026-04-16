@@ -1009,11 +1009,16 @@ export function CuckooFilter() {
 
     rafRef.current = requestAnimationFrame(drawFrame);
 
+    // Auto-insert on startup
+    autoRef.current = true;
+    setAutoMode(true);
+    scheduleAuto();
+
     return () => {
       cancelAnimationFrame(rafRef.current);
       observer.disconnect();
     };
-  }, [updateLoad]);
+  }, [updateLoad, scheduleAuto]);
 
   /* ── Handlers ── */
   const handleInsertRandom = useCallback(() => {

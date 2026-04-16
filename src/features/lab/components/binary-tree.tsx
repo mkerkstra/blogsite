@@ -690,12 +690,37 @@ export function BinaryTree() {
 
     rafRef.current = requestAnimationFrame(drawFrame);
 
+    // Auto-insert on startup so the tree grows immediately
+    autoRef.current = true;
+    setIsAuto(true);
+    function autoStep() {
+      if (!autoRef.current) return;
+      if (animatingRef.current) {
+        autoTimerRef.current = setTimeout(autoStep, 200);
+        return;
+      }
+      const existing = collectValues(treeRef.current);
+      const available: number[] = [];
+      for (let i = 1; i <= 99; i++) {
+        if (!existing.includes(i)) available.push(i);
+      }
+      if (available.length === 0) {
+        autoRef.current = false;
+        setIsAuto(false);
+        return;
+      }
+      const value = available[Math.floor(Math.random() * available.length)];
+      animateInsert(value);
+      autoTimerRef.current = setTimeout(autoStep, 1500 / speedRef.current);
+    }
+    autoStep();
+
     return () => {
       cancelAnimationFrame(rafRef.current);
       observer.disconnect();
       if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
     };
-  }, [initTree, recalcPositions, snapPositions]);
+  }, [initTree, recalcPositions, snapPositions, animateInsert]);
 
   /* ── Speed sync ── */
   useEffect(() => {

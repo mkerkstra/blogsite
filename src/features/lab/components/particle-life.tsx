@@ -40,7 +40,7 @@ const BG = { dark: "#0a0a0a", light: "#f5f1e8" } as const;
    ──────────────────────────────────────────── */
 
 const PARTICLE_COUNT = 800;
-const INTERACTION_RADIUS = 80;
+const INTERACTION_RADIUS = 120;
 const REPULSION_RADIUS = 15;
 const DT = 0.02;
 const PARTICLE_DRAW_RADIUS = 2;
@@ -186,6 +186,11 @@ export function ParticleLife() {
 
     // ── Animation loop ──
     let raf = 0;
+    // Scale radii by DPR so interactions feel the same at any pixel density
+    const interactionR = INTERACTION_RADIUS * dpr;
+    const interactionRSq = interactionR * interactionR;
+    const repulsionR = REPULSION_RADIUS * dpr;
+    const drawR = PARTICLE_DRAW_RADIUS * dpr;
 
     function frame() {
       raf = requestAnimationFrame(frame);
@@ -225,13 +230,13 @@ export function ParticleLife() {
             if (dy < -halfH) dy += h;
 
             const distSq = dx * dx + dy * dy;
-            if (distSq === 0 || distSq > INTERACTION_RADIUS * INTERACTION_RADIUS) continue;
+            if (distSq === 0 || distSq > interactionRSq) continue;
 
             const dist = Math.sqrt(distSq);
 
-            if (dist < REPULSION_RADIUS) {
+            if (dist < repulsionR) {
               // Close-range repulsion to prevent overlap
-              const repulsionForce = (REPULSION_RADIUS - dist) * -0.5;
+              const repulsionForce = (repulsionR - dist) * -0.5;
               fx += (dx / dist) * repulsionForce;
               fy += (dy / dist) * repulsionForce;
             } else {
@@ -240,7 +245,7 @@ export function ParticleLife() {
               const sj = p.species[j];
               const row = attraction[si];
               const force = row ? (row[sj] ?? 0) : 0;
-              const normalizedDist = dist / INTERACTION_RADIUS;
+              const normalizedDist = dist / interactionR;
               const f = force * (1 - normalizedDist);
               fx += (dx / dist) * f;
               fy += (dy / dist) * f;
@@ -268,8 +273,8 @@ export function ParticleLife() {
 
         for (let i = 0; i < p.count; i++) {
           if (p.species[i] !== sp) continue;
-          ctx.moveTo(p.x[i] + PARTICLE_DRAW_RADIUS, p.y[i]);
-          ctx.arc(p.x[i], p.y[i], PARTICLE_DRAW_RADIUS, 0, Math.PI * 2);
+          ctx.moveTo(p.x[i] + drawR, p.y[i]);
+          ctx.arc(p.x[i], p.y[i], drawR, 0, Math.PI * 2);
         }
 
         ctx.fill();

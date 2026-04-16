@@ -672,14 +672,25 @@ export function Sorting() {
         {/* Row 1: Algorithm slots */}
         <div className="flex items-center gap-1">
           {([0, 1, 2] as const).map((slot) => (
-            <button
+            <select
               key={slot}
-              onClick={() => cycleSlot(slot)}
-              title="Click to cycle algorithm"
-              className={`${btnBase} ${btnActive} rounded border border-foreground/10 px-2 py-0.5`}
+              value={selected[slot]}
+              onChange={(e) => {
+                const algo = e.target.value as AlgoId;
+                setSelected((prev) => {
+                  const next = [...prev] as [AlgoId, AlgoId, AlgoId];
+                  next[slot] = algo;
+                  return next;
+                });
+              }}
+              className={`${btnBase} ${btnActive} cursor-pointer appearance-none rounded border border-foreground/10 bg-transparent px-2 py-0.5`}
             >
-              {ALGO_REGISTRY[selected[slot]].label}
-            </button>
+              {ALL_ALGOS.map((id) => (
+                <option key={id} value={id}>
+                  {ALGO_REGISTRY[id].label}
+                </option>
+              ))}
+            </select>
           ))}
 
           <span className="mx-1 h-3 w-px bg-foreground/10" />

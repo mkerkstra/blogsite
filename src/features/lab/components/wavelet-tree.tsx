@@ -752,11 +752,22 @@ export function WaveletTree() {
 
     rafRef.current = requestAnimationFrame(drawFrame);
 
+    // Auto-run a rank query so the tree starts with an interesting result
+    // rank('a', 7) in "abracadabra" = 4
+    setTimeout(() => {
+      queryCharRef.current = "a";
+      queryPosRef.current = 7;
+      setQueryChar("a");
+      setQueryPos(7);
+      // Give one frame for state to settle, then run
+      setTimeout(() => runQuery(), 100);
+    }, 500);
+
     return () => {
       cancelAnimationFrame(rafRef.current);
       observer.disconnect();
     };
-  }, [rebuildTree]);
+  }, [rebuildTree, runQuery]);
 
   /* ── Speed sync ── */
   useEffect(() => {

@@ -329,6 +329,24 @@ export function GameOfLife() {
     canvas.height = Math.round(rect.height);
     initGrid(canvas.width, canvas.height);
 
+    // Seed with a glider gun so the board starts alive
+    {
+      const pattern = PATTERNS.gun;
+      const maxC = Math.max(...pattern.cells.map(([c]) => c));
+      const maxR = Math.max(...pattern.cells.map(([, r]) => r));
+      const offsetC = Math.floor((s.cols - maxC) / 2);
+      const offsetR = Math.floor((s.rows - maxR) / 2);
+      for (const [c, r] of pattern.cells) {
+        const gc = c + offsetC;
+        const gr = r + offsetR;
+        if (gc >= 0 && gc < s.cols && gr >= 0 && gr < s.rows) {
+          s.grid[idx(gc, gr, s.cols)] = 1;
+        }
+      }
+      s.playing = true;
+      setPlaying(true);
+    }
+
     // Resize observer
     const observer = new ResizeObserver(([entry]) => {
       const newW = Math.round(entry.contentRect.width);

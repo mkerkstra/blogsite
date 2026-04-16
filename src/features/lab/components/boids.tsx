@@ -14,7 +14,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
    Constants
    ──────────────────────────────────────────── */
 
-const DEFAULT_COUNT = 300;
+const DEFAULT_COUNT = 500;
 const PERCEPTION_SQ = 60 * 60;
 const MAX_SPEED = 4;
 const MAX_FORCE = 0.1;
@@ -82,6 +82,7 @@ export function Boids() {
     cohesion: number;
     trails: boolean;
     scatterMul: number;
+    scatterHeld: boolean;
     mouseX: number;
     mouseY: number;
     mouseActive: boolean;
@@ -89,11 +90,12 @@ export function Boids() {
     targetCount: number;
   }>({
     boids: null,
-    separation: 1.5,
-    alignment: 1.0,
-    cohesion: 1.0,
-    trails: false,
+    separation: 1.0,
+    alignment: 1.5,
+    cohesion: 1.3,
+    trails: true,
     scatterMul: 0,
+    scatterHeld: false,
     mouseX: -9999,
     mouseY: -9999,
     mouseActive: false,
@@ -102,10 +104,10 @@ export function Boids() {
   });
 
   const [count, setCount] = useState(DEFAULT_COUNT);
-  const [separation, setSeparation] = useState(1.5);
-  const [alignment, setAlignment] = useState(1.0);
-  const [cohesion, setCohesion] = useState(1.0);
-  const [trails, setTrails] = useState(false);
+  const [separation, setSeparation] = useState(1.0);
+  const [alignment, setAlignment] = useState(1.5);
+  const [cohesion, setCohesion] = useState(1.3);
+  const [trails, setTrails] = useState(true);
 
   // ── Initializer ──
 
@@ -202,8 +204,10 @@ export function Boids() {
 
       // ── Physics step (simplified if reduced motion) ──
       if (!reduced) {
-        // Decay scatter
-        if (s.scatterMul > 0.01) {
+        // Decay scatter (keep at 1 while held)
+        if (s.scatterHeld) {
+          s.scatterMul = 1;
+        } else if (s.scatterMul > 0.01) {
           s.scatterMul *= SCATTER_DECAY;
         } else {
           s.scatterMul = 0;
@@ -337,7 +341,7 @@ export function Boids() {
       // ── Render ──
       if (s.trails) {
         ctx.fillStyle = bgColor;
-        ctx.globalAlpha = 0.1;
+        ctx.globalAlpha = 0.2;
         ctx.fillRect(0, 0, w, h);
         ctx.globalAlpha = 1.0;
       } else {
@@ -455,7 +459,7 @@ export function Boids() {
             <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
               COUNT
             </span>
-            {[100, 200, 300, 500].map((n) => (
+            {[200, 300, 500, 800, 1200].map((n) => (
               <button
                 key={n}
                 onClick={() => handleCount(n)}
@@ -533,7 +537,19 @@ export function Boids() {
           </button>
 
           {/* Scatter button */}
-          <button onClick={handleScatter} className={`${btnBase} ${btnInactive}`}>
+          <button
+            onPointerDown={() => {
+              simRef.current.scatterHeld = true;
+              simRef.current.scatterMul = 1;
+            }}
+            onPointerUp={() => {
+              simRef.current.scatterHeld = false;
+            }}
+            onPointerLeave={() => {
+              simRef.current.scatterHeld = false;
+            }}
+            className={`${btnBase} ${btnInactive}`}
+          >
             SCATTER
           </button>
         </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { Boids } from "@/features/lab/components/boids";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
+import { Term } from "@/features/lab/components/term";
 
 export const metadata: Metadata = {
   title: "Boids",
@@ -28,9 +29,11 @@ export default function BoidsPage() {
           local flock, and cohere toward the group&apos;s center of mass. No leader, no global plan.
         </p>
         <p>
-          Each rule operates within a limited perception radius, so a boid only sees its nearest
-          neighbors. The emergent flocking, lane formation, and obstacle splitting all arise from
-          purely local decisions. No agent has any knowledge of the flock&apos;s overall shape.
+          Each rule operates within a limited <Term id="perception-radius">perception radius</Term>,
+          so a boid only sees its nearest neighbors. The{" "}
+          <Term id="emergent-behavior">emergent</Term> flocking, lane formation, and obstacle
+          splitting all arise from purely local decisions. No agent has any knowledge of the
+          flock&apos;s overall shape.
         </p>
         <p>
           The three force weights act as personality knobs. High separation produces nervous,

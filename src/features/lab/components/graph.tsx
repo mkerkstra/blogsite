@@ -699,6 +699,15 @@ export function Graph() {
     edgesRef.current = edges;
     draw();
 
+    // Auto-run Tarjan's so the algorithm is running on page load
+    {
+      const gen = tarjanSCC(nodes.length, edges);
+      genRef.current = gen;
+      stateRef.current = "running";
+      setRunState("running");
+      scheduleStep();
+    }
+
     // Reduced motion: instant reveal
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) {

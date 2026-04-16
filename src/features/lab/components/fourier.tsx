@@ -181,6 +181,34 @@ export function Fourier() {
     canvas.width = Math.round(rect.width * dpr);
     canvas.height = Math.round(rect.height * dpr);
 
+    // ── Seed a star shape so we don't start blank ──
+    {
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const radius = Math.min(cx, cy) * 0.35;
+      const starPath: Point[] = [];
+      for (let i = 0; i < 5; i++) {
+        const outerAngle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+        const innerAngle = outerAngle + Math.PI / 5;
+        starPath.push({
+          x: cx + radius * Math.cos(outerAngle),
+          y: cy + radius * Math.sin(outerAngle),
+        });
+        starPath.push({
+          x: cx + radius * 0.4 * Math.cos(innerAngle),
+          y: cy + radius * 0.4 * Math.sin(innerAngle),
+        });
+      }
+      starPath.push(starPath[0]); // close the shape
+      const resampled = resample(starPath, RESAMPLE_COUNT);
+      s.terms = dft(resampled);
+      s.rawPath = starPath;
+      s.tracedPath = [];
+      s.time = 0;
+      s.phase = "playing";
+      setPhase("playing");
+    }
+
     // ── Pointer helpers ──
     function canvasCoords(e: PointerEvent): Point {
       const r = canvas.getBoundingClientRect();
@@ -231,7 +259,12 @@ export function Fourier() {
     window.addEventListener("pointerup", onPointerUp);
 
     // ── Resize observer ──
+    let resizeSkipFirst = true;
     const observer = new ResizeObserver(([entry]) => {
+      if (resizeSkipFirst) {
+        resizeSkipFirst = false;
+        return;
+      }
       const dp = window.devicePixelRatio || 1;
       canvas.width = Math.round(entry.contentRect.width * dp);
       canvas.height = Math.round(entry.contentRect.height * dp);

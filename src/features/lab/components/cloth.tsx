@@ -172,6 +172,10 @@ export function Cloth() {
     canvas.height = Math.round(rect.height * dpr);
     initCloth(canvas.width, canvas.height);
 
+    // Start with wind enabled so the cloth immediately billows
+    s.windOn = true;
+    setWindOn(true);
+
     // ── Mouse state ──
     const mouse = { x: 0, y: 0, prevX: 0, prevY: 0, down: false };
 
@@ -204,7 +208,12 @@ export function Cloth() {
     window.addEventListener("pointerup", onPointerUp);
 
     // ── Resize observer ──
+    let resizeSkipFirst = true;
     const observer = new ResizeObserver(([entry]) => {
+      if (resizeSkipFirst) {
+        resizeSkipFirst = false;
+        return;
+      }
       const dp = window.devicePixelRatio || 1;
       canvas.width = Math.round(entry.contentRect.width * dp);
       canvas.height = Math.round(entry.contentRect.height * dp);

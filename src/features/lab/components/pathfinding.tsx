@@ -401,8 +401,32 @@ export function Pathfinding() {
 
     initGrid(canvas);
 
+    // Seed maze so pathfinding starts with interesting walls, then auto-run
+    {
+      const { rows, cols, grid, start, end } = s;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const nearStart = Math.abs(r - start[0]) + Math.abs(c - start[1]) < 3;
+          const nearEnd = Math.abs(r - end[0]) + Math.abs(c - end[1]) < 3;
+          if (!nearStart && !nearEnd && Math.random() < 0.2) {
+            grid[r][c] = true;
+          }
+        }
+      }
+      // Auto-run A*
+      const gen = ALGORITHMS[s.algorithm](s.grid, s.start, s.end, s.rows, s.cols);
+      s.gen = gen;
+      s.runState = "running";
+      setRunState("running");
+    }
+
     // ── Resize observer ──
+    let resizeSkipFirst = true;
     const observer = new ResizeObserver(() => {
+      if (resizeSkipFirst) {
+        resizeSkipFirst = false;
+        return;
+      }
       initGrid(canvas);
       clearResults();
       s.runState = "drawing";

@@ -144,6 +144,22 @@ export const glossary: Record<string, string> = {
   coreference:
     "When two expressions in text refer to the same entity. E.g., 'the cat' and 'it' in 'the cat sat because it was tired.'",
 
+  // Swarm / Agent
+  "emergent-behavior":
+    "Complex global patterns arising from simple local rules with no central coordination.",
+  "perception-radius":
+    "The range within which an agent detects neighbors. Beyond this distance, other agents are invisible.",
+
+  // Tiling / Geometry
+  "aperiodic-tiling":
+    "A tiling of the plane that covers every point with no gaps or overlaps, but whose pattern never repeats by translation.",
+  "einstein-problem":
+    "Can a single shape tile the plane only aperiodically? Open from 1961 until the spectre tile solved it in 2023.",
+  monotile:
+    "A single tile shape that admits a tiling of the plane. An aperiodic monotile forces non-repeating patterns.",
+  "substitution-tiling":
+    "A tiling built by recursively replacing each tile with a cluster of smaller copies. Each level of the hierarchy is called a supertile.",
+
   // Misc
   "pearson-classification":
     "A mapping of Gray-Scott (F, k) parameters to pattern regimes: spots, stripes, mitosis, coral growth, and more.",

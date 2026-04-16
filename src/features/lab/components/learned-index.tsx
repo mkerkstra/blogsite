@@ -1086,12 +1086,34 @@ export function LearnedIndex() {
 
     rafRef.current = requestAnimationFrame(drawFrame);
 
+    // Auto-insert on startup
+    autoRef.current = true;
+    setIsAuto(true);
+    function autoStep() {
+      if (!autoRef.current) return;
+      if (animatingRef.current) {
+        autoTimerRef.current = setTimeout(autoStep, 200);
+        return;
+      }
+      if (!treeRef.current) return;
+      const existing = new Set(getAllKeys(treeRef.current));
+      if (existing.size >= 99) {
+        autoRef.current = false;
+        setIsAuto(false);
+        return;
+      }
+      const key = randomKey(distributionRef.current, existing);
+      if (key > 0) animateInsert(key);
+      autoTimerRef.current = setTimeout(autoStep, 1500 / speedRef.current);
+    }
+    autoStep();
+
     return () => {
       cancelAnimationFrame(rafRef.current);
       observer.disconnect();
       if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
     };
-  }, [initTree]);
+  }, [initTree, animateInsert]);
 
   /* ── Speed sync ── */
   useEffect(() => {

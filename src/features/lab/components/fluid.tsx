@@ -458,14 +458,15 @@ export function Fluid() {
     }
 
     // ── Initial splats for visual interest ──
-    for (let i = 0; i < 5; i++) {
-      const angle = Math.random() * Math.PI * 2;
+    for (let i = 0; i < 8; i++) {
+      const angle = (i / 8) * Math.PI * 2;
+      const r = 0.15;
       doSplat(
-        0.2 + Math.random() * 0.6,
-        0.2 + Math.random() * 0.6,
-        Math.cos(angle) * 0.12,
-        Math.sin(angle) * 0.12,
-        i * 1.5,
+        0.5 + Math.cos(angle) * r,
+        0.5 + Math.sin(angle) * r,
+        Math.cos(angle) * 0.25,
+        Math.sin(angle) * 0.25,
+        i * 0.8,
       );
     }
 
