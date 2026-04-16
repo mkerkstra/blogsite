@@ -1,6 +1,7 @@
 "use client";
 
 import { Command } from "cmdk";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import {
   ArrowUpRight,
   BookOpen,
@@ -153,6 +154,19 @@ export function CommandPalette() {
           },
         ];
       default:
+        if (pathname.startsWith("/lab/") && pathname !== "/lab/") {
+          return [
+            {
+              id: "lab-info",
+              label: "How it works",
+              icon: Info,
+              perform: () => {
+                window.dispatchEvent(new Event("toggle-lab-info"));
+              },
+              keywords: ["info", "explain", "about"],
+            },
+          ];
+        }
         return [];
     }
   }, [pathname]);
@@ -197,6 +211,41 @@ export function CommandPalette() {
       icon: Cpu,
       perform: () => router.push("/lab/flow-field"),
       keywords: ["particles", "curl", "noise"],
+    },
+    {
+      id: "page-lab-ah",
+      label: "/lab/attention-heads",
+      icon: Cpu,
+      perform: () => router.push("/lab/attention-heads"),
+      keywords: ["attention", "transformer", "heads", "self-attention"],
+    },
+    {
+      id: "page-lab-kv",
+      label: "/lab/kv-cache",
+      icon: Cpu,
+      perform: () => router.push("/lab/kv-cache"),
+      keywords: ["cache", "key", "value", "inference", "prompt"],
+    },
+    {
+      id: "page-lab-ts",
+      label: "/lab/token-sampling",
+      icon: Cpu,
+      perform: () => router.push("/lab/token-sampling"),
+      keywords: ["llm", "temperature", "top-k", "top-p", "nucleus", "softmax"],
+    },
+    {
+      id: "page-lab-sd",
+      label: "/lab/speculative-decoding",
+      icon: Cpu,
+      perform: () => router.push("/lab/speculative-decoding"),
+      keywords: ["speculative", "draft", "verify", "inference"],
+    },
+    {
+      id: "page-lab-moe",
+      label: "/lab/moe-routing",
+      icon: Cpu,
+      perform: () => router.push("/lab/moe-routing"),
+      keywords: ["mixture", "experts", "sparse", "routing", "gating"],
     },
     {
       id: "page-colophon",
@@ -287,6 +336,7 @@ export function CommandPalette() {
       label="Command palette"
       className="fixed inset-0 z-100 flex items-start justify-center bg-black/50 backdrop-blur-xs pt-[15vh]"
     >
+      <DialogPrimitive.Title className="sr-only">Command palette</DialogPrimitive.Title>
       <div
         className="w-full max-w-xl border border-border bg-background font-mono text-sm shadow-2xl"
         onClick={(e) => e.stopPropagation()}
