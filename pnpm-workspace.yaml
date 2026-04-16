@@ -1,0 +1,5 @@
+# Wait 7 days after a version is published before installing it.
+# Mirrors the `cooldown: default-days: 7` in .github/dependabot.yml so
+# local installs and CI resolve the same set of eligible versions.
+# Value is in minutes: 7 * 24 * 60 = 10080.
+minimumReleaseAge: 10080

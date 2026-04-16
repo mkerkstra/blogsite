@@ -11,6 +11,8 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - dependencies
+    cooldown:
+      default-days: 7
     groups:
       # Group all minor + patch updates into a single PR per week.
       # Major bumps still get their own PR for explicit review.
@@ -34,3 +36,5 @@ updates:
     labels:
       - dependencies
       - github-actions
+    cooldown:
+      default-days: 7
