@@ -43,6 +43,51 @@ export const sections: ExperimentSection[] = [
         title: "Strange Attractor",
         description: "150k particles tracing Thomas' chaotic orbits in 3D.",
       },
+      {
+        slug: "mandelbrot",
+        title: "Mandelbrot",
+        description: "Fractal zoom. Click to dive, smooth coloring, infinite detail.",
+      },
+    ],
+  },
+  {
+    label: "Simulation",
+    experiments: [
+      {
+        slug: "cloth",
+        title: "Cloth",
+        description: "Verlet integration. Drag to interact, pull hard to tear.",
+      },
+      {
+        slug: "boids",
+        title: "Boids",
+        description: "Flocking. Separation, alignment, cohesion. No leader, no plan.",
+      },
+      {
+        slug: "particle-life",
+        title: "Particle Life",
+        description: "Six species, random forces, emergent chemistry.",
+      },
+      {
+        slug: "game-of-life",
+        title: "Game of Life",
+        description: "Four rules. Gliders, guns, and Turing-complete computation.",
+      },
+    ],
+  },
+  {
+    label: "Math",
+    experiments: [
+      {
+        slug: "fourier",
+        title: "Fourier",
+        description: "Draw a shape. Rotating circles recreate it.",
+      },
+      {
+        slug: "lsystem",
+        title: "L-System",
+        description: "Fractal trees from simple rewriting rules.",
+      },
     ],
   },
   {
