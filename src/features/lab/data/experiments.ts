@@ -125,4 +125,60 @@ export const sections: ExperimentSection[] = [
       },
     ],
   },
+  {
+    label: "ML / AI",
+    experiments: [
+      {
+        slug: "attention-heads",
+        title: "Attention Heads",
+        description: "Multi-head self-attention. Different heads learn different patterns.",
+      },
+      {
+        slug: "kv-cache",
+        title: "KV Cache",
+        description: "Key-value caching turns O(n\u00B2) generation into O(n). Watch it grow.",
+      },
+      {
+        slug: "token-sampling",
+        title: "Token Sampling",
+        description: "Temperature, top-K, top-P. How LLMs choose the next word.",
+      },
+      {
+        slug: "speculative-decoding",
+        title: "Speculative Decoding",
+        description: "Draft fast, verify once. Cascade rejection on mismatch.",
+      },
+      {
+        slug: "moe-routing",
+        title: "Mixture of Experts",
+        description: "Sparse routing. Each token activates a fraction of the network.",
+      },
+    ],
+  },
+  {
+    label: "Data Structures",
+    experiments: [
+      {
+        slug: "wavelet-tree",
+        title: "Wavelet Tree",
+        description:
+          "Recursive alphabet splitting. Bitvectors at every node, rank queries in O(log \u03C3).",
+      },
+      {
+        slug: "xor-filter",
+        title: "XOR Filter",
+        description: "Hypergraph peeling builds a fingerprint table. Three XORs answer membership.",
+      },
+      {
+        slug: "learned-index",
+        title: "Learned Index",
+        description: "ALEX. Piecewise linear models replace B-tree pages. The CDF is the index.",
+      },
+      {
+        slug: "cuckoo-filter",
+        title: "Cuckoo Filter",
+        description: "Fingerprints in a cuckoo hash table. Insertions kick, chains cascade.",
+      },
+    ],
+  },
 ];
