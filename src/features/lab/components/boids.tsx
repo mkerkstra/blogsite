@@ -429,10 +429,6 @@ export function Boids() {
     setTrails(next);
   }, []);
 
-  const handleScatter = useCallback(() => {
-    simRef.current.scatterMul = 1;
-  }, []);
-
   // ── Styles ──
 
   const btnBase = "px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors";

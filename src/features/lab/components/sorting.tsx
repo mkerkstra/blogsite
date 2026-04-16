@@ -627,24 +627,6 @@ export function Sorting() {
     }
   }, [reset, loop]);
 
-  /* ── Slot cycling: click a panel header to cycle its algorithm ── */
-  const cycleSlot = useCallback((slot: 0 | 1 | 2) => {
-    setSelected((prev) => {
-      const next = [...prev] as [AlgoId, AlgoId, AlgoId];
-      const current = prev[slot];
-      const currentIdx = ALL_ALGOS.indexOf(current);
-      // Find the next algorithm not already selected in another slot
-      for (let offset = 1; offset <= ALL_ALGOS.length; offset++) {
-        const candidate = ALL_ALGOS[(currentIdx + offset) % ALL_ALGOS.length];
-        if (!prev.includes(candidate) || candidate === current) {
-          next[slot] = candidate;
-          break;
-        }
-      }
-      return next;
-    });
-  }, []);
-
   // When config changes, rebuild and restart
   useEffect(() => {
     handleGenerate();
