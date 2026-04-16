@@ -1,15 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-
-/* ── GLSL — fullscreen-triangle vertex shader ── */
-
-const VERT = `#version 300 es
-out vec2 vUv;
-void main() {
-  vUv = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
-  gl_Position = vec4(vUv * 2.0 - 1.0, 0.0, 1.0);
-}`;
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { compileShader, linkProgram, FULLSCREEN_VERT_UV as VERT } from "@/features/lab/lib/webgl";
 
 /* ── GLSL — Mandelbrot fragment shader ── */
 
@@ -85,35 +78,6 @@ void main() {
     }
   }
 }`;
-
-/* ── WebGL helpers ── */
-
-function compileShader(gl: WebGL2RenderingContext, type: number, src: string) {
-  const s = gl.createShader(type);
-  if (!s) return null;
-  gl.shaderSource(s, src);
-  gl.compileShader(s);
-  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
-    console.error("Shader compile:", gl.getShaderInfoLog(s));
-    gl.deleteShader(s);
-    return null;
-  }
-  return s;
-}
-
-function linkProgram(gl: WebGL2RenderingContext, vs: WebGLShader, fs: WebGLShader) {
-  const p = gl.createProgram();
-  if (!p) return null;
-  gl.attachShader(p, vs);
-  gl.attachShader(p, fs);
-  gl.linkProgram(p);
-  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
-    console.error("Program link:", gl.getProgramInfoLog(p));
-    gl.deleteProgram(p);
-    return null;
-  }
-  return p;
-}
 
 /* ── Zoom formatting ── */
 
@@ -205,7 +169,7 @@ export function Mandelbrot() {
     gl.bindVertexArray(vao);
 
     // ── Render function (called on demand, not every frame) ──
-    let currentTheme = document.documentElement.classList.contains("dark") ? 0 : 1;
+    let currentTheme = getTheme() === "dark" ? 0 : 1;
 
     function render() {
       const v = viewRef.current;
@@ -330,7 +294,7 @@ export function Mandelbrot() {
 
     // ── Theme observer ──
     const themeObserver = new MutationObserver(() => {
-      const newTheme = document.documentElement.classList.contains("dark") ? 0 : 1;
+      const newTheme = getTheme() === "dark" ? 0 : 1;
       if (newTheme !== currentTheme) {
         currentTheme = newTheme;
         viewRef.current.dirty = true;
@@ -342,7 +306,7 @@ export function Mandelbrot() {
     });
 
     // ── Reduced motion: skip zoom animations (we don't animate, so just note it) ──
-    const _reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const _reduced = prefersReducedMotion();
 
     // ── Render loop: only re-render when dirty ──
     let raf = 0;

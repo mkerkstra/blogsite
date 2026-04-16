@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Particle Life — Canvas2D
@@ -151,7 +152,7 @@ export function ParticleLife() {
     const s = simRef.current;
 
     // Reduced motion
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
 
     // ── Size canvas ──
     const rect = canvas.getBoundingClientRect();
@@ -205,7 +206,7 @@ export function ParticleLife() {
       const attraction = s.attraction;
       const fric = s.friction;
 
-      const theme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+      const theme = getTheme();
       const speciesColors = theme === "dark" ? SPECIES_COLORS_DARK : SPECIES_COLORS_LIGHT;
       const bgColor = BG[theme];
 

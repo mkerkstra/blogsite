@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Types
@@ -393,7 +394,7 @@ export function Pathfinding() {
     const s = stateRef.current;
 
     // Reduced motion
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
     if (reduced) {
       s.speed = 1;
       setSpeed(1);
@@ -534,7 +535,7 @@ export function Pathfinding() {
     function render() {
       raf = requestAnimationFrame(render);
       const dpr = window.devicePixelRatio || 1;
-      const theme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+      const theme = getTheme();
       const colors = COLORS[theme];
 
       const { rows, cols, cellSize } = s;

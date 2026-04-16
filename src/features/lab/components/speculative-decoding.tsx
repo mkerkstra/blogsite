@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Speculative Decoding — Canvas2D
@@ -283,7 +284,7 @@ export function SpeculativeDecoding() {
     const ctx = maybeCtx;
 
     const s = simRef.current;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
 
     // ── Size canvas ──
     const rect = canvas.getBoundingClientRect();
@@ -428,7 +429,7 @@ export function SpeculativeDecoding() {
     // ── Palette getter ──
 
     function pal(): Palette {
-      return document.documentElement.classList.contains("dark") ? DARK : LIGHT;
+      return getTheme() === "dark" ? DARK : LIGHT;
     }
 
     // ── Main frame ──
@@ -446,7 +447,7 @@ export function SpeculativeDecoding() {
       if (w === 0 || h === 0) return;
 
       const p = pal();
-      const theme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+      const theme = getTheme();
       const L = getLayout(w, h);
 
       // ── Update state machine ──

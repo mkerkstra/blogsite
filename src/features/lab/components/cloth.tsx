@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Types
@@ -159,7 +160,7 @@ export function Cloth() {
     const s = simRef.current;
 
     // Reduced motion
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
     if (reduced) {
       s.substeps = 2;
       setSubsteps(2);
@@ -231,7 +232,7 @@ export function Cloth() {
       const { particles, constraints, cols } = s;
       if (particles.length === 0) return;
 
-      const theme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+      const theme = getTheme();
       const colors = COLORS[theme];
 
       // ── Physics update ──

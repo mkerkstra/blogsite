@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Boids flocking simulation — Canvas2D
@@ -127,7 +128,7 @@ export function Boids() {
     const ctx = maybeCtx;
 
     const s = simRef.current;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
 
     // ── Size canvas ──
     const rect = canvas.getBoundingClientRect();
@@ -198,7 +199,7 @@ export function Boids() {
       const halfW = w / 2;
       const halfH = h / 2;
 
-      const theme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+      const theme = getTheme();
       const bgColor = BG[theme];
       const boidColor = theme === "dark" ? "rgba(224,226,220,0.6)" : "rgba(10,10,10,0.5)";
 

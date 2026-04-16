@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ── Types ── */
 
@@ -115,8 +116,7 @@ function buildAndPeel(
   tableSize: number,
   seed: number,
 ): { edges: KeyEdge[]; peelOrder: PeelStep[]; success: boolean } {
-  const isDark =
-    typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+  const isDark = typeof document !== "undefined" && getTheme() === "dark";
   const colorSet = isDark ? EDGE_COLORS_DARK : EDGE_COLORS_LIGHT;
 
   const edges: KeyEdge[] = keys.map((key, i) => ({
@@ -383,7 +383,7 @@ export function XorFilter() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
 
     // Resize
     const observer = new ResizeObserver(([entry]) => {
@@ -406,10 +406,6 @@ export function XorFilter() {
 
     const cvs = canvas;
     const g = ctx;
-
-    function getTheme() {
-      return document.documentElement.classList.contains("dark") ? "dark" : "light";
-    }
 
     function frame(now: number) {
       raf = requestAnimationFrame(frame);

@@ -1,15 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-
-/* ── GLSL ── */
-
-const VERT = `#version 300 es
-out vec2 vUv;
-void main() {
-  vUv = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
-  gl_Position = vec4(vUv * 2.0 - 1.0, 0.0, 1.0);
-}`;
+import { getTheme } from "@/features/lab/lib/env";
+import { PALETTE } from "@/features/lab/lib/palette";
+import { compileShader, linkProgram, FULLSCREEN_VERT_UV as VERT } from "@/features/lab/lib/webgl";
 
 const FRAG = `#version 300 es
 precision highp float;
@@ -172,50 +166,6 @@ void main() {
   fragColor = vec4(col, 1.0);
 }`;
 
-/* ── Theme palettes ── */
-
-const PALETTE = {
-  light: {
-    bg: [0.955, 0.945, 0.92],
-    fg: [0.05, 0.05, 0.05],
-    accent: [0.15, 0.55, 0.05],
-  },
-  dark: {
-    bg: [0.03, 0.03, 0.03],
-    fg: [0.88, 0.9, 0.87],
-    accent: [0.2, 1.0, 0.35],
-  },
-} as const;
-
-/* ── Helpers ── */
-
-function compileShader(gl: WebGL2RenderingContext, type: number, src: string) {
-  const s = gl.createShader(type);
-  if (!s) return null;
-  gl.shaderSource(s, src);
-  gl.compileShader(s);
-  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
-    console.error("Shader compile:", gl.getShaderInfoLog(s));
-    gl.deleteShader(s);
-    return null;
-  }
-  return s;
-}
-
-function linkProgram(gl: WebGL2RenderingContext, vs: WebGLShader, fs: WebGLShader) {
-  const p = gl.createProgram();
-  if (!p) return null;
-  gl.attachShader(p, vs);
-  gl.attachShader(p, fs);
-  gl.linkProgram(p);
-  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
-    console.error("Program link:", gl.getProgramInfoLog(p));
-    gl.deleteProgram(p);
-    return null;
-  }
-  return p;
-}
-
 /* ── Component ── */
 
 export function RayMarch() {
@@ -275,7 +225,7 @@ export function RayMarch() {
 
     function frame() {
       raf = requestAnimationFrame(frame);
-      const theme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+      const theme = getTheme();
       const colors = PALETTE[theme];
       const elapsed = (performance.now() - t0) / 1000;
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ── Types ── */
 
@@ -233,7 +234,7 @@ export function DpTable() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
 
     // If reduced motion, fill everything instantly
     if (reduced) {
@@ -284,7 +285,7 @@ export function DpTable() {
       lastTime = now;
 
       const s = stateRef.current;
-      const theme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+      const theme = getTheme();
       const colors = PALETTE[theme];
       const w = cvs.width / (window.devicePixelRatio || 1);
       const h = cvs.height / (window.devicePixelRatio || 1);

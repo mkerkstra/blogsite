@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Spectre aperiodic monotile — Canvas2D
@@ -433,7 +434,7 @@ export function Spectre() {
     const v = viewRef.current;
     const tiles = tilesRef.current;
     const mode = colorModeRef.current;
-    const isDark = document.documentElement.classList.contains("dark");
+    const isDark = getTheme() === "dark";
 
     ctx.fillStyle = isDark ? "#0a0a0a" : "#f5f1e8";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -647,7 +648,7 @@ export function Spectre() {
       attributeFilter: ["class"],
     });
 
-    const _reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const _reduced = prefersReducedMotion();
 
     function loop() {
       rafRef.current = requestAnimationFrame(loop);

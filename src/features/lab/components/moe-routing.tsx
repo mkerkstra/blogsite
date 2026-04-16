@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Mixture of Experts Routing — Canvas2D
@@ -762,7 +763,7 @@ export function MoeRouting() {
       // Throttle to ~60fps
       if (dt < 8) return;
 
-      const theme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+      const theme = getTheme();
       const colors = theme === "dark" ? DARK_COLORS : LIGHT_COLORS;
       const { layout } = s;
       const { w, h, dpr } = layout;

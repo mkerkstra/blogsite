@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Data structures
@@ -410,8 +411,8 @@ interface ThemeColors {
   gridLine: string;
 }
 
-function getTheme(): ThemeColors {
-  const isDark = document.documentElement.classList.contains("dark");
+function getThemeColors(): ThemeColors {
+  const isDark = getTheme() === "dark";
   if (isDark) {
     return {
       bg: "#0a0a0a",
@@ -736,7 +737,7 @@ export function LearnedIndex() {
     if (!maybeCtx) return;
     const ctx = maybeCtx;
 
-    reducedMotionRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    reducedMotionRef.current = prefersReducedMotion();
 
     initTree(distributionRef.current);
 
@@ -757,7 +758,7 @@ export function LearnedIndex() {
       if (!canvas || !ctx) return;
       rafRef.current = requestAnimationFrame(drawFrame);
 
-      const theme = getTheme();
+      const theme = getThemeColors();
       const cw = canvas.width / dpr;
       const ch = canvas.height / dpr;
 

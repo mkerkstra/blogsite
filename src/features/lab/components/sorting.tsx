@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Types
@@ -427,7 +428,7 @@ export function Sorting() {
     const panelCount = algos.length;
     const w = canvas.width;
     const h = canvas.height;
-    const isDark = document.documentElement.classList.contains("dark");
+    const isDark = getTheme() === "dark";
 
     const bg = isDark ? "#0a0a0a" : "#f5f1e8";
     const barColor = isDark ? "rgba(224,226,220,0.6)" : "rgba(10,10,10,0.5)";
@@ -593,7 +594,7 @@ export function Sorting() {
     draw();
 
     // Auto-start unless reduced motion
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
     if (reduced) {
       speedRef.current = 1;
       setSpeed(1);
@@ -619,7 +620,7 @@ export function Sorting() {
 
   const handleGenerate = useCallback(() => {
     reset();
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
     if (!reduced) {
       stateRef.current = "running";
       setRunState("running");

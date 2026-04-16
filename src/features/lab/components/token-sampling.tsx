@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { getTheme } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    LLM Token Sampling — Canvas2D
@@ -641,7 +642,7 @@ export function TokenSampling() {
         }
       }
 
-      const pal = document.documentElement.classList.contains("dark") ? DARK : LIGHT;
+      const pal = getTheme() === "dark" ? DARK : LIGHT;
 
       ctx.save();
       ctx.scale(S.dpr, S.dpr);

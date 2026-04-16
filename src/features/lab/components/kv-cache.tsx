@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Token vocabulary (common BPE subwords)
@@ -344,7 +345,7 @@ export function KvCache() {
 
       if (W === 0 || H === 0) return;
 
-      const isDark = document.documentElement.classList.contains("dark");
+      const isDark = getTheme() === "dark";
       const colors = isDark ? darkColors() : lightColors();
 
       // Clear

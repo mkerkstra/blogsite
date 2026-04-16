@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Constants
@@ -321,7 +322,7 @@ export function GameOfLife() {
     const ctx = maybeCtx;
 
     const s = simRef.current;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
 
     // Size canvas
     const rect = canvas.getBoundingClientRect();
@@ -418,7 +419,7 @@ export function GameOfLife() {
       }
 
       // Theme detection
-      const isDark = document.documentElement.classList.contains("dark");
+      const isDark = getTheme() === "dark";
 
       const bgColor = isDark ? "#0a0a0a" : "#f5f1e8";
       const aliveColor = isDark ? "rgba(224,226,220,0.8)" : "rgba(10,10,10,0.7)";

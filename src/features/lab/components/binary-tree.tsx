@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    AVL tree data structures
@@ -210,8 +211,8 @@ interface ThemeColors {
   balanced: string;
 }
 
-function getTheme(): ThemeColors {
-  const isDark = document.documentElement.classList.contains("dark");
+function getThemeColors(): ThemeColors {
+  const isDark = getTheme() === "dark";
   if (isDark) {
     return {
       bg: "#0a0a0a",
@@ -543,7 +544,7 @@ export function BinaryTree() {
     // Rebind so TS narrows through closures
     const ctx = maybeCtx;
 
-    reducedMotionRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    reducedMotionRef.current = prefersReducedMotion();
 
     // Initialize tree
     const root = initTree();
@@ -577,7 +578,7 @@ export function BinaryTree() {
       if (!canvas || !ctx) return;
       rafRef.current = requestAnimationFrame(drawFrame);
 
-      const theme = getTheme();
+      const theme = getThemeColors();
       const w = canvas.width;
       const h = canvas.height;
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Types
@@ -305,7 +306,7 @@ export function Graph() {
     const w = canvas.width;
     const h = canvas.height;
     const dpr = window.devicePixelRatio || 1;
-    const isDark = document.documentElement.classList.contains("dark");
+    const isDark = getTheme() === "dark";
 
     const bg = isDark ? "#0a0a0a" : "#f5f1e8";
     const nodeMuted = isDark ? "rgba(224,226,220,0.2)" : "rgba(10,10,10,0.15)";
@@ -709,7 +710,7 @@ export function Graph() {
     }
 
     // Reduced motion: instant reveal
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
     if (reduced) {
       // Run algorithm to completion instantly
       const gen = tarjanSCC(nodes.length, edges);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    L-system presets
@@ -257,7 +258,7 @@ export function LSystem() {
     const bounds = computeBounds(segments);
     const md = maxDepth(segments);
 
-    const isDark = document.documentElement.classList.contains("dark");
+    const isDark = getTheme() === "dark";
     const bgColor = isDark ? "#0a0a0a" : "#f5f1e8";
 
     // Scale and center
@@ -281,7 +282,7 @@ export function LSystem() {
     // Max line width scales with fewer segments for visual balance
     const baseLineWidth = Math.max(0.5, Math.min(4, scale * 0.15));
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
     const shouldAnimate = animate && !reduced;
 
     function drawSegment(seg: Segment) {

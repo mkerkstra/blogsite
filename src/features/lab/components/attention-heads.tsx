@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
+import { getTheme } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Types
@@ -511,7 +512,7 @@ export function AttentionHeads() {
 
   const getPalette = useCallback((): Palette => {
     if (typeof document === "undefined") return DARK;
-    return document.documentElement.classList.contains("dark") ? DARK : LIGHT;
+    return getTheme() === "dark" ? DARK : LIGHT;
   }, []);
 
   useEffect(() => {

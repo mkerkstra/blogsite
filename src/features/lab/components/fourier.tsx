@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 
 /* ────────────────────────────────────────────
    Types
@@ -173,7 +174,7 @@ export function Fourier() {
     const ctx = maybeCtx;
 
     const s = simRef.current;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
 
     // ── Size canvas ──
     const dpr = window.devicePixelRatio || 1;
@@ -289,7 +290,7 @@ export function Fourier() {
       const dt = Math.min((now - lastTime) / 1000, 0.05);
       lastTime = now;
 
-      const theme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+      const theme = getTheme();
       const colors = COLORS[theme];
       const dp = window.devicePixelRatio || 1;
 

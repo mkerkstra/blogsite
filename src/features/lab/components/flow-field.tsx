@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-
-/* ── Fullscreen triangle for fade pass ── */
-
-const FADE_VERT = `#version 300 es
-void main() {
-  vec2 uv = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
-  gl_Position = vec4(uv * 2.0 - 1.0, 0.0, 1.0);
-}`;
+import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { TRAIL_PALETTE as PALETTE } from "@/features/lab/lib/palette";
+import {
+  compileShader as compile,
+  linkProgram as link,
+  FULLSCREEN_VERT as FADE_VERT,
+} from "@/features/lab/lib/webgl";
 
 const FADE_FRAG = `#version 300 es
 precision highp float;
@@ -82,48 +81,6 @@ function curl2d(x: number, y: number, z: number): [number, number] {
   const dx = noise3(x, y + eps, z) - noise3(x, y - eps, z);
   const dy = noise3(x + eps, y, z) - noise3(x - eps, y, z);
   return [dx / (2 * eps), -dy / (2 * eps)];
-}
-
-/* ── Palettes ── */
-
-const PALETTE = {
-  light: {
-    bg: [0.955, 0.945, 0.92] as readonly number[],
-    color: [0.08, 0.08, 0.08] as readonly number[],
-  },
-  dark: {
-    bg: [0.012, 0.012, 0.012] as readonly number[],
-    color: [0.8, 0.88, 0.78] as readonly number[],
-  },
-};
-
-/* ── Helpers ── */
-
-function compile(gl: WebGL2RenderingContext, type: number, src: string) {
-  const s = gl.createShader(type);
-  if (!s) return null;
-  gl.shaderSource(s, src);
-  gl.compileShader(s);
-  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
-    console.error("Shader:", gl.getShaderInfoLog(s));
-    gl.deleteShader(s);
-    return null;
-  }
-  return s;
-}
-
-function link(gl: WebGL2RenderingContext, vs: WebGLShader, fs: WebGLShader) {
-  const p = gl.createProgram();
-  if (!p) return null;
-  gl.attachShader(p, vs);
-  gl.attachShader(p, fs);
-  gl.linkProgram(p);
-  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
-    console.error("Link:", gl.getProgramInfoLog(p));
-    gl.deleteProgram(p);
-    return null;
-  }
-  return p;
 }
 
 /* ── Component ── */
@@ -201,7 +158,7 @@ export function FlowField() {
     const observer = new ResizeObserver(([entry]) => {
       canvas.width = Math.round(entry.contentRect.width);
       canvas.height = Math.round(entry.contentRect.height);
-      const theme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+      const theme = getTheme();
       const bg = PALETTE[theme].bg;
       gl.clearColor(bg[0], bg[1], bg[2], 1.0);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -213,7 +170,7 @@ export function FlowField() {
 
     let raf = 0;
     let lastTime = performance.now();
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
 
     function frame(now: number) {
       raf = requestAnimationFrame(frame);
@@ -221,7 +178,7 @@ export function FlowField() {
       lastTime = now;
       const t = now / 1000;
 
-      const theme = document.documentElement.classList.contains("dark") ? "dark" : "light";
+      const theme = getTheme();
       const colors = PALETTE[theme];
 
       const aspect = canvas.width / canvas.height;
