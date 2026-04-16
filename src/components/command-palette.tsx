@@ -36,7 +36,7 @@ import {
   Network,
   Orbit,
   PawPrint,
-  ScatterChart,
+  Radar,
   Scissors,
   Shapes,
   Shirt,
@@ -95,7 +95,7 @@ const LAB_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   "token-sampling": Dices,
   "speculative-decoding": Zap,
   "moe-routing": Split,
-  "embedding-space": ScatterChart,
+  "embedding-space": Radar,
   tokenizer: Scissors,
   "beam-search": GitFork,
   // Data Structures
@@ -267,19 +267,6 @@ export function CommandPalette() {
       icon: Cpu,
       perform: () => router.push("/lab"),
     },
-    ...labSections.flatMap((section) =>
-      section.experiments.map(
-        (exp): ItemDef => ({
-          id: `page-lab-${exp.slug}`,
-          label: exp.title,
-          icon: LAB_ICONS[exp.slug] ?? Cpu,
-          perform: () => router.push(`/lab/${exp.slug}`),
-          // Fold slug + category + description into keywords so fuzzy
-          // search still hits on "bpe", "sdf", "moe", "chaos", etc.
-          keywords: [exp.slug, section.label.toLowerCase(), exp.description.toLowerCase()],
-        }),
-      ),
-    ),
     {
       id: "page-colophon",
       label: "/colophon  ·  how this site is built",
@@ -293,6 +280,22 @@ export function CommandPalette() {
       perform: () => router.push("/ollie"),
     },
   ];
+
+  // Individual lab experiments live in their own group below everything —
+  // 32 entries would otherwise bury the rest of Pages.
+  const labs: ItemDef[] = labSections.flatMap((section) =>
+    section.experiments.map(
+      (exp): ItemDef => ({
+        id: `lab-${exp.slug}`,
+        label: exp.title,
+        icon: LAB_ICONS[exp.slug] ?? Cpu,
+        perform: () => router.push(`/lab/${exp.slug}`),
+        // Fold slug + category + description into keywords so fuzzy
+        // search still hits on "bpe", "sdf", "moe", "chaos", etc.
+        keywords: [exp.slug, section.label.toLowerCase(), exp.description.toLowerCase()],
+      }),
+    ),
+  );
 
   const actions: ItemDef[] = [
     {
@@ -416,6 +419,12 @@ export function CommandPalette() {
           <CommandGroup label="Links">
             {links.map((item) => (
               <CommandItem key={item.id} item={item} onRun={run} external />
+            ))}
+          </CommandGroup>
+
+          <CommandGroup label="Lab">
+            {labs.map((item) => (
+              <CommandItem key={item.id} item={item} onRun={run} />
             ))}
           </CommandGroup>
         </Command.List>
