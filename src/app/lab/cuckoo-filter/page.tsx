@@ -48,12 +48,12 @@ export default function CuckooFilterPage() {
           climbs past 80%, chains get longer and more dramatic, sometimes cascading across half the
           table before finding an empty slot.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://doi.org/10.1145/2674005.2674994"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Fan et al. (CoNEXT 2014)
           </a>
@@ -62,7 +62,7 @@ export default function CuckooFilterPage() {
             href="https://en.wikipedia.org/wiki/Cuckoo_filter"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

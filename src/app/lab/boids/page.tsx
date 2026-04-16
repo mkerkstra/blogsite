@@ -42,12 +42,12 @@ export default function BoidsPage() {
           Move your cursor to attract the flock. Hold shift to scatter them. Tune the weights to see
           how the collective behavior shifts.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://www.red3d.com/cwr/boids/"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Craig Reynolds (1987)
           </a>

@@ -45,12 +45,12 @@ export default function DpTablePage() {
           subproblems feed each cell. When complete, the traceback reveals the optimal sequence of
           operations. The bottom-right cell is the answer.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://en.wikipedia.org/wiki/Levenshtein_distance"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

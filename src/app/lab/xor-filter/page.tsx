@@ -50,12 +50,12 @@ export default function XorFilterPage() {
           1.23n), a random 3-uniform hypergraph is peelable with high probability. Watch the
           degree-1 vertices disappear one by one, then fingerprints fill in backwards.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://doi.org/10.1145/3376122"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Graf &amp; Lemire (JEA 2020)
           </a>
@@ -64,7 +64,7 @@ export default function XorFilterPage() {
             href="https://arxiv.org/abs/2201.01174"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Binary Fuse Filters (2022)
           </a>
@@ -73,7 +73,7 @@ export default function XorFilterPage() {
             href="https://en.wikipedia.org/wiki/Xor_filter"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

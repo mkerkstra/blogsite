@@ -50,12 +50,12 @@ export default function AttentionHeadsPage() {
           techniques like <Term id="head-pruning">attention head pruning</Term> can remove 30-50% of
           heads with minimal quality loss.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://arxiv.org/abs/1706.03762"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Vaswani et al. 2017
           </a>

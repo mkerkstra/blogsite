@@ -51,12 +51,12 @@ export default function TokenSamplingPage() {
           the tradeoff between coherence and creativity. Most API defaults use temperature 1.0 with
           top-P 0.95, leaving top-K disabled.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://arxiv.org/abs/1904.09751"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Holtzman et al. 2019
           </a>

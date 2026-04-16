@@ -47,12 +47,12 @@ export default function GameOfLifePage() {
           into a mix of still lifes and oscillators, punctuated by the occasional glider escaping to
           infinity.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>
@@ -61,7 +61,7 @@ export default function GameOfLifePage() {
             href="https://conwaylife.com/wiki/"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             LifeWiki
           </a>

@@ -42,12 +42,12 @@ export default function LSystemPage() {
           to dragon curves to the Sierpinski triangle. A handful of characters and one rewriting
           rule are enough to generate surprising complexity.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="http://algorithmicbotany.org/papers/abop/abop.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             The Algorithmic Beauty of Plants
           </a>
@@ -56,7 +56,7 @@ export default function LSystemPage() {
             href="https://en.wikipedia.org/wiki/L-system"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

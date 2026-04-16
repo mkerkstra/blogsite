@@ -42,12 +42,12 @@ export default function SortingPage() {
           naive quicksort (quadratic without median-of-three pivot selection). Each bar is one
           element. The counter tracks comparisons and swaps. Same input, different strategies.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://en.wikipedia.org/wiki/Sorting_algorithm"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

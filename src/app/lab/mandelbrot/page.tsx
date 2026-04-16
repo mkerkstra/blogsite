@@ -51,12 +51,12 @@ export default function MandelbrotPage() {
           arbitrary depth. The largest cardioid corresponds to period-1 orbits, the main bulb to
           period-2, and each smaller satellite to higher periods.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://en.wikipedia.org/wiki/Mandelbrot_set"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

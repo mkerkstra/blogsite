@@ -50,12 +50,12 @@ export default function MoeRoutingPage() {
           heavier specialists. This is <Term id="sparse-activation">sparse activation</Term> in
           practice.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://en.wikipedia.org/wiki/Mixture_of_experts"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

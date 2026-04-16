@@ -45,12 +45,12 @@ export default function BinaryTreePage() {
           rearrange through single or double rotations. The tree never degenerates into a linked
           list, guaranteeing O(log n) operations.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://en.wikipedia.org/wiki/AVL_tree"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

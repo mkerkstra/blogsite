@@ -45,12 +45,12 @@ export default function ParticleLifePage() {
           interesting structure, watch how it evolves. Some are stable equilibria; others are
           transient patterns that eventually collapse or reorganize.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://www.ventrella.com/Clusters/"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Ventrella, Clusters
           </a>
@@ -59,7 +59,7 @@ export default function ParticleLifePage() {
             href="https://en.wikipedia.org/wiki/Artificial_life"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

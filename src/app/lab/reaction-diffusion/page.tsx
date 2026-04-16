@@ -54,12 +54,12 @@ export default function ReactionDiffusionPage() {
           two pattern regimes collide. The boundary between them often produces the most visually
           complex behavior.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://www.karlsims.com/rd.html"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Karl Sims
           </a>
@@ -68,7 +68,7 @@ export default function ReactionDiffusionPage() {
             href="https://en.wikipedia.org/wiki/Reaction%E2%80%93diffusion_system"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

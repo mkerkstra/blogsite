@@ -54,12 +54,12 @@ export default function LearnedIndexPage() {
           data forces the tree to allocate more segments where keys cluster, fewer where they are
           sparse.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://doi.org/10.1145/3318464.3389711"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Ding et al. (SIGMOD 2020)
           </a>
@@ -68,7 +68,7 @@ export default function LearnedIndexPage() {
             href="https://doi.org/10.1145/3183713.3196898"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Kraska et al. &quot;The Case for Learned Index Structures&quot; (2018)
           </a>

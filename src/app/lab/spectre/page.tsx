@@ -32,12 +32,12 @@ export default function SpectrePage() {
           of itself. The hierarchy never repeats, producing aperiodicity at every scale. Colors
           indicate the metatile type at each level.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://arxiv.org/abs/2305.17743"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Smith et al. (2023)
           </a>
@@ -46,7 +46,7 @@ export default function SpectrePage() {
             href="https://en.wikipedia.org/wiki/Einstein_problem"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

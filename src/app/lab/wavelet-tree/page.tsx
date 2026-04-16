@@ -50,12 +50,12 @@ export default function WaveletTreePage() {
           exactly one bitvector per level, so the depth of the tree directly determines the query
           cost. Pick a character and position, then watch the rank query propagate down.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://doi.org/10.1137/1.9781611974331.ch5"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Grossi, Gupta &amp; Vitter (SODA 2003)
           </a>
@@ -64,7 +64,7 @@ export default function WaveletTreePage() {
             href="https://en.wikipedia.org/wiki/Wavelet_tree"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

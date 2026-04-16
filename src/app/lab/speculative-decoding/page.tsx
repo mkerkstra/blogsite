@@ -51,12 +51,12 @@ export default function SpeculativeDecodingPage() {
           tree-structured speculation, exploring multiple continuation paths simultaneously rather
           than a single linear chain.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://arxiv.org/abs/2302.01318"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Leviathan et al. 2023
           </a>

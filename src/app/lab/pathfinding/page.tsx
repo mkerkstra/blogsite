@@ -47,12 +47,12 @@ export default function PathfindingPage() {
           it has already been. When it reaches the goal, the shortest path lights up. Compare how
           many cells each algorithm visits.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://www.redblobgames.com/pathfinding/a-star/introduction.html"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Red Blob Games
           </a>
@@ -61,7 +61,7 @@ export default function PathfindingPage() {
             href="https://en.wikipedia.org/wiki/A*_search_algorithm"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

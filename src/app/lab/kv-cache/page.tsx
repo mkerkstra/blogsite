@@ -51,12 +51,12 @@ export default function KvCachePage() {
           are already there. Without it, you&apos;re rebuilding the entire phone book just to look
           up one number.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

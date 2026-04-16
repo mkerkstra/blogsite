@@ -56,12 +56,12 @@ export default function FluidPage() {
           programs, eight framebuffers, one triangle. Watch for vortex shedding behind fast-moving
           injections and the way dye filaments stretch and fold into fractal-like structures.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>

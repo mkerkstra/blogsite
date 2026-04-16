@@ -45,12 +45,12 @@ export default function GraphPage() {
           update as back edges are found. When a root is identified, the entire component highlights
           at once. Add edges to create cycles and see how the SCC structure changes.
         </p>
-        <p className="border-t border-foreground/10 pt-2">
+        <p className="border-t border-border pt-2">
           <a
             href="https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground/70"
+            className="underline underline-offset-2 hover:text-accent"
           >
             Wikipedia
           </a>
