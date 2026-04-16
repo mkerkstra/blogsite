@@ -36,18 +36,46 @@ export function BattleMap() {
         {/* fog of war — right 2 cols, top 2 rows */}
         <rect x="152" y="12" width="56" height="51" fill="currentColor" opacity="0.1" />
         {/* tokens at cell centers */}
-        <circle cx="54" cy="25" r="5" fill="hsl(var(--background))" stroke="currentColor" />
-        <circle cx="82" cy="50" r="5" fill="hsl(var(--background))" stroke="currentColor" />
+        <circle
+          cx="54"
+          cy="25"
+          r="5"
+          fill="hsl(var(--background))"
+          stroke="currentColor"
+          className="widget-token widget-token-1"
+        />
+        <circle
+          cx="82"
+          cy="50"
+          r="5"
+          fill="hsl(var(--background))"
+          stroke="currentColor"
+          className="widget-token widget-token-2"
+        />
         <circle
           cx="110"
           cy="25"
           r="5"
           fill="hsl(var(--accent))"
           stroke="currentColor"
-          className="widget-pulse"
+          className="widget-pulse widget-token widget-token-3"
         />
-        <circle cx="138" cy="76" r="5" fill="hsl(var(--background))" stroke="currentColor" />
-        <circle cx="54" cy="76" r="5" fill="hsl(var(--background))" stroke="currentColor" />
+        <circle
+          cx="138"
+          cy="76"
+          r="5"
+          fill="hsl(var(--background))"
+          stroke="currentColor"
+          className="widget-token widget-token-4"
+        />
+        <circle
+          cx="54"
+          cy="76"
+          r="5"
+          fill="hsl(var(--background))"
+          stroke="currentColor"
+          className="widget-token widget-token-2"
+        />
       </svg>
     </WidgetFrame>
   );

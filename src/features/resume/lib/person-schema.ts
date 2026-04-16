@@ -30,7 +30,7 @@ export function buildPersonSchema(): Record<string, unknown> {
     "@type": "Person",
     name: aboutMe.name,
     url: SITE_URL,
-    image: `${SITE_URL}/profilePic.jpg`,
+    image: `${SITE_URL}/profile/profilePic.jpg`,
     jobTitle: currentJob.role.title,
     description: aboutMe.blurb,
     email: `mailto:${aboutMe.contact.email}`,

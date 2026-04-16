@@ -13,7 +13,7 @@ describe("buildPersonSchema", () => {
   it("includes name, url, image, jobTitle, description", () => {
     expect(schema.name).toBe("Matt Kerkstra");
     expect(schema.url).toBe("https://www.kerkstra.dev");
-    expect(schema.image).toBe("https://www.kerkstra.dev/profilePic.jpg");
+    expect(schema.image).toBe("https://www.kerkstra.dev/profile/profilePic.jpg");
     expect(schema.jobTitle).toBeTruthy();
     expect(schema.description).toBeTruthy();
   });

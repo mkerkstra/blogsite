@@ -2,7 +2,7 @@ import { WidgetFrame } from "@/components/widget-frame";
 
 export function CompoundingArc() {
   return (
-    <WidgetFrame label="compounding arc" caption="1 seed · n derivatives">
+    <WidgetFrame label="compounding arc" caption="postgis seed · 3yr cascade">
       <svg
         viewBox="0 0 220 96"
         xmlns="http://www.w3.org/2000/svg"
@@ -31,6 +31,7 @@ export function CompoundingArc() {
           strokeWidth="1"
           opacity="0.35"
           fill="none"
+          className="widget-arc widget-arc-1"
         />
         <path
           d="M24,80 C60,80 100,36 132,36"
@@ -38,6 +39,7 @@ export function CompoundingArc() {
           strokeWidth="1"
           opacity="0.35"
           fill="none"
+          className="widget-arc widget-arc-2"
         />
         <path
           d="M24,80 C80,80 150,18 192,18"
@@ -45,6 +47,7 @@ export function CompoundingArc() {
           strokeWidth="1"
           opacity="0.35"
           fill="none"
+          className="widget-arc widget-arc-3"
         />
         <path
           d="M24,80 C90,80 160,62 200,62"
@@ -52,11 +55,40 @@ export function CompoundingArc() {
           strokeWidth="1"
           opacity="0.35"
           fill="none"
+          className="widget-arc widget-arc-4"
         />
-        <circle cx="82" cy="58" r="3" fill="hsl(var(--background))" stroke="currentColor" />
-        <circle cx="132" cy="36" r="3" fill="hsl(var(--background))" stroke="currentColor" />
-        <circle cx="192" cy="18" r="3" fill="hsl(var(--background))" stroke="currentColor" />
-        <circle cx="200" cy="62" r="3" fill="hsl(var(--background))" stroke="currentColor" />
+        <circle
+          cx="82"
+          cy="58"
+          r="3"
+          fill="hsl(var(--background))"
+          stroke="currentColor"
+          className="widget-deriv widget-deriv-1"
+        />
+        <circle
+          cx="132"
+          cy="36"
+          r="3"
+          fill="hsl(var(--background))"
+          stroke="currentColor"
+          className="widget-deriv widget-deriv-2"
+        />
+        <circle
+          cx="192"
+          cy="18"
+          r="3"
+          fill="hsl(var(--background))"
+          stroke="currentColor"
+          className="widget-deriv widget-deriv-3"
+        />
+        <circle
+          cx="200"
+          cy="62"
+          r="3"
+          fill="hsl(var(--background))"
+          stroke="currentColor"
+          className="widget-deriv widget-deriv-4"
+        />
       </svg>
     </WidgetFrame>
   );

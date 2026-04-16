@@ -6,19 +6,19 @@ import { useState } from "react";
 import asciiPic from "../../../../public/profile/ascii.jpeg";
 import editorialPic from "../../../../public/profile/editorial.jpeg";
 import ghibliPic from "../../../../public/profile/ghibli.jpeg";
+import profilePic from "../../../../public/profile/profilePic.jpg";
 
 /**
- * Hero portrait that cycles through three stylized versions (Ghibli
- * watercolor → editorial hedcut → ASCII) on click. All three images
+ * Hero portrait that cycles through stylized versions on click
+ * (photo → ASCII → editorial hedcut → Ghibli watercolor). All images
  * render simultaneously, stacked and toggled via opacity so the swap
- * is instant after first paint. No grayscale filter — the source
- * images are already stylized and dropping the filter preserves
- * Ghibli's watercolor palette.
+ * is instant after first paint.
  */
 const PORTRAITS = [
-  { src: ghibliPic, label: "ghibli", alt: "Matt Kerkstra — watercolor portrait" },
-  { src: editorialPic, label: "editorial", alt: "Matt Kerkstra — pen-and-ink portrait" },
+  { src: profilePic, label: "photo", alt: "Matt Kerkstra — photo portrait" },
   { src: asciiPic, label: "ascii", alt: "Matt Kerkstra — ASCII art portrait" },
+  { src: editorialPic, label: "editorial", alt: "Matt Kerkstra — pen-and-ink portrait" },
+  { src: ghibliPic, label: "ghibli", alt: "Matt Kerkstra — watercolor portrait" },
 ] as const;
 
 export function CyclingPortrait() {

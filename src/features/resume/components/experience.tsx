@@ -14,9 +14,9 @@ function JobBlock({ job }: { job: Job }) {
     <article className="grid grid-cols-1 gap-4 border-t border-border py-6 md:grid-cols-[7rem_1fr] md:gap-8">
       {/* Left rail — date / location */}
       <div className="flex flex-col gap-1 text-[11px] uppercase tracking-[0.12em] text-muted-foreground md:text-right">
-        <div className="font-mono text-foreground">
+        <div className="font-mono text-accent">
           {formatYear(job.role.time.start)}
-          <span className="mx-1 opacity-60">→</span>
+          <span className="mx-1 text-muted-foreground opacity-60">→</span>
           {isPresent ? "now" : formatYear(end)}
         </div>
         <div className="font-mono">{duration}</div>
@@ -56,7 +56,7 @@ function JobBlock({ job }: { job: Job }) {
           </p>
         ) : null}
         <ul className="flex flex-col gap-2.5 text-[12.5px] leading-[1.65]">
-          {job.highlights.map((h, i) => (
+          {job.highlights.map((h) => (
             <li
               key={h.text}
               className={cn(
@@ -68,9 +68,9 @@ function JobBlock({ job }: { job: Job }) {
               <div className="flex gap-2.5 md:contents">
                 <span
                   aria-hidden
-                  className="mt-[3px] shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground"
+                  className="mt-[2px] shrink-0 font-mono text-[13px] leading-none text-accent"
                 >
-                  {String(i + 1).padStart(2, "0")}
+                  ›
                 </span>
                 <span className="text-foreground/90">{renderBold(h.text)}</span>
               </div>

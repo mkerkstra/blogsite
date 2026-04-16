@@ -42,7 +42,6 @@ export const experience: Job[] = [
     highlights: [
       {
         text: "Architected and shipped a production AI clinical-note templating system from empty repo to production in **16 days** across 3 services. Graph-based LLM pipeline with Postgres-backed checkpointing, semantic section matching via BAAI/bge-m3 embeddings + Milvus, dual-detector PHI anonymization (Presidio + LLM), SSE streaming, and an admin review UI with structured rich-text editing.",
-        widget: "clinical-note",
       },
       {
         text: "Built the production **Kubernetes ML platform** from an empty repo. Istio ambient mesh, ArgoCD app-of-apps with Kustomize overlays, KServe + vLLM for self-hosted model serving (embeddings, ASR), Langfuse for LLM observability, Milvus for vector search. 13 namespaces / 9 services. Cost stayed flat; new services deploy with a Helm chart and an ArgoCD app. Six engineers now contribute regularly.",
@@ -63,7 +62,6 @@ export const experience: Job[] = [
       },
       {
         text: "Run the bi-weekly **Backend Guild** (18+ months) driving cross-team architectural alignment. Drove org-wide adoption of typed query patterns (Kysely + footgun-prevention bots) and AI-assisted developer tooling - first mover on Cursor rules, CLAUDE.md, and MCP integrations a year before mainstream.",
-        widget: "ai-tooling",
       },
     ],
   },

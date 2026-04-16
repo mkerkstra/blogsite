@@ -60,15 +60,16 @@
     --secondary-foreground: 0 0% 8%;
     --muted: 42 18% 88%;
     --muted-foreground: 0 0% 38%;
-    /* Deep electric chartreuse — same hue family as the dark-mode
-       lime, but dark enough to read against cream paper. */
-    --accent: 78 95% 22%;
+    /* Electric chartreuse — hue nudged toward yellow-green for life,
+       lightness pinned at 22% so small text (section brackets, year
+       rail) meets WCAG AA 4.5:1 on cream. Anything brighter fails. */
+    --accent: 82 92% 22%;
     --accent-foreground: 42 32% 94%;
     --destructive: 5 75% 42%;
     --destructive-foreground: 42 32% 94%;
     --border: 0 0% 75%;
     --input: 0 0% 75%;
-    --ring: 78 95% 22%;
+    --ring: 82 92% 22%;
     --radius: 0.125rem;
   }
 
@@ -288,9 +289,314 @@ html.dark .theme-only-light {
 .widget-pulse {
   animation: widget-pulse 2s ease-in-out infinite;
 }
+
+/* ──────────────── Widget hover animations ──────────────── */
+/* Each widget reinforces its claim on hover: the arcs in
+   compounding-arc trace outward from the seed, the fast-dots in
+   coldstart light up in rapid stagger, etc. Animations are semantic,
+   not decorative. */
+
+/* compounding-arc — seed casts arcs, then derivatives pop in */
+.widget-arc {
+  stroke-dasharray: 220;
+}
+.widget-hover:hover .widget-arc {
+  animation: widget-arc-trace 900ms cubic-bezier(0.2, 0.6, 0.2, 1) backwards;
+}
+.widget-hover:hover .widget-arc-2 {
+  animation-delay: 120ms;
+}
+.widget-hover:hover .widget-arc-3 {
+  animation-delay: 240ms;
+}
+.widget-hover:hover .widget-arc-4 {
+  animation-delay: 360ms;
+}
+@keyframes widget-arc-trace {
+  from {
+    stroke-dashoffset: 220;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.widget-deriv {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.widget-hover:hover .widget-deriv {
+  animation: widget-pop 320ms cubic-bezier(0.2, 0.8, 0.3, 1.3) backwards;
+}
+.widget-hover:hover .widget-deriv-1 {
+  animation-delay: 520ms;
+}
+.widget-hover:hover .widget-deriv-2 {
+  animation-delay: 640ms;
+}
+.widget-hover:hover .widget-deriv-3 {
+  animation-delay: 760ms;
+}
+.widget-hover:hover .widget-deriv-4 {
+  animation-delay: 880ms;
+}
+@keyframes widget-pop {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* coldstart — "after" dots pop in fast stagger, echoing the speed claim */
+.widget-fast-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.widget-hover:hover .widget-fast-dot {
+  animation: widget-pop 260ms cubic-bezier(0.2, 0.8, 0.3, 1.3) backwards;
+}
+.widget-hover:hover .widget-fast-dot-2 {
+  animation-delay: 90ms;
+}
+.widget-hover:hover .widget-fast-dot-3 {
+  animation-delay: 180ms;
+}
+
+/* fraud-filter — a packet travels the check line, then the bins settle */
+.widget-packet {
+  opacity: 0;
+  transform-box: fill-box;
+}
+.widget-hover:hover .widget-packet {
+  animation: widget-packet-travel 1300ms cubic-bezier(0.35, 0, 0.65, 1) backwards;
+}
+@keyframes widget-packet-travel {
+  0% {
+    transform: translateX(-36px);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(26px);
+    opacity: 0;
+  }
+}
+
+/* huddle — the right-side PMS cells slot in on the active row */
+.widget-slot {
+  transform-box: fill-box;
+}
+.widget-hover:hover .widget-slot {
+  animation: widget-slot-in 420ms cubic-bezier(0.2, 0.6, 0.2, 1) backwards;
+}
+.widget-hover:hover .widget-slot-2 {
+  animation-delay: 90ms;
+}
+.widget-hover:hover .widget-slot-3 {
+  animation-delay: 180ms;
+}
+@keyframes widget-slot-in {
+  from {
+    transform: translateX(14px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* reyrey-terminal — highlight rect sweeps behind each row */
+.widget-scan {
+  transform-box: fill-box;
+  transform-origin: left;
+  transform: scaleX(0);
+}
+.widget-hover:hover .widget-scan {
+  animation: widget-scan-sweep 800ms cubic-bezier(0.2, 0.6, 0.2, 1) backwards;
+}
+.widget-hover:hover .widget-scan-2 {
+  animation-delay: 140ms;
+}
+.widget-hover:hover .widget-scan-3 {
+  animation-delay: 280ms;
+}
+@keyframes widget-scan-sweep {
+  0% {
+    transform: scaleX(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 0.35;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+
+/* battle-map — tokens drop onto cells in initiative order */
+.widget-token {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.widget-hover:hover .widget-token {
+  animation: widget-pop 260ms cubic-bezier(0.2, 0.8, 0.3, 1.3) backwards;
+}
+.widget-hover:hover .widget-token-2 {
+  animation-delay: 80ms;
+}
+.widget-hover:hover .widget-token-3 {
+  animation-delay: 160ms;
+}
+.widget-hover:hover .widget-token-4 {
+  animation-delay: 240ms;
+}
+
+/* seo-flow — arrows fire sitemap → pages → metadata */
+.widget-flow-step {
+  opacity: 0.55;
+  transform-box: fill-box;
+  transform-origin: left;
+}
+.widget-hover:hover .widget-flow-step {
+  animation: widget-flow-fire 620ms cubic-bezier(0.2, 0.6, 0.2, 1) backwards;
+}
+.widget-hover:hover .widget-flow-step-2 {
+  animation-delay: 300ms;
+}
+@keyframes widget-flow-fire {
+  0% {
+    opacity: 0.3;
+    transform: translateX(-6px);
+  }
+  55% {
+    opacity: 1;
+    color: hsl(var(--accent));
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0.55;
+    transform: translateX(0);
+  }
+}
+
+/* performance-gauge — bar fills L→R, then metric circles settle */
+.widget-bar-fill {
+  transform-box: fill-box;
+  transform-origin: left;
+}
+.widget-hover:hover .widget-bar-fill {
+  animation: widget-bar-fill 700ms cubic-bezier(0.2, 0.6, 0.2, 1) backwards;
+}
+@keyframes widget-bar-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.widget-metric {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.widget-hover:hover .widget-metric {
+  animation: widget-pop 280ms cubic-bezier(0.2, 0.8, 0.3, 1.3) backwards;
+}
+.widget-hover:hover .widget-metric-1 {
+  animation-delay: 150ms;
+}
+.widget-hover:hover .widget-metric-2 {
+  animation-delay: 290ms;
+}
+.widget-hover:hover .widget-metric-3 {
+  animation-delay: 430ms;
+}
+
+/* best-practices-check — check marks draw in sequence */
+.widget-check {
+  stroke-dasharray: 14;
+}
+.widget-hover:hover .widget-check {
+  animation: widget-check-draw 320ms cubic-bezier(0.2, 0.6, 0.2, 1) backwards;
+}
+.widget-hover:hover .widget-check-2 {
+  animation-delay: 120ms;
+}
+.widget-hover:hover .widget-check-3 {
+  animation-delay: 240ms;
+}
+.widget-hover:hover .widget-check-4 {
+  animation-delay: 360ms;
+}
+@keyframes widget-check-draw {
+  from {
+    stroke-dashoffset: 14;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* accessibility-tree — root settles, lines trace, leaves pop */
+.widget-tree-line {
+  stroke-dasharray: 40;
+}
+.widget-hover:hover .widget-tree-line {
+  animation: widget-line-trace 420ms cubic-bezier(0.2, 0.6, 0.2, 1) backwards;
+}
+.widget-hover:hover .widget-tree-line-depth-1 {
+  animation-delay: 180ms;
+}
+.widget-hover:hover .widget-tree-line-depth-2 {
+  animation-delay: 520ms;
+}
+@keyframes widget-line-trace {
+  from {
+    stroke-dashoffset: 40;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.widget-tree-node {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.widget-hover:hover .widget-tree-node {
+  animation: widget-pop 280ms cubic-bezier(0.2, 0.8, 0.3, 1.3) backwards;
+}
+.widget-hover:hover .widget-tree-node-depth-1 {
+  animation-delay: 280ms;
+}
+.widget-hover:hover .widget-tree-node-depth-2 {
+  animation-delay: 620ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .widget-blink,
-  .widget-pulse {
+  .widget-pulse,
+  .widget-hover:hover .widget-arc,
+  .widget-hover:hover .widget-deriv,
+  .widget-hover:hover .widget-fast-dot,
+  .widget-hover:hover .widget-packet,
+  .widget-hover:hover .widget-slot,
+  .widget-hover:hover .widget-scan,
+  .widget-hover:hover .widget-token,
+  .widget-hover:hover .widget-flow-step,
+  .widget-hover:hover .widget-bar-fill,
+  .widget-hover:hover .widget-metric,
+  .widget-hover:hover .widget-check,
+  .widget-hover:hover .widget-tree-line,
+  .widget-hover:hover .widget-tree-node {
     animation: none;
   }
 }

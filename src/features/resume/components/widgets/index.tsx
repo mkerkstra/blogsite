@@ -1,8 +1,6 @@
 import type { WidgetId } from "../../data/widget-id";
 
-import { AiTooling } from "./ai-tooling";
 import { BattleMap } from "./battle-map";
-import { ClinicalNote } from "./clinical-note";
 import { Coldstart } from "./coldstart";
 import { CompoundingArc } from "./compounding-arc";
 import { FraudFilter } from "./fraud-filter";
@@ -15,10 +13,8 @@ import { ReyreyTerminal } from "./reyrey-terminal";
 // REGISTRY below. TypeScript enforces exhaustiveness via the
 // `Record<WidgetId, ...>` type — missing an id fails typecheck.
 const REGISTRY: Record<WidgetId, () => React.JSX.Element> = {
-  "clinical-note": ClinicalNote,
   "compounding-arc": CompoundingArc,
   huddle: Huddle,
-  "ai-tooling": AiTooling,
   "fraud-filter": FraudFilter,
   coldstart: Coldstart,
   "reyrey-terminal": ReyreyTerminal,

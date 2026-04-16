@@ -3,7 +3,7 @@ import * as React from "react";
 export function SectionLabel({ index, children }: { index: string; children: React.ReactNode }) {
   return (
     <div className="flex items-baseline gap-3">
-      <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+      <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
         [{index}]
       </span>
       <h2 className="font-mono text-[11px] uppercase tracking-[0.2em] text-foreground">

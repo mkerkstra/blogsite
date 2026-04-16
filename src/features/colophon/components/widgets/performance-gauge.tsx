@@ -12,10 +12,25 @@ export function PerformanceGauge() {
         {/* Horizontal track */}
         <rect x="14" y="42" width="192" height="4" fill="currentColor" opacity="0.15" rx="2" />
         {/* Filled bar */}
-        <rect x="14" y="42" width="192" height="4" fill="hsl(var(--accent))" rx="2" />
+        <rect
+          x="14"
+          y="42"
+          width="192"
+          height="4"
+          fill="hsl(var(--accent))"
+          rx="2"
+          className="widget-bar-fill"
+        />
         {/* Metric markers */}
         <g fontSize="7" fill="hsl(var(--muted-foreground))">
-          <circle cx="60" cy="44" r="6" fill="hsl(var(--background))" stroke="currentColor" />
+          <circle
+            cx="60"
+            cy="44"
+            r="6"
+            fill="hsl(var(--background))"
+            stroke="currentColor"
+            className="widget-metric widget-metric-1"
+          />
           <text x="60" y="46.5" textAnchor="middle" fontSize="6" fill="currentColor">
             L
           </text>
@@ -25,7 +40,14 @@ export function PerformanceGauge() {
           <text x="60" y="72" textAnchor="middle" fontSize="6">
             0.8s
           </text>
-          <circle cx="120" cy="44" r="6" fill="hsl(var(--background))" stroke="currentColor" />
+          <circle
+            cx="120"
+            cy="44"
+            r="6"
+            fill="hsl(var(--background))"
+            stroke="currentColor"
+            className="widget-metric widget-metric-2"
+          />
           <text x="120" y="46.5" textAnchor="middle" fontSize="6" fill="currentColor">
             C
           </text>
@@ -35,7 +57,14 @@ export function PerformanceGauge() {
           <text x="120" y="72" textAnchor="middle" fontSize="6">
             0.00
           </text>
-          <circle cx="180" cy="44" r="6" fill="hsl(var(--background))" stroke="currentColor" />
+          <circle
+            cx="180"
+            cy="44"
+            r="6"
+            fill="hsl(var(--background))"
+            stroke="currentColor"
+            className="widget-metric widget-metric-3"
+          />
           <text x="180" y="46.5" textAnchor="middle" fontSize="6" fill="currentColor">
             I
           </text>

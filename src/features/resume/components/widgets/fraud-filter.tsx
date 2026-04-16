@@ -28,6 +28,14 @@ export function FraudFilter() {
         <text x="58" y="92" textAnchor="middle" fontSize="6" fill="hsl(var(--muted-foreground))">
           check
         </text>
+        <circle
+          cx="58"
+          cy="48"
+          r="3"
+          fill="hsl(var(--accent))"
+          stroke="currentColor"
+          className="widget-packet"
+        />
         <g fill="hsl(var(--background))" stroke="currentColor">
           <rect x="84" y="20" width="24" height="6" />
           <rect x="84" y="32" width="24" height="6" />

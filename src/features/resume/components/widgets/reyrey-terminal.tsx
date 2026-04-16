@@ -2,7 +2,7 @@ import { WidgetFrame } from "@/components/widget-frame";
 
 export function ReyreyTerminal() {
   return (
-    <WidgetFrame label="FORM-VCS v2.3" caption="distributed delivery · usage · billing">
+    <WidgetFrame label="FORM-VCS v2.3" caption="vb6 → cobol + pick basic">
       <svg
         viewBox="0 0 220 96"
         xmlns="http://www.w3.org/2000/svg"
@@ -28,6 +28,30 @@ export function ReyreyTerminal() {
           <text x="16" y="36">
             {"> LIST ACTIVE"}
           </text>
+          <rect
+            x="20"
+            y="39"
+            width="180"
+            height="9"
+            fill="hsl(var(--accent))"
+            className="widget-scan widget-scan-1"
+          />
+          <rect
+            x="20"
+            y="49"
+            width="180"
+            height="9"
+            fill="hsl(var(--accent))"
+            className="widget-scan widget-scan-2"
+          />
+          <rect
+            x="20"
+            y="59"
+            width="180"
+            height="9"
+            fill="hsl(var(--accent))"
+            className="widget-scan widget-scan-3"
+          />
           <text x="22" y="46" fill="hsl(var(--muted-foreground))">
             FRM-0412 r.14 DLR-9981 OK
           </text>

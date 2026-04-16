@@ -21,8 +21,10 @@ export function SeoFlow() {
         <text x="34" y="47" textAnchor="middle" fontSize="7" fill="currentColor">
           sitemap.xml
         </text>
-        <line x1="60" y1="44" x2="78" y2="44" stroke="currentColor" opacity="0.4" />
-        <polygon points="78,41 84,44 78,47" fill="currentColor" opacity="0.4" />
+        <g className="widget-flow-step widget-flow-step-1">
+          <line x1="60" y1="44" x2="78" y2="44" stroke="currentColor" />
+          <polygon points="78,41 84,44 78,47" fill="currentColor" />
+        </g>
         <rect
           x="84"
           y="32"
@@ -35,8 +37,10 @@ export function SeoFlow() {
         <text x="106" y="47" textAnchor="middle" fontSize="7" fill="hsl(var(--accent-foreground))">
           pages
         </text>
-        <line x1="128" y1="44" x2="146" y2="44" stroke="currentColor" opacity="0.4" />
-        <polygon points="146,41 152,44 146,47" fill="currentColor" opacity="0.4" />
+        <g className="widget-flow-step widget-flow-step-2">
+          <line x1="128" y1="44" x2="146" y2="44" stroke="currentColor" />
+          <polygon points="146,41 152,44 146,47" fill="currentColor" />
+        </g>
         <rect
           x="152"
           y="32"

@@ -5,9 +5,9 @@ import { Widget } from "./index";
 
 describe("<Widget />", () => {
   it("renders a frame for a known id", () => {
-    render(<Widget id="clinical-note" />);
-    expect(screen.getByText("live templating")).toBeInTheDocument();
-    expect(screen.getByText("voice + context → structured note")).toBeInTheDocument();
+    render(<Widget id="compounding-arc" />);
+    expect(screen.getByText("compounding arc")).toBeInTheDocument();
+    expect(screen.getByText("postgis seed · 3yr cascade")).toBeInTheDocument();
   });
 
   it("renders nothing for an unknown id", () => {

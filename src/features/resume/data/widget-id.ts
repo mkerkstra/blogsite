@@ -6,10 +6,8 @@
  * ../components/widgets/index.tsx.
  */
 export type WidgetId =
-  | "clinical-note"
   | "compounding-arc"
   | "huddle"
-  | "ai-tooling"
   | "fraud-filter"
   | "coldstart"
   | "reyrey-terminal"

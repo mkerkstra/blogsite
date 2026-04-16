@@ -25,13 +25,13 @@ export function WidgetFrame({
   return (
     <div
       aria-hidden="true"
-      className="flex flex-col gap-1.5 border border-border bg-muted/50 p-3 text-foreground"
+      className="widget-hover group/widget flex flex-col gap-1.5 border border-border bg-muted/50 p-3 text-foreground transition-colors duration-200 hover:border-accent/60 hover:bg-muted"
     >
-      <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">
+      <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground transition-colors duration-200 group-hover/widget:text-accent">
         {label}
       </p>
       <div className="flex min-h-[88px] flex-1 items-center justify-center">{children}</div>
-      <p className="font-mono text-[9px] tabular-nums tracking-wide text-muted-foreground">
+      <p className="font-mono text-[9px] tabular-nums tracking-wide text-muted-foreground transition-colors duration-200 group-hover/widget:text-foreground">
         {caption}
       </p>
     </div>

@@ -55,33 +55,39 @@ export function Huddle() {
           09:30
         </text>
         <rect x="44" y="54" width="96" height="10" fill="currentColor" opacity="0.9" />
-        <rect
-          x="142"
-          y="53"
-          width="14"
-          height="12"
-          fill="hsl(var(--background))"
-          stroke="currentColor"
-        />
-        <rect x="144" y="55" width="10" height="8" fill="currentColor" opacity="0.3" />
-        <rect
-          x="160"
-          y="53"
-          width="14"
-          height="12"
-          fill="hsl(var(--background))"
-          stroke="currentColor"
-        />
-        <rect x="162" y="55" width="10" height="8" fill="currentColor" opacity="0.3" />
-        <rect
-          x="178"
-          y="53"
-          width="14"
-          height="12"
-          fill="hsl(var(--background))"
-          stroke="currentColor"
-        />
-        <rect x="180" y="55" width="10" height="8" fill="currentColor" opacity="0.3" />
+        <g className="widget-slot widget-slot-1">
+          <rect
+            x="142"
+            y="53"
+            width="14"
+            height="12"
+            fill="hsl(var(--background))"
+            stroke="currentColor"
+          />
+          <rect x="144" y="55" width="10" height="8" fill="currentColor" opacity="0.3" />
+        </g>
+        <g className="widget-slot widget-slot-2">
+          <rect
+            x="160"
+            y="53"
+            width="14"
+            height="12"
+            fill="hsl(var(--background))"
+            stroke="currentColor"
+          />
+          <rect x="162" y="55" width="10" height="8" fill="currentColor" opacity="0.3" />
+        </g>
+        <g className="widget-slot widget-slot-3">
+          <rect
+            x="178"
+            y="53"
+            width="14"
+            height="12"
+            fill="hsl(var(--background))"
+            stroke="currentColor"
+          />
+          <rect x="180" y="55" width="10" height="8" fill="currentColor" opacity="0.3" />
+        </g>
         <circle cx="202" cy="59" r="3.5" fill="hsl(var(--accent))" stroke="currentColor" />
 
         {/* Row 4 — 10:00 */}
