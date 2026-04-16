@@ -15,10 +15,10 @@ import profilePic from "../../../../public/profile/profilePic.jpg";
  * is instant after first paint.
  */
 const PORTRAITS = [
-  { src: profilePic, label: "photo", alt: "Matt Kerkstra — photo portrait" },
-  { src: asciiPic, label: "ascii", alt: "Matt Kerkstra — ASCII art portrait" },
-  { src: editorialPic, label: "editorial", alt: "Matt Kerkstra — pen-and-ink portrait" },
-  { src: ghibliPic, label: "ghibli", alt: "Matt Kerkstra — watercolor portrait" },
+  { src: profilePic, label: "photo", alt: "Matt Kerkstra, photo portrait" },
+  { src: asciiPic, label: "ascii", alt: "Matt Kerkstra, ASCII art portrait" },
+  { src: editorialPic, label: "editorial", alt: "Matt Kerkstra, pen-and-ink portrait" },
+  { src: ghibliPic, label: "ghibli", alt: "Matt Kerkstra, watercolor portrait" },
 ] as const;
 
 export function CyclingPortrait() {

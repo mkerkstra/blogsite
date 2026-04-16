@@ -8,7 +8,7 @@ import { labMetadata } from "@/features/lab/lib/metadata";
 export const metadata = labMetadata(
   "graph",
   "Graph",
-  "Tarjan's algorithm — find strongly connected components.",
+  "Tarjan's algorithm. Find strongly connected components.",
 );
 
 export default function GraphPage() {

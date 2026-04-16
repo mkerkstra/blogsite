@@ -793,7 +793,7 @@ export function KvCache() {
         ctx.fillStyle = colors.textBright;
         ctx.font = "10px 'JetBrains Mono', monospace";
         ctx.textAlign = "center";
-        ctx.fillText("GENERATION COMPLETE — PRESS R TO RESET", W / 2, H - 14);
+        ctx.fillText("GENERATION COMPLETE. PRESS R TO RESET", W / 2, H - 14);
       }
 
       ctx.restore();

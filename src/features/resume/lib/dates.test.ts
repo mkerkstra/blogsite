@@ -63,14 +63,14 @@ describe("date helpers", () => {
   });
 
   describe("formatRange", () => {
-    it("returns 'Start — End' when both dates are present", () => {
+    it("returns 'Start – End' when both dates are present", () => {
       expect(formatRange(new Date("2022-06-01"), new Date("2023-03-01"))).toBe(
-        "Jun 2022 — Mar 2023",
+        "Jun 2022 – Mar 2023",
       );
     });
 
-    it("returns 'Start — Present' when end is undefined", () => {
-      expect(formatRange(new Date("2023-05-01"))).toBe("May 2023 — Present");
+    it("returns 'Start – Present' when end is undefined", () => {
+      expect(formatRange(new Date("2023-05-01"))).toBe("May 2023 – Present");
     });
   });
 });

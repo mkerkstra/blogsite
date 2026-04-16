@@ -327,7 +327,7 @@ function ResumeDocument() {
   const [lede, rest] = splitLede(aboutMe.blurb);
 
   return (
-    <Document title="Matt Kerkstra — Resume" author={aboutMe.name} subject="Resume">
+    <Document title="Matt Kerkstra – Resume" author={aboutMe.name} subject="Resume">
       <Page size="LETTER" style={styles.page}>
         {/* ── Header ── */}
         <View style={styles.header}>
@@ -443,7 +443,7 @@ function ResumeDocument() {
             <View key={row.school} style={styles.edRow}>
               <Text>
                 <Text style={styles.edSchool}>{clean(row.school)}</Text>
-                <Text style={styles.edEmDash}> — </Text>
+                <Text style={styles.edEmDash}> · </Text>
                 <Text style={styles.edDegree}>{row.degree}</Text>
               </Text>
               <Text style={styles.edMeta}>

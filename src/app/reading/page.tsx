@@ -6,12 +6,12 @@ import { SectionLabel } from "@/features/resume/components/section-label";
 export const metadata: Metadata = {
   title: "Reading",
   description:
-    "Books Matt Kerkstra keeps reaching for — engineering, sci-fi, and the slow-moving stack.",
+    "Books Matt Kerkstra keeps reaching for: engineering, sci-fi, and the slow-moving stack.",
   alternates: { canonical: "/reading" },
   openGraph: {
     title: "Reading · kerkstra.dev",
     description:
-      "Books Matt Kerkstra keeps reaching for — engineering, sci-fi, and the slow-moving stack.",
+      "Books Matt Kerkstra keeps reaching for: engineering, sci-fi, and the slow-moving stack.",
     url: "https://www.kerkstra.dev/reading",
     type: "profile",
   },
@@ -35,7 +35,7 @@ function BookRow({ book }: { book: Book }) {
           >
             {book.title}
           </a>
-          <span className="text-muted-foreground">— {book.author}</span>
+          <span className="text-muted-foreground">· {book.author}</span>
         </div>
         {book.note ? (
           <p className="text-[12.5px] leading-relaxed text-muted-foreground">{book.note}</p>

@@ -28,7 +28,7 @@ export function Education() {
             ) : (
               <span className="font-medium text-foreground">{row.school}</span>
             )}
-            <span className="text-muted-foreground">— {row.degree}</span>
+            <span className="text-muted-foreground">· {row.degree}</span>
           </div>
         </div>
       ))}

@@ -8,7 +8,7 @@ import { labMetadata } from "@/features/lab/lib/metadata";
 export const metadata = labMetadata(
   "pathfinding",
   "Pathfinding",
-  "A* vs Dijkstra vs BFS — draw walls, watch the search.",
+  "A* vs Dijkstra vs BFS. Draw walls, watch the search.",
 );
 
 export default function PathfindingPage() {

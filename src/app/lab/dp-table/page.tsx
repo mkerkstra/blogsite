@@ -8,7 +8,7 @@ import { labMetadata } from "@/features/lab/lib/metadata";
 export const metadata = labMetadata(
   "dp-table",
   "DP Table",
-  "Edit distance — watch dynamic programming fill a table.",
+  "Edit distance. Watch dynamic programming fill a table.",
 );
 
 export default function DpTablePage() {

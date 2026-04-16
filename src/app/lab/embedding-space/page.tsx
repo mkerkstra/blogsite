@@ -57,7 +57,7 @@ export default function EmbeddingSpacePage() {
             all-MiniLM-L6-v2
           </a>{" "}
           at build time, projected to 2D with <Term id="umap">UMAP</Term>. Every cosine score and
-          nearest-neighbor list you see is computed in the full 384D space — dragging a word around
+          nearest-neighbor list you see is computed in the full 384D space. Dragging a word around
           the plane does not change what it is close to.
         </p>
         <div className="border-y border-border py-3">
@@ -102,7 +102,7 @@ export default function EmbeddingSpacePage() {
           <span className="font-mono">berlin</span>. So{" "}
           <span className="font-mono">paris − france + germany ≈ berlin</span>, and the page proves
           it by resolving the arithmetic against the full vocabulary and showing the actual top
-          match with its cosine score. Not programmed — it emerges because the model learned
+          match with its cosine score. Not programmed. It emerges because the model learned
           &quot;capital-of&quot; as a consistent contextual shift.
         </p>
         <p>
@@ -128,7 +128,7 @@ export default function EmbeddingSpacePage() {
             rel="noopener noreferrer"
             className="block underline underline-offset-2 hover:text-accent"
           >
-            Mikolov et al. 2013 — Word2Vec
+            Mikolov et al. 2013 · Word2Vec
           </a>
           <a
             href="https://arxiv.org/abs/1908.10084"
@@ -136,7 +136,7 @@ export default function EmbeddingSpacePage() {
             rel="noopener noreferrer"
             className="block underline underline-offset-2 hover:text-accent"
           >
-            Reimers &amp; Gurevych 2019 — Sentence-BERT (MiniLM lineage)
+            Reimers &amp; Gurevych 2019 · Sentence-BERT (MiniLM lineage)
           </a>
           <a
             href="https://arxiv.org/abs/1802.03426"
@@ -144,7 +144,7 @@ export default function EmbeddingSpacePage() {
             rel="noopener noreferrer"
             className="block underline underline-offset-2 hover:text-accent"
           >
-            McInnes et al. 2018 — UMAP
+            McInnes et al. 2018 · UMAP
           </a>
           <a
             href="https://github.com/pgvector/pgvector"
@@ -152,7 +152,7 @@ export default function EmbeddingSpacePage() {
             rel="noopener noreferrer"
             className="block underline underline-offset-2 hover:text-accent"
           >
-            pgvector — Postgres extension
+            pgvector · Postgres extension
           </a>
         </p>
       </LabInfoPanel>

@@ -15,7 +15,7 @@ function ToolChip({ tool, groupLabel }: { tool: Tool; groupLabel: string }) {
         {/* Visually hidden suffix — keeps accessible name + textContent
             descriptive enough to pass Lighthouse's link-text audit
             (which blacklists short generic words like "go"). */}
-        <span className="sr-only"> — {groupLabel}</span>
+        <span className="sr-only">, {groupLabel}</span>
       </a>
     );
   }

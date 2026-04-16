@@ -32,7 +32,7 @@ export function CommandPaletteHint() {
     <button
       type="button"
       onClick={dispatch}
-      aria-label={`${modifier} K — Open command palette`}
+      aria-label={`${modifier} K, open command palette`}
       className="hidden h-8 items-center gap-1 px-2 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:text-accent sm:inline-flex"
     >
       <kbd className="border border-border px-1 py-0.5">{modifier}</kbd>

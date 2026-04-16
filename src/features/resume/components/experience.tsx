@@ -47,7 +47,7 @@ function JobBlock({ job }: { job: Job }) {
           <div className="font-mono text-[11px] text-muted-foreground">
             {job.role.title}
             <span className="mx-2 opacity-50">·</span>
-            {formatMonthYear(job.role.time.start)} — {isPresent ? "Present" : formatMonthYear(end)}
+            {formatMonthYear(job.role.time.start)} – {isPresent ? "Present" : formatMonthYear(end)}
           </div>
         </div>
         {job.role.overview ? (

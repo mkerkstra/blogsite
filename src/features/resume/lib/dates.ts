@@ -34,7 +34,7 @@ export function calculateDuration(start: Date, end: Date): string {
   });
 }
 
-/** "May 2023 — Present" / "Jun 2022 — Mar 2023". */
+/** "May 2023 – Present" / "Jun 2022 – Mar 2023". */
 export function formatRange(start: Date, end?: Date): string {
-  return `${formatMonthYear(start)} — ${end ? formatMonthYear(end) : "Present"}`;
+  return `${formatMonthYear(start)} – ${end ? formatMonthYear(end) : "Present"}`;
 }
