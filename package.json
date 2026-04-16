@@ -51,7 +51,7 @@
     "puppeteer-core": "^24.41.0",
     "tailwindcss": "^4.2.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.7.3",
+    "typescript": "^6.0.2",
     "umap-js": "^1.4.0",
     "vitest": "^4.0.18"
   },
