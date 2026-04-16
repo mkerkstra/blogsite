@@ -2,7 +2,27 @@ import { EmbeddingSpace } from "@/features/lab/components/embedding-space";
 import { LabActions } from "@/features/lab/components/lab-actions";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
 import { Term } from "@/features/lab/components/term";
+import { CLUSTER_LABELS, WORDS } from "@/features/lab/data/embedding-data";
 import { labMetadata } from "@/features/lab/lib/metadata";
+
+const CLUSTER_SEEDS = CLUSTER_LABELS.map((label, ci) => {
+  const members = WORDS.filter((w) => w.cluster === ci);
+  let closestPair: { a: string; b: string; score: number } | null = null;
+  for (const w of members) {
+    for (const n of w.neighbors) {
+      const nw = WORDS[n.idx];
+      if (!nw || nw.cluster !== ci) continue;
+      if (!closestPair || n.score > closestPair.score) {
+        closestPair = { a: w.word, b: nw.word, score: n.score };
+      }
+    }
+  }
+  return {
+    label,
+    words: members.map((m) => m.word),
+    closest: closestPair,
+  };
+});
 
 export const metadata = labMetadata(
   "embedding-space",
@@ -40,6 +60,27 @@ export default function EmbeddingSpacePage() {
           nearest-neighbor list you see is computed in the full 384D space — dragging a word around
           the plane does not change what it is close to.
         </p>
+        <div className="border-y border-border py-3">
+          <p className="mb-3 font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground">
+            the 75 seeds · closest in-cluster pair shown with real 384D cosine
+          </p>
+          <dl className="space-y-3 font-mono text-[11px] leading-[1.55]">
+            {CLUSTER_SEEDS.map((group) => (
+              <div key={group.label}>
+                <dt className="mb-0.5 text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+                  {group.label} <span className="text-foreground/30">{group.words.length}</span>
+                </dt>
+                <dd className="text-foreground/70">{group.words.join(" · ")}</dd>
+                {group.closest ? (
+                  <dd className="mt-0.5 text-[10px] text-foreground/35">
+                    closest: {group.closest.a} ↔ {group.closest.b}{" "}
+                    <span className="text-accent/70">cos={group.closest.score.toFixed(2)}</span>
+                  </dd>
+                ) : null}
+              </div>
+            ))}
+          </dl>
+        </div>
         <p>
           The vectors are <Term id="learned-representation">learned</Term>, not hand-crafted. During
           training, words appearing in similar contexts get pushed toward nearby points. No
