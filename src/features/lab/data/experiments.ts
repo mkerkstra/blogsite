@@ -73,6 +73,11 @@ export const sections: ExperimentSection[] = [
         title: "Game of Life",
         description: "Four rules. Gliders, guns, and Turing-complete computation.",
       },
+      {
+        slug: "double-pendulum",
+        title: "Double Pendulum",
+        description: "Chaos in two arms. Tiny initial differences, wildly different paths.",
+      },
     ],
   },
   {
@@ -92,6 +97,11 @@ export const sections: ExperimentSection[] = [
         slug: "spectre",
         title: "Spectre",
         description: "The 2023 aperiodic monotile. One shape, infinite non-repeating tiling.",
+      },
+      {
+        slug: "voronoi",
+        title: "Voronoi",
+        description: "Nearest-neighbor tessellation. Delaunay dual, drifting seeds, circumcircles.",
       },
     ],
   },
@@ -152,6 +162,21 @@ export const sections: ExperimentSection[] = [
         slug: "moe-routing",
         title: "Mixture of Experts",
         description: "Sparse routing. Each token activates a fraction of the network.",
+      },
+      {
+        slug: "embedding-space",
+        title: "Embedding Space",
+        description: "Words as vectors. Semantic clusters, nearest neighbors, vector arithmetic.",
+      },
+      {
+        slug: "tokenizer",
+        title: "Tokenizer (BPE)",
+        description: "Byte-pair encoding. How text becomes tokens before the model sees it.",
+      },
+      {
+        slug: "beam-search",
+        title: "Beam Search",
+        description: "Tree of candidates, pruned by score. Greedy vs beam width comparison.",
       },
     ],
   },

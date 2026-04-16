@@ -169,4 +169,60 @@ export const glossary: Record<string, string> = {
     "Using modular arithmetic (fmod) on ray position to tile a single shape infinitely across space.",
   "perlin-noise":
     "A smooth, gradient-based pseudorandom noise function. Produces natural-looking turbulence when layered in octaves.",
+
+  // Embeddings
+  "word-embedding":
+    "A mapping from words to dense numerical vectors. Nearby vectors have similar meanings.",
+  "learned-representation":
+    "A vector representation discovered by training on data, not designed by hand. The model learns which features matter.",
+  "vector-arithmetic":
+    "Arithmetic on embedding vectors that captures semantic relationships. Directions in the space encode consistent meaning shifts.",
+  "cosine-similarity":
+    "A measure of angle between two vectors, from -1 (opposite) to 1 (identical). Used to quantify semantic similarity.",
+  "contextual-embedding":
+    "An embedding that changes based on surrounding words. 'Bank' gets different vectors near 'river' vs 'money.'",
+
+  // Tokenization
+  "bpe-tokenizer":
+    "A tokenizer that uses byte-pair encoding to break text into subword tokens. The standard for modern LLMs.",
+  "byte-pair-encoding":
+    "An algorithm that iteratively merges the most frequent adjacent pair of symbols until a target vocabulary size is reached.",
+  "subword-tokenization":
+    "Splitting text into pieces between characters and whole words. Handles unseen words while keeping common words as single tokens.",
+  "compression-ratio":
+    "The ratio of input characters to output tokens. Higher ratios mean more efficient encoding. English BPE typically achieves 3-4x.",
+
+  // Chaos / Double Pendulum
+  "double-pendulum":
+    "Two rigid arms connected end to end, free to swing under gravity. A classic example of chaotic motion.",
+  "deterministic-chaos":
+    "Behavior that is fully determined by initial conditions yet practically unpredictable due to extreme sensitivity to those conditions.",
+  "sensitive-dependence":
+    "The property that arbitrarily small changes in initial state lead to exponentially diverging trajectories over time.",
+  "lyapunov-exponent":
+    "A measure of how fast nearby trajectories diverge. Positive values indicate chaos; the larger the value, the faster the divergence.",
+  "lagrangian-mechanics":
+    "A reformulation of classical mechanics using kinetic and potential energy rather than forces. Natural for constrained systems like pendulums.",
+
+  // Voronoi / Delaunay
+  "voronoi-diagram":
+    "A partition of space where every point is assigned to the nearest seed. Boundaries are equidistant from adjacent seeds.",
+  "delaunay-triangulation":
+    "The dual of a Voronoi diagram. A triangulation where no point lies inside any triangle's circumcircle.",
+  circumcircle:
+    "The unique circle passing through all three vertices of a triangle. Its center is equidistant from all three vertices.",
+  "bowyer-watson":
+    "An incremental algorithm for Delaunay triangulation. Insert points one by one, removing and re-triangulating violated circumcircles.",
+  "lloyd-relaxation":
+    "Iteratively moving each seed to the centroid of its Voronoi cell. Converges to an evenly-spaced distribution called a centroidal Voronoi tessellation.",
+
+  // Beam Search
+  "beam-search":
+    "A search algorithm that keeps the top-B scoring partial sequences at each step. Beam width 1 is greedy search.",
+  "greedy-decoding":
+    "Always selecting the highest-probability token at each step. Fast but misses globally better sequences.",
+  "cumulative-probability":
+    "The product of probabilities along a path. Beam search maximizes this over the full sequence, not just each step.",
+  "sequence-score":
+    "The log-probability of a complete generated sequence. Often length-normalized to avoid favoring short outputs.",
 };
