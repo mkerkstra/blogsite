@@ -181,6 +181,9 @@ export const glossary: Record<string, string> = {
     "A measure of angle between two vectors, from -1 (opposite) to 1 (identical). Used to quantify semantic similarity.",
   "contextual-embedding":
     "An embedding that changes based on surrounding words. 'Bank' gets different vectors near 'river' vs 'money.'",
+  rag: "Retrieval augmented generation. Fetch relevant external context first, then provide it to a language model when generating.",
+  "top-k-retrieval":
+    "Returning the K highest-scoring matches for a query. Larger K improves recall but adds noise and context cost.",
   umap: "Uniform Manifold Approximation and Projection. Reduces high-dimensional vectors to 2D or 3D for visualization while preserving local neighborhoods.",
   "approximate-nearest-neighbor":
     "A class of algorithms (HNSW, IVF, ScaNN) that trade a little recall for huge speed wins on large vector sets. Standard for production retrieval.",

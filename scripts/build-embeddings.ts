@@ -113,6 +113,157 @@ const ANALOGY_TEMPLATES: { a: string; b: string; c: string; expected: string; la
   { a: "walk", b: "walked", c: "ran", expected: "run", label: "walk − walked + ran ≈ run" },
 ];
 
+interface DocumentChunkTemplate {
+  id: string;
+  title: string;
+  source: string;
+  category: string;
+  text: string;
+}
+
+const DOCUMENT_CHUNKS: DocumentChunkTemplate[] = [
+  {
+    id: "lion-speed",
+    title: "Lion sprint speed",
+    source: "field notes",
+    category: "animals",
+    text: "A lion can sprint quickly for short bursts when chasing prey across open grassland.",
+  },
+  {
+    id: "tiger-stalk",
+    title: "Tiger ambush",
+    source: "field notes",
+    category: "animals",
+    text: "Tigers rely on stealth, dense cover, and sudden acceleration rather than long pursuit.",
+  },
+  {
+    id: "horse-endurance",
+    title: "Horse endurance",
+    source: "field notes",
+    category: "animals",
+    text: "Horses are large animals built for distance running and carrying riders over terrain.",
+  },
+  {
+    id: "berlin-capital",
+    title: "Berlin",
+    source: "atlas",
+    category: "cities",
+    text: "Berlin is the capital city of Germany and a major center for art and technology.",
+  },
+  {
+    id: "tokyo-rail",
+    title: "Tokyo rail",
+    source: "atlas",
+    category: "cities",
+    text: "Tokyo is Japan's capital and is known for dense neighborhoods and an enormous train network.",
+  },
+  {
+    id: "paris-france",
+    title: "Paris",
+    source: "atlas",
+    category: "cities",
+    text: "Paris is the capital of France, with landmarks, museums, and historic boulevards.",
+  },
+  {
+    id: "bread-fermentation",
+    title: "Bread fermentation",
+    source: "cookbook",
+    category: "food",
+    text: "Bread dough develops flavor as yeast ferments sugars and produces gas before baking.",
+  },
+  {
+    id: "pasta-sauce",
+    title: "Pasta sauce",
+    source: "cookbook",
+    category: "food",
+    text: "Pasta is often paired with tomato, cheese, herbs, and olive oil in quick meals.",
+  },
+  {
+    id: "hnsw-index",
+    title: "HNSW index",
+    source: "engineering",
+    category: "ml",
+    text: "HNSW builds a layered nearest-neighbor graph so vector databases can search embeddings quickly.",
+  },
+  {
+    id: "rag-context",
+    title: "RAG context",
+    source: "engineering",
+    category: "ml",
+    text: "Retrieval augmented generation embeds a user query, fetches relevant chunks, and sends them to a language model.",
+  },
+  {
+    id: "river-bank",
+    title: "River bank",
+    source: "glossary",
+    category: "geography",
+    text: "A river bank is the sloped edge of land beside flowing water.",
+  },
+  {
+    id: "savings-bank",
+    title: "Savings bank",
+    source: "glossary",
+    category: "finance",
+    text: "A bank can hold deposits, approve loans, and move money between accounts.",
+  },
+];
+
+const QUERY_EXAMPLES = [
+  { id: "fast-animal", label: "fast animal", text: "fast animal chasing prey" },
+  { id: "germany-capital", label: "capital of germany", text: "capital city of Germany" },
+  { id: "bread", label: "how bread rises", text: "how bread dough rises before baking" },
+  {
+    id: "vector-db",
+    label: "vector database search",
+    text: "nearest neighbor search over embeddings",
+  },
+  { id: "river-bank", label: "river bank", text: "land beside a river" },
+  { id: "money-bank", label: "money bank", text: "bank loans deposits and accounts" },
+] as const;
+
+const CONTEXT_ANCHORS = [
+  "river",
+  "water",
+  "shore",
+  "money",
+  "loan",
+  "account",
+  "capital city",
+  "country",
+  "past tense",
+] as const;
+
+const CONTEXT_EXAMPLE_TEMPLATES = [
+  {
+    word: "bank",
+    note: "Same surface word, different surrounding words, different vector neighborhood.",
+    contexts: [
+      {
+        label: "river bank",
+        phrase: "The canoe scraped against the river bank after the storm.",
+      },
+      {
+        label: "money bank",
+        phrase: "The bank approved the loan and opened a savings account.",
+      },
+    ],
+  },
+  {
+    word: "capital",
+    note: "Context decides whether capital means a city, money, or something else.",
+    contexts: [
+      {
+        label: "capital city",
+        phrase: "Berlin is the capital city of Germany.",
+      },
+      {
+        label: "capital investment",
+        phrase: "The company raised capital to fund new equipment.",
+      },
+    ],
+  },
+] as const;
+
 /* ── Helpers ──────────────────────────────────────────────────────────── */
 
 function cosineSim(a: number[], b: number[]): number {
@@ -139,6 +290,44 @@ function seededRandom(seed: number): () => number {
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+function normalizeProjection(points: number[][]): [number, number][] {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const p of points) {
+    const x = p[0] ?? 0;
+    const y = p[1] ?? 0;
+    minX = Math.min(minX, x);
+    minY = Math.min(minY, y);
+    maxX = Math.max(maxX, x);
+    maxY = Math.max(maxY, y);
+  }
+
+  const spanX = maxX - minX || 1;
+  const spanY = maxY - minY || 1;
+  return points.map((p) => {
+    const x = (p[0] ?? 0) - minX;
+    const y = (p[1] ?? 0) - minY;
+    return [+(0.1 + (x / spanX) * 0.8).toFixed(4), +(0.12 + (y / spanY) * 0.76).toFixed(4)];
+  });
+}
+
+function topMatches(
+  queryVector: number[],
+  candidates: number[][],
+  count: number,
+): { idx: number; score: number }[] {
+  const ranked: { idx: number; score: number }[] = [];
+  for (let i = 0; i < candidates.length; i++) {
+    const v = candidates[i];
+    if (!v) continue;
+    ranked.push({ idx: i, score: cosineSim(queryVector, v) });
+  }
+  ranked.sort((a, b) => b.score - a.score);
+  return ranked.slice(0, count).map((m) => ({ idx: m.idx, score: +m.score.toFixed(4) }));
 }
 
 /* ── Main ─────────────────────────────────────────────────────────────── */
@@ -236,7 +425,7 @@ async function main() {
     }
   }
 
-  console.log(`[4/4] Precomputing cosine neighbors + resolving analogies…`);
+  console.log(`[4/5] Precomputing cosine neighbors + resolving analogies…`);
   const K = 6;
   const neighbors: { idx: number; score: number }[][] = [];
   for (let i = 0; i < vectors.length; i++) {
@@ -309,6 +498,109 @@ async function main() {
     };
   });
 
+  console.log(`[5/5] Embedding retrieval chunks + contextual examples…`);
+  const chunkVectors: number[][] = [];
+  for (const chunk of DOCUMENT_CHUNKS) {
+    const output = await embedder(`${chunk.title}. ${chunk.text}`, {
+      pooling: "mean",
+      normalize: true,
+    });
+    chunkVectors.push(Array.from(output.data as Float32Array));
+  }
+
+  const queryVectors: number[][] = [];
+  for (const query of QUERY_EXAMPLES) {
+    const output = await embedder(query.text, { pooling: "mean", normalize: true });
+    queryVectors.push(Array.from(output.data as Float32Array));
+  }
+
+  const searchUmap = new UMAP({
+    nComponents: 2,
+    nNeighbors: 5,
+    minDist: 0.35,
+    spread: 1.5,
+    random: seededRandom(17),
+  });
+  const searchProjection = normalizeProjection(searchUmap.fit([...chunkVectors, ...queryVectors]));
+  const chunkCoords = searchProjection.slice(0, chunkVectors.length);
+  const queryCoords = searchProjection.slice(chunkVectors.length);
+
+  const documentChunks = DOCUMENT_CHUNKS.map((chunk, i) => {
+    const xy = chunkCoords[i] ?? [0.5, 0.5];
+    return {
+      ...chunk,
+      baseX: xy[0],
+      baseY: xy[1],
+    };
+  });
+
+  const searchQueries = QUERY_EXAMPLES.map((query, i) => {
+    const xy = queryCoords[i] ?? [0.5, 0.5];
+    const qv = queryVectors[i];
+    if (!qv) throw new Error(`missing query vector ${query.id}`);
+    return {
+      ...query,
+      baseX: xy[0],
+      baseY: xy[1],
+      matches: topMatches(qv, chunkVectors, DOCUMENT_CHUNKS.length),
+    };
+  });
+
+  const anchorVectors: number[][] = [];
+  for (const anchor of CONTEXT_ANCHORS) {
+    const output = await embedder(anchor, { pooling: "mean", normalize: true });
+    anchorVectors.push(Array.from(output.data as Float32Array));
+  }
+
+  const contextPhrases = CONTEXT_EXAMPLE_TEMPLATES.flatMap((example) =>
+    example.contexts.map((context) => context.phrase),
+  );
+  const contextVectors: number[][] = [];
+  for (const phrase of contextPhrases) {
+    const output = await embedder(phrase, { pooling: "mean", normalize: true });
+    contextVectors.push(Array.from(output.data as Float32Array));
+  }
+
+  const contextUmap = new UMAP({
+    nComponents: 2,
+    nNeighbors: 4,
+    minDist: 0.4,
+    spread: 1.7,
+    random: seededRandom(29),
+  });
+  const contextProjection = normalizeProjection(
+    contextUmap.fit([...anchorVectors, ...contextVectors]),
+  );
+  const anchorCoords = contextProjection.slice(0, anchorVectors.length);
+  const contextCoords = contextProjection.slice(anchorVectors.length);
+  const contextAnchors = CONTEXT_ANCHORS.map((label, i) => {
+    const xy = anchorCoords[i] ?? [0.5, 0.5];
+    return { label, baseX: xy[0], baseY: xy[1] };
+  });
+
+  let contextOffset = 0;
+  const contextualExamples = CONTEXT_EXAMPLE_TEMPLATES.map((example) => ({
+    word: example.word,
+    note: example.note,
+    anchors: contextAnchors,
+    contexts: example.contexts.map((context) => {
+      const idx = contextOffset++;
+      const xy = contextCoords[idx] ?? [0.5, 0.5];
+      const cv = contextVectors[idx];
+      if (!cv) throw new Error(`missing contextual vector ${context.label}`);
+      return {
+        label: context.label,
+        phrase: context.phrase,
+        baseX: xy[0],
+        baseY: xy[1],
+        nearestAnchors: topMatches(cv, anchorVectors, 3).map((m) => ({
+          label: CONTEXT_ANCHORS[m.idx] ?? "unknown",
+          score: m.score,
+        })),
+      };
+    }),
+  }));
+
   /* ── Emit TypeScript ────────────────────────────────────────────────── */
 
   const words = VOCAB.map((entry, i) => {
@@ -329,7 +621,7 @@ async function main() {
 // Regenerate with: pnpm build:embeddings
 //
 // Source model: Xenova/all-MiniLM-L6-v2 (quantized ONNX, 384D, unit-normalized).
-// Projection: umap-js, seeded, nNeighbors=12, minDist=0.18.
+// Projection: umap-js, seeded, with per-view parameters tuned for readability.
 // Neighbors and analogies are computed in the full 384D space, not on UMAP
 // coords — so drag-to-move in the UI cannot distort similarity scores.
 
@@ -356,9 +648,47 @@ export interface EmbeddingAnalogy {
   top: { idx: number; score: number }[];
 }
 
+export interface EmbeddingDocumentChunk {
+  id: string;
+  title: string;
+  source: string;
+  category: string;
+  text: string;
+  baseX: number;
+  baseY: number;
+}
+
+export interface EmbeddingSearchQuery {
+  id: string;
+  label: string;
+  text: string;
+  baseX: number;
+  baseY: number;
+  matches: { idx: number; score: number }[];
+}
+
+export interface EmbeddingContextualExample {
+  word: string;
+  note: string;
+  anchors: { label: string; baseX: number; baseY: number }[];
+  contexts: {
+    label: string;
+    phrase: string;
+    baseX: number;
+    baseY: number;
+    nearestAnchors: { label: string; score: number }[];
+  }[];
+}
+
 export const WORDS: EmbeddingWord[] = ${JSON.stringify(words, null, 2)};
 
 export const ANALOGIES: EmbeddingAnalogy[] = ${JSON.stringify(analogies, null, 2)};
+
+export const DOCUMENT_CHUNKS: EmbeddingDocumentChunk[] = ${JSON.stringify(documentChunks, null, 2)};
+
+export const SEARCH_QUERIES: EmbeddingSearchQuery[] = ${JSON.stringify(searchQueries, null, 2)};
+
+export const CONTEXTUAL_EXAMPLES: EmbeddingContextualExample[] = ${JSON.stringify(contextualExamples, null, 2)};
 `;
 
   const outputPath = resolve("src/features/lab/data/embedding-data.ts");

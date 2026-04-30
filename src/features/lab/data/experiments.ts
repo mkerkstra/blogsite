@@ -169,6 +169,17 @@ export const sections: ExperimentSection[] = [
         description: "Words as vectors. Semantic clusters, nearest neighbors, vector arithmetic.",
       },
       {
+        slug: "semantic-search",
+        title: "Semantic Search",
+        description: "Query vectors rank chunks. Top-k, thresholds, filters, retrieval tradeoffs.",
+      },
+      {
+        slug: "vector-structure",
+        title: "Vector Structure",
+        description:
+          "Relationship directions and contextual shifts inside learned representations.",
+      },
+      {
         slug: "tokenizer",
         title: "Tokenizer (BPE)",
         description: "Byte-pair encoding. How text becomes tokens before the model sees it.",

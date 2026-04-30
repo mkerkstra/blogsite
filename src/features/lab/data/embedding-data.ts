@@ -2,7 +2,7 @@
 // Regenerate with: pnpm build:embeddings
 //
 // Source model: Xenova/all-MiniLM-L6-v2 (quantized ONNX, 384D, unit-normalized).
-// Projection: umap-js, seeded, nNeighbors=12, minDist=0.18.
+// Projection: umap-js, seeded, with per-view parameters tuned for readability.
 // Neighbors and analogies are computed in the full 384D space, not on UMAP
 // coords — so drag-to-move in the UI cannot distort similarity scores.
 
@@ -36,6 +36,38 @@ export interface EmbeddingAnalogy {
   expected: string;
   label: string;
   top: { idx: number; score: number }[];
+}
+
+export interface EmbeddingDocumentChunk {
+  id: string;
+  title: string;
+  source: string;
+  category: string;
+  text: string;
+  baseX: number;
+  baseY: number;
+}
+
+export interface EmbeddingSearchQuery {
+  id: string;
+  label: string;
+  text: string;
+  baseX: number;
+  baseY: number;
+  matches: { idx: number; score: number }[];
+}
+
+export interface EmbeddingContextualExample {
+  word: string;
+  note: string;
+  anchors: { label: string; baseX: number; baseY: number }[];
+  contexts: {
+    label: string;
+    phrase: string;
+    baseX: number;
+    baseY: number;
+    nearestAnchors: { label: string; score: number }[];
+  }[];
 }
 
 export const WORDS: EmbeddingWord[] = [
@@ -2502,6 +2534,651 @@ export const ANALOGIES: EmbeddingAnalogy[] = [
       {
         idx: 18,
         score: 0.3669,
+      },
+    ],
+  },
+];
+
+export const DOCUMENT_CHUNKS: EmbeddingDocumentChunk[] = [
+  {
+    id: "lion-speed",
+    title: "Lion sprint speed",
+    source: "field notes",
+    category: "animals",
+    text: "A lion can sprint quickly for short bursts when chasing prey across open grassland.",
+    baseX: 0.1,
+    baseY: 0.1546,
+  },
+  {
+    id: "tiger-stalk",
+    title: "Tiger ambush",
+    source: "field notes",
+    category: "animals",
+    text: "Tigers rely on stealth, dense cover, and sudden acceleration rather than long pursuit.",
+    baseX: 0.1407,
+    baseY: 0.239,
+  },
+  {
+    id: "horse-endurance",
+    title: "Horse endurance",
+    source: "field notes",
+    category: "animals",
+    text: "Horses are large animals built for distance running and carrying riders over terrain.",
+    baseX: 0.1698,
+    baseY: 0.12,
+  },
+  {
+    id: "berlin-capital",
+    title: "Berlin",
+    source: "atlas",
+    category: "cities",
+    text: "Berlin is the capital city of Germany and a major center for art and technology.",
+    baseX: 0.7254,
+    baseY: 0.8066,
+  },
+  {
+    id: "tokyo-rail",
+    title: "Tokyo rail",
+    source: "atlas",
+    category: "cities",
+    text: "Tokyo is Japan's capital and is known for dense neighborhoods and an enormous train network.",
+    baseX: 0.6899,
+    baseY: 0.88,
+  },
+  {
+    id: "paris-france",
+    title: "Paris",
+    source: "atlas",
+    category: "cities",
+    text: "Paris is the capital of France, with landmarks, museums, and historic boulevards.",
+    baseX: 0.7624,
+    baseY: 0.8582,
+  },
+  {
+    id: "bread-fermentation",
+    title: "Bread fermentation",
+    source: "cookbook",
+    category: "food",
+    text: "Bread dough develops flavor as yeast ferments sugars and produces gas before baking.",
+    baseX: 0.5811,
+    baseY: 0.5321,
+  },
+  {
+    id: "pasta-sauce",
+    title: "Pasta sauce",
+    source: "cookbook",
+    category: "food",
+    text: "Pasta is often paired with tomato, cheese, herbs, and olive oil in quick meals.",
+    baseX: 0.4867,
+    baseY: 0.5533,
+  },
+  {
+    id: "hnsw-index",
+    title: "HNSW index",
+    source: "engineering",
+    category: "ml",
+    text: "HNSW builds a layered nearest-neighbor graph so vector databases can search embeddings quickly.",
+    baseX: 0.3425,
+    baseY: 0.5564,
+  },
+  {
+    id: "rag-context",
+    title: "RAG context",
+    source: "engineering",
+    category: "ml",
+    text: "Retrieval augmented generation embeds a user query, fetches relevant chunks, and sends them to a language model.",
+    baseX: 0.4011,
+    baseY: 0.6054,
+  },
+  {
+    id: "river-bank",
+    title: "River bank",
+    source: "glossary",
+    category: "geography",
+    text: "A river bank is the sloped edge of land beside flowing water.",
+    baseX: 0.8359,
+    baseY: 0.6322,
+  },
+  {
+    id: "savings-bank",
+    title: "Savings bank",
+    source: "glossary",
+    category: "finance",
+    text: "A bank can hold deposits, approve loans, and move money between accounts.",
+    baseX: 0.9,
+    baseY: 0.6669,
+  },
+];
+
+export const SEARCH_QUERIES: EmbeddingSearchQuery[] = [
+  {
+    id: "fast-animal",
+    label: "fast animal",
+    text: "fast animal chasing prey",
+    baseX: 0.2017,
+    baseY: 0.2086,
+    matches: [
+      {
+        idx: 0,
+        score: 0.5585,
+      },
+      {
+        idx: 1,
+        score: 0.5284,
+      },
+      {
+        idx: 2,
+        score: 0.3771,
+      },
+      {
+        idx: 8,
+        score: 0.1012,
+      },
+      {
+        idx: 7,
+        score: 0.0961,
+      },
+      {
+        idx: 10,
+        score: 0.0864,
+      },
+      {
+        idx: 11,
+        score: 0.083,
+      },
+      {
+        idx: 9,
+        score: 0.0315,
+      },
+      {
+        idx: 4,
+        score: 0.0068,
+      },
+      {
+        idx: 5,
+        score: -0.0038,
+      },
+      {
+        idx: 3,
+        score: -0.0339,
+      },
+      {
+        idx: 6,
+        score: -0.0485,
+      },
+    ],
+  },
+  {
+    id: "germany-capital",
+    label: "capital of germany",
+    text: "capital city of Germany",
+    baseX: 0.6796,
+    baseY: 0.7553,
+    matches: [
+      {
+        idx: 3,
+        score: 0.6308,
+      },
+      {
+        idx: 5,
+        score: 0.4343,
+      },
+      {
+        idx: 4,
+        score: 0.3346,
+      },
+      {
+        idx: 10,
+        score: 0.1026,
+      },
+      {
+        idx: 11,
+        score: 0.0981,
+      },
+      {
+        idx: 8,
+        score: 0.0786,
+      },
+      {
+        idx: 6,
+        score: 0.076,
+      },
+      {
+        idx: 9,
+        score: 0.0415,
+      },
+      {
+        idx: 7,
+        score: 0.013,
+      },
+      {
+        idx: 1,
+        score: -0.0126,
+      },
+      {
+        idx: 0,
+        score: -0.0281,
+      },
+      {
+        idx: 2,
+        score: -0.0754,
+      },
+    ],
+  },
+  {
+    id: "bread",
+    label: "how bread rises",
+    text: "how bread dough rises before baking",
+    baseX: 0.6295,
+    baseY: 0.604,
+    matches: [
+      {
+        idx: 6,
+        score: 0.6063,
+      },
+      {
+        idx: 7,
+        score: 0.0598,
+      },
+      {
+        idx: 8,
+        score: 0.0571,
+      },
+      {
+        idx: 10,
+        score: 0.0517,
+      },
+      {
+        idx: 9,
+        score: -0.006,
+      },
+      {
+        idx: 5,
+        score: -0.0114,
+      },
+      {
+        idx: 4,
+        score: -0.0119,
+      },
+      {
+        idx: 1,
+        score: -0.0224,
+      },
+      {
+        idx: 11,
+        score: -0.0353,
+      },
+      {
+        idx: 3,
+        score: -0.0544,
+      },
+      {
+        idx: 2,
+        score: -0.0743,
+      },
+      {
+        idx: 0,
+        score: -0.0844,
+      },
+    ],
+  },
+  {
+    id: "vector-db",
+    label: "vector database search",
+    text: "nearest neighbor search over embeddings",
+    baseX: 0.331,
+    baseY: 0.6295,
+    matches: [
+      {
+        idx: 8,
+        score: 0.6499,
+      },
+      {
+        idx: 9,
+        score: 0.3785,
+      },
+      {
+        idx: 4,
+        score: 0.0725,
+      },
+      {
+        idx: 1,
+        score: 0.0648,
+      },
+      {
+        idx: 2,
+        score: 0.0481,
+      },
+      {
+        idx: 10,
+        score: 0.0394,
+      },
+      {
+        idx: 3,
+        score: 0.029,
+      },
+      {
+        idx: 5,
+        score: 0.0235,
+      },
+      {
+        idx: 7,
+        score: 0.0103,
+      },
+      {
+        idx: 6,
+        score: -0.0059,
+      },
+      {
+        idx: 11,
+        score: -0.0166,
+      },
+      {
+        idx: 0,
+        score: -0.0355,
+      },
+    ],
+  },
+  {
+    id: "river-bank",
+    label: "river bank",
+    text: "land beside a river",
+    baseX: 0.7586,
+    baseY: 0.608,
+    matches: [
+      {
+        idx: 10,
+        score: 0.6657,
+      },
+      {
+        idx: 11,
+        score: 0.2088,
+      },
+      {
+        idx: 5,
+        score: 0.119,
+      },
+      {
+        idx: 4,
+        score: 0.1086,
+      },
+      {
+        idx: 9,
+        score: 0.1036,
+      },
+      {
+        idx: 3,
+        score: 0.1016,
+      },
+      {
+        idx: 2,
+        score: 0.1002,
+      },
+      {
+        idx: 8,
+        score: 0.0913,
+      },
+      {
+        idx: 1,
+        score: 0.0631,
+      },
+      {
+        idx: 0,
+        score: 0.0275,
+      },
+      {
+        idx: 7,
+        score: 0.0004,
+      },
+      {
+        idx: 6,
+        score: -0.0235,
+      },
+    ],
+  },
+  {
+    id: "money-bank",
+    label: "money bank",
+    text: "bank loans deposits and accounts",
+    baseX: 0.8737,
+    baseY: 0.5687,
+    matches: [
+      {
+        idx: 11,
+        score: 0.6021,
+      },
+      {
+        idx: 10,
+        score: 0.4076,
+      },
+      {
+        idx: 6,
+        score: 0.0873,
+      },
+      {
+        idx: 0,
+        score: 0.0328,
+      },
+      {
+        idx: 2,
+        score: 0.0245,
+      },
+      {
+        idx: 5,
+        score: 0.0152,
+      },
+      {
+        idx: 9,
+        score: 0.0107,
+      },
+      {
+        idx: 7,
+        score: -0.0102,
+      },
+      {
+        idx: 8,
+        score: -0.0365,
+      },
+      {
+        idx: 4,
+        score: -0.0375,
+      },
+      {
+        idx: 3,
+        score: -0.0653,
+      },
+      {
+        idx: 1,
+        score: -0.077,
+      },
+    ],
+  },
+];
+
+export const CONTEXTUAL_EXAMPLES: EmbeddingContextualExample[] = [
+  {
+    word: "bank",
+    note: "Same surface word, different surrounding words, different vector neighborhood.",
+    anchors: [
+      {
+        label: "river",
+        baseX: 0.7105,
+        baseY: 0.3287,
+      },
+      {
+        label: "water",
+        baseX: 0.5725,
+        baseY: 0.6578,
+      },
+      {
+        label: "shore",
+        baseX: 0.7693,
+        baseY: 0.5145,
+      },
+      {
+        label: "money",
+        baseX: 0.2326,
+        baseY: 0.88,
+      },
+      {
+        label: "loan",
+        baseX: 0.1,
+        baseY: 0.7031,
+      },
+      {
+        label: "account",
+        baseX: 0.2668,
+        baseY: 0.72,
+      },
+      {
+        label: "capital city",
+        baseX: 0.7715,
+        baseY: 0.1369,
+      },
+      {
+        label: "country",
+        baseX: 0.8956,
+        baseY: 0.3074,
+      },
+      {
+        label: "past tense",
+        baseX: 0.3884,
+        baseY: 0.8133,
+      },
+    ],
+    contexts: [
+      {
+        label: "river bank",
+        phrase: "The canoe scraped against the river bank after the storm.",
+        baseX: 0.6366,
+        baseY: 0.451,
+        nearestAnchors: [
+          {
+            label: "river",
+            score: 0.4003,
+          },
+          {
+            label: "shore",
+            score: 0.214,
+          },
+          {
+            label: "water",
+            score: 0.1933,
+          },
+        ],
+      },
+      {
+        label: "money bank",
+        phrase: "The bank approved the loan and opened a savings account.",
+        baseX: 0.1295,
+        baseY: 0.5255,
+        nearestAnchors: [
+          {
+            label: "loan",
+            score: 0.5657,
+          },
+          {
+            label: "account",
+            score: 0.3173,
+          },
+          {
+            label: "river",
+            score: 0.1951,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    word: "capital",
+    note: "Context decides whether capital means a city, money, or something else.",
+    anchors: [
+      {
+        label: "river",
+        baseX: 0.7105,
+        baseY: 0.3287,
+      },
+      {
+        label: "water",
+        baseX: 0.5725,
+        baseY: 0.6578,
+      },
+      {
+        label: "shore",
+        baseX: 0.7693,
+        baseY: 0.5145,
+      },
+      {
+        label: "money",
+        baseX: 0.2326,
+        baseY: 0.88,
+      },
+      {
+        label: "loan",
+        baseX: 0.1,
+        baseY: 0.7031,
+      },
+      {
+        label: "account",
+        baseX: 0.2668,
+        baseY: 0.72,
+      },
+      {
+        label: "capital city",
+        baseX: 0.7715,
+        baseY: 0.1369,
+      },
+      {
+        label: "country",
+        baseX: 0.8956,
+        baseY: 0.3074,
+      },
+      {
+        label: "past tense",
+        baseX: 0.3884,
+        baseY: 0.8133,
+      },
+    ],
+    contexts: [
+      {
+        label: "capital city",
+        phrase: "Berlin is the capital city of Germany.",
+        baseX: 0.9,
+        baseY: 0.12,
+        nearestAnchors: [
+          {
+            label: "capital city",
+            score: 0.5369,
+          },
+          {
+            label: "country",
+            score: 0.1653,
+          },
+          {
+            label: "river",
+            score: 0.1265,
+          },
+        ],
+      },
+      {
+        label: "capital investment",
+        phrase: "The company raised capital to fund new equipment.",
+        baseX: 0.2281,
+        baseY: 0.4139,
+        nearestAnchors: [
+          {
+            label: "money",
+            score: 0.2188,
+          },
+          {
+            label: "capital city",
+            score: 0.2111,
+          },
+          {
+            label: "loan",
+            score: 0.1976,
+          },
+        ],
       },
     ],
   },
