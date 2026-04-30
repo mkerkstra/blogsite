@@ -27,9 +27,9 @@ export default function XorFilterPage() {
       <LabInfoPanel>
         <p>
           An XOR filter encodes set membership in a compact{" "}
-          <Term id="fingerprint">fingerprint</Term> table. For each key, three hash functions pick
-          three table positions. The table is constructed so that XORing the three values at those
-          positions yields the key&apos;s fingerprint. Querying is three lookups and two XORs.
+          <Term id="fingerprint">fingerprint</Term>&nbsp;table. For each key, three hash functions
+          pick three table positions. The table is constructed so that XORing the three values at
+          those positions yields the key&apos;s fingerprint. Querying is three lookups and two XORs.
         </p>
         <p>
           Construction works by <Term id="peeling">peeling</Term> a 3-uniform{" "}

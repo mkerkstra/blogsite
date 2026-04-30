@@ -40,10 +40,10 @@ export default function TokenizerPage() {
           become single tokens. Rare words stay as character fragments the model can still process.
         </p>
         <p>
-          This is why <Term id="subword-tokenization">subword tokenization</Term> works so well. It
-          avoids the fixed-vocabulary problem of whole-word tokenizers (which can&apos;t handle
-          unseen words) while being far more compact than character-level encoding. GPT-4 uses ~100k
-          BPE tokens. Claude uses a similar-sized vocabulary. The{" "}
+          This is why <Term id="subword-tokenization">subword tokenization</Term>&nbsp;works so
+          well. It avoids the fixed-vocabulary problem of whole-word tokenizers (which can&apos;t
+          handle unseen words) while being far more compact than character-level encoding. GPT-4
+          uses ~100k BPE tokens. Claude uses a similar-sized vocabulary. The{" "}
           <Term id="compression-ratio">compression ratio</Term> (characters per token) is typically
           3-4x for English.
         </p>

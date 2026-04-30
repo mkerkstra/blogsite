@@ -26,9 +26,9 @@ export default function GraphPage() {
       <LabActions />
       <LabInfoPanel>
         <p>
-          A <Term id="scc">strongly connected component</Term> is a maximal set of nodes where every
-          node can reach every other node through directed edges. Tarjan&apos;s algorithm finds all
-          SCCs in a single depth-first traversal. Robert Tarjan published it in 1972.
+          A <Term id="scc">strongly connected component</Term>&nbsp;is a maximal set of nodes where
+          every node can reach every other node through directed edges. Tarjan&apos;s algorithm
+          finds all SCCs in a single depth-first traversal. Robert Tarjan published it in 1972.
         </p>
         <p>
           The algorithm maintains a stack of nodes in the current DFS path. Each node tracks a

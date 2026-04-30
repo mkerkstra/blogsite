@@ -52,7 +52,7 @@ export default function StrangeAttractorPage() {
           Particles are born near the attractor&apos;s center and die after a few seconds, fading in
           and out to create ghostly trails. A slow background fade preserves recent history. The 3D
           structure is projected through a rotating camera you control with your mouse.{" "}
-          <Term id="additive-blending">Additive blending</Term> reveals density where orbits
+          <Term id="additive-blending">Additive blending</Term>&nbsp;reveals density where orbits
           converge, making the attractor&apos;s{" "}
           <Term id="invariant-measure">invariant measure</Term> visible as brightness.
         </p>

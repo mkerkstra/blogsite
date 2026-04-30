@@ -37,11 +37,11 @@ export default function ReactionDiffusionPage() {
         </p>
         <p>
           The reaction-diffusion update applies a discrete <Term id="laplacian">Laplacian</Term>{" "}
-          stencil to approximate spatial diffusion. Each <Term id="texel">texel</Term> samples its
-          four cardinal neighbors, weights them against the center, and feeds the result into the
-          Gray-Scott rate equations. The Laplacian&apos;s kernel size determines how far chemicals
-          spread per timestep. Multiple simulation steps per frame accelerate the dynamics without
-          changing the spatial resolution.
+          stencil to approximate spatial diffusion. Each <Term id="texel">texel</Term>&nbsp;samples
+          its four cardinal neighbors, weights them against the center, and feeds the result into
+          the Gray-Scott rate equations. The Laplacian&apos;s kernel size determines how far
+          chemicals spread per timestep. Multiple simulation steps per frame accelerate the dynamics
+          without changing the spatial resolution.
         </p>
         <p>
           Each frame, a <Term id="fragment-shader">fragment shader</Term> runs the Gray-Scott

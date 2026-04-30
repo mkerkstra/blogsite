@@ -48,10 +48,10 @@ export default function PhysarumPage() {
         <p>
           Agent state lives in a float texture, updated per-frame by a{" "}
           <Term id="fragment-shader">fragment shader</Term>. Deposits scatter via{" "}
-          <Term id="gl-points">GL_POINTS</Term> into the trail framebuffer. The result is entirely
-          emergent: no agent knows about any other, yet they self-organize into branching vascular
-          networks. Your cursor warps the agents&apos; turn bias, pulling the network toward you.
-          Watch for the network adapting in real time as it reroutes around your input.
+          <Term id="gl-points">GL_POINTS</Term>&nbsp;into the trail framebuffer. The result is
+          entirely emergent: no agent knows about any other, yet they self-organize into branching
+          vascular networks. Your cursor warps the agents&apos; turn bias, pulling the network
+          toward you. Watch for the network adapting in real time as it reroutes around your input.
         </p>
         <p className="border-t border-border pt-2">
           <a

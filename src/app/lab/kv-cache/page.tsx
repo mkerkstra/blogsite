@@ -28,7 +28,7 @@ export default function KvCachePage() {
         <p>
           During <Term id="autoregressive">autoregressive generation</Term>, each new token attends
           to every previous token. Without caching, this means recomputing every{" "}
-          <Term id="key-vector">key</Term> and value vector from scratch at every step, turning
+          <Term id="key-vector">key</Term>&nbsp;and value vector from scratch at every step, turning
           generation into an O(n&sup2;) operation. The <Term id="kv-cache">KV cache</Term> stores
           these vectors so each token computes once and stays in memory.
         </p>

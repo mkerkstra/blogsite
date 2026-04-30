@@ -33,7 +33,7 @@ export default function BoidsPage() {
         <p>
           Each rule operates within a limited <Term id="perception-radius">perception radius</Term>,
           so a boid only sees its nearest neighbors. The{" "}
-          <Term id="emergent-behavior">emergent</Term> flocking, lane formation, and obstacle
+          <Term id="emergent-behavior">emergent</Term>&nbsp;flocking, lane formation, and obstacle
           splitting all arise from purely local decisions. No agent has any knowledge of the
           flock&apos;s overall shape.
         </p>

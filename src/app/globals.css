@@ -704,11 +704,17 @@ html.dark .theme-only-light {
 .term-tip::after {
   content: attr(data-tip);
   position: absolute;
-  left: 0;
+  /* Anchor tooltip to the right edge of the term so it extends leftward.
+     The lab info panel lives on the right side of the viewport, so terms
+     are usually in the right half — extending leftward keeps the tooltip
+     inside the panel/viewport instead of clipping off the right edge. */
+  right: 0;
+  left: auto;
   top: 100%;
   z-index: 50;
   margin-top: 0.25rem;
-  width: 13rem;
+  width: max-content;
+  max-width: min(13rem, calc(100vw - 2rem));
   border-radius: var(--radius);
   border: 1px solid hsl(var(--border));
   background: hsl(var(--background));
@@ -723,6 +729,23 @@ html.dark .theme-only-light {
   transition:
     opacity 150ms,
     visibility 150ms;
+}
+/* Modern: when the browser supports anchor positioning, flip across all
+   viewport edges instead of just left-extending. Pseudo-elements
+   implicitly anchor to their originating element. */
+@supports (position-area: bottom span-inline-end) {
+  .term-tip::after {
+    left: auto;
+    right: auto;
+    top: auto;
+    margin-top: 0;
+    position-area: bottom span-inline-start;
+    position-try-fallbacks:
+      bottom span-inline-end,
+      top span-inline-start,
+      top span-inline-end;
+    margin-block: 0.25rem;
+  }
 }
 .term-tip:hover::after,
 .term-tip:focus-visible::after {
