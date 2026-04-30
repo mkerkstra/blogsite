@@ -60,7 +60,7 @@ pnpm audit:lighthouse   # refresh Lighthouse audit data locally
 
 ## Lighthouse Scores
 
-`pnpm build` does not update Lighthouse data. The `Lighthouse` GitHub Action runs after pushes to `main`, audits `https://www.kerkstra.dev`, and commits changes to `src/features/colophon/data/lighthouse.json` when the scores move. That workflow ignores commits that only touch the generated Lighthouse JSON, and the bot commit also uses `[skip ci]`.
+`pnpm build` does not update Lighthouse data. The `Lighthouse` GitHub Action runs after Vercel reports a successful production deployment, waits for CI to pass for the deployed commit, audits `https://www.kerkstra.dev`, and commits changes to `src/features/colophon/data/lighthouse.json` when the scores move. Generated Lighthouse score commits are skipped so the workflow does not loop on its own updates.
 
 ## Code Map
 
