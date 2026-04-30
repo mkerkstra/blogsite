@@ -12,7 +12,7 @@ updates:
     labels:
       - dependencies
     cooldown:
-      default-days: 7
+      default-days: 8
     groups:
       # Group all minor + patch updates into a single PR per week.
       # Major bumps still get their own PR for explicit review.
@@ -21,12 +21,12 @@ updates:
           - minor
           - patch
     ignore:
-      # Pin oxlint/oxfmt to manual updates — they release fast and
-      # rule-set churn breaks builds.
+      # Keep oxlint/oxfmt major bumps manual — they release fast and
+      # major rule-set churn can break builds.
       - dependency-name: oxlint
-        update-types: [version-update:semver-major]
+        update-types: ["version-update:semver-major"]
       - dependency-name: oxfmt
-        update-types: [version-update:semver-major]
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions versions
   - package-ecosystem: github-actions
@@ -37,4 +37,4 @@ updates:
       - dependencies
       - github-actions
     cooldown:
-      default-days: 7
+      default-days: 8
