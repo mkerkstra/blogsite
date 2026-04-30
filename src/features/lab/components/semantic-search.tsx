@@ -38,6 +38,11 @@ const CATEGORIES = [
   ...Array.from(new Set(DOCUMENT_CHUNKS.map((chunk) => chunk.category))),
 ] as Category[];
 
+const INITIAL_QUERY_INDEX = Math.max(
+  0,
+  SEARCH_QUERIES.findIndex((query) => query.id === "vector-db"),
+);
+
 function colors(): ThemeColors {
   if (getTheme() === "dark") {
     return {
@@ -75,8 +80,8 @@ function ease(t: number): number {
 
 function pointFor(item: { baseX: number; baseY: number }, W: number, H: number) {
   const padX = Math.min(96, W * 0.12);
-  const padTop = 110;
-  const padBot = 110;
+  const padTop = W < 640 ? 168 : 110;
+  const padBot = W < 640 ? 150 : 110;
   return {
     x: padX + item.baseX * (W - padX * 2),
     y: padTop + item.baseY * Math.max(120, H - padTop - padBot),
@@ -98,7 +103,7 @@ export function SemanticSearch() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef(0);
   const stateRef = useRef<RenderState>({
-    queryIndex: 0,
+    queryIndex: INITIAL_QUERY_INDEX,
     topK: 5,
     threshold: 0.36,
     category: "all",
@@ -106,7 +111,7 @@ export function SemanticSearch() {
     reduced: false,
   });
 
-  const [queryIndex, setQueryIndex] = useState(0);
+  const [queryIndex, setQueryIndex] = useState(INITIAL_QUERY_INDEX);
   const [topK, setTopK] = useState(5);
   const [threshold, setThreshold] = useState(0.36);
   const [category, setCategory] = useState<Category>("all");
@@ -163,6 +168,7 @@ export function SemanticSearch() {
       const matches = rankedMatches(query, s.category);
       const visible = matches.slice(0, s.topK);
       const passing = visible.filter((match) => match.score >= s.threshold);
+      const isCompact = W < 640;
       const queryPoint = pointFor(query, W, H);
       const pulse = s.reduced ? 0.45 : 0.35 + 0.25 * Math.sin(s.time * 2.2);
 
@@ -219,7 +225,7 @@ export function SemanticSearch() {
         ctx.fill();
         ctx.globalAlpha = 1;
 
-        if (ranked || pass) {
+        if ((ranked || pass) && !isCompact) {
           ctx.font = `${pass ? 11 : 9}px 'JetBrains Mono', monospace`;
           ctx.fillStyle = pass ? c.textBright : c.text;
           ctx.textAlign = "left";
@@ -245,11 +251,13 @@ export function SemanticSearch() {
 
         const mx = lerp(queryPoint.x, pt.x, 0.52);
         const my = lerp(queryPoint.y, pt.y, 0.52);
-        ctx.font = "9px 'JetBrains Mono', monospace";
-        ctx.fillStyle = pass ? c.textBright : c.textDim;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(match.score.toFixed(2), mx, my - 8);
+        if (!isCompact) {
+          ctx.font = "9px 'JetBrains Mono', monospace";
+          ctx.fillStyle = pass ? c.textBright : c.textDim;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(match.score.toFixed(2), mx, my - 8);
+        }
       }
 
       ctx.strokeStyle = c.accent;
@@ -263,15 +271,17 @@ export function SemanticSearch() {
       ctx.beginPath();
       ctx.arc(queryPoint.x, queryPoint.y, 7, 0, Math.PI * 2);
       ctx.fill();
-      ctx.font = "12px 'JetBrains Mono', monospace";
-      ctx.fillStyle = c.textBright;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "bottom";
-      ctx.fillText(`"${query.label}"`, queryPoint.x, queryPoint.y - 28);
+      if (!isCompact) {
+        ctx.font = "12px 'JetBrains Mono', monospace";
+        ctx.fillStyle = c.textBright;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        ctx.fillText(`"${query.label}"`, queryPoint.x, queryPoint.y - 28);
+      }
 
-      const panelW = Math.min(360, W - 40);
-      const panelX = W - panelW - 20;
-      const panelY = Math.max(130, H - 330);
+      const panelW = Math.min(isCompact ? W - 40 : 360, W - 40);
+      const panelX = isCompact ? 20 : W - panelW - 20;
+      const panelY = isCompact ? Math.max(260, H - 330) : Math.max(130, H - 330);
       ctx.fillStyle = getTheme() === "dark" ? "rgba(10,10,10,0.72)" : "rgba(245,241,232,0.76)";
       ctx.fillRect(panelX, panelY, panelW, 220);
       ctx.strokeStyle = c.muted;
@@ -332,12 +342,12 @@ export function SemanticSearch() {
         aria-hidden="true"
       />
 
-      <div className="fixed right-5 top-24 z-10 flex max-w-[calc(100vw-2.5rem)] flex-wrap items-center justify-end gap-2 bg-background/80 px-2 py-2 backdrop-blur-sm md:right-8">
+      <div className="fixed left-5 right-5 top-24 z-10 grid grid-cols-2 gap-2 bg-background/80 px-2 py-2 backdrop-blur-sm sm:left-auto sm:right-5 sm:flex sm:max-w-[calc(100vw-2.5rem)] sm:flex-wrap sm:items-center sm:justify-end md:right-8">
         <select
           value={queryIndex}
           aria-label="query example"
           onChange={(event) => setQueryIndex(Number(event.target.value))}
-          className={fieldClass}
+          className={`${fieldClass} col-span-2 sm:col-span-1`}
         >
           {SEARCH_QUERIES.map((query, index) => (
             <option key={query.id} value={index}>
@@ -346,7 +356,7 @@ export function SemanticSearch() {
           ))}
         </select>
 
-        <label className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-foreground/35">
+        <label className="flex min-w-0 items-center gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-foreground/35">
           top-k
           <input
             type="range"
@@ -354,12 +364,12 @@ export function SemanticSearch() {
             max="8"
             value={topK}
             onChange={(event) => setTopK(Number(event.target.value))}
-            className="w-20 accent-[var(--accent)]"
+            className="min-w-0 flex-1 accent-[var(--accent)] sm:w-20 sm:flex-none"
           />
           <span className="w-3 text-foreground/60">{topK}</span>
         </label>
 
-        <label className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-foreground/35">
+        <label className="flex min-w-0 items-center gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-foreground/35">
           threshold
           <input
             type="range"
@@ -368,7 +378,7 @@ export function SemanticSearch() {
             step="0.01"
             value={threshold}
             onChange={(event) => setThreshold(Number(event.target.value))}
-            className="w-20 accent-[var(--accent)]"
+            className="min-w-0 flex-1 accent-[var(--accent)] sm:w-20 sm:flex-none"
           />
           <span className="w-7 text-foreground/60">{threshold.toFixed(2)}</span>
         </label>
@@ -377,7 +387,7 @@ export function SemanticSearch() {
           value={category}
           aria-label="metadata filter"
           onChange={(event) => setCategory(event.target.value as Category)}
-          className={fieldClass}
+          className={`${fieldClass} min-w-0`}
         >
           {CATEGORIES.map((value) => (
             <option key={value} value={value}>

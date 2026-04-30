@@ -76,10 +76,26 @@ function point(baseX: number, baseY: number, W: number, H: number) {
   };
 }
 
-function wordPoint(word: string, W: number, H: number) {
-  const found = WORDS.find((item) => item.word === word);
-  if (!found) return null;
-  return { word: found.word, ...point(found.baseX, found.baseY, W, H) };
+function directionStagePoints(analogy: EmbeddingAnalogy, W: number, H: number) {
+  const predicted = analogy.top[0] ? WORDS[analogy.top[0].idx] : undefined;
+  if (!predicted) return null;
+
+  const stageW = Math.min(W - 56, 620);
+  const stageH = Math.min(H - 300, 380);
+  const centerX = W / 2;
+  const top = Math.max(160, (H - stageH) / 2 - 20);
+  const dx = stageW * 0.18;
+  const lift = stageH * 0.52;
+  const baseY = top + stageH * 0.72;
+  const topY = baseY - lift;
+
+  return {
+    a: { word: analogy.a, x: centerX - dx, y: topY },
+    b: { word: analogy.b, x: centerX - dx * 1.9, y: baseY },
+    c: { word: analogy.c, x: centerX + dx * 0.75, y: baseY },
+    d: { word: predicted.word, x: centerX + dx * 1.65, y: topY },
+    predicted,
+  };
 }
 
 function drawArrow(
@@ -154,12 +170,9 @@ function drawDirections(
   time: number,
   reduced: boolean,
 ) {
-  const a = wordPoint(analogy.a, W, H);
-  const b = wordPoint(analogy.b, W, H);
-  const cWord = wordPoint(analogy.c, W, H);
-  const predicted = analogy.top[0] ? WORDS[analogy.top[0].idx] : undefined;
-  const d = predicted ? wordPoint(predicted.word, W, H) : null;
-  if (!a || !b || !cWord || !d) return;
+  const stage = directionStagePoints(analogy, W, H);
+  if (!stage) return;
+  const { a, b, c: cWord, d, predicted } = stage;
 
   const phase = reduced ? 1 : 0.65 + 0.35 * Math.sin(time * 1.3) ** 2;
 
@@ -396,7 +409,7 @@ export function VectorStructure() {
         aria-hidden="true"
       />
 
-      <div className="fixed right-5 top-24 z-10 flex max-w-[calc(100vw-2.5rem)] flex-wrap items-center justify-end gap-2 bg-background/80 px-2 py-2 backdrop-blur-sm md:right-8">
+      <div className="fixed left-5 right-5 top-24 z-10 grid grid-cols-2 gap-2 bg-background/80 px-2 py-2 backdrop-blur-sm sm:left-auto sm:right-5 sm:flex sm:max-w-[calc(100vw-2.5rem)] sm:flex-wrap sm:items-center sm:justify-end md:right-8">
         <button
           type="button"
           onClick={() => setMode("directions")}
@@ -417,7 +430,7 @@ export function VectorStructure() {
             value={analogyIndex}
             aria-label="analogy"
             onChange={(event) => setAnalogyIndex(Number(event.target.value))}
-            className={selectClass}
+            className={`${selectClass} col-span-2 sm:col-span-1`}
           >
             {ANALOGIES.map((analogy, index) => (
               <option key={analogy.label} value={index}>
@@ -430,7 +443,7 @@ export function VectorStructure() {
             value={contextIndex}
             aria-label="contextual example"
             onChange={(event) => setContextIndex(Number(event.target.value))}
-            className={selectClass}
+            className={`${selectClass} col-span-2 sm:col-span-1`}
           >
             {CONTEXTUAL_EXAMPLES.map((example, index) => (
               <option key={example.word} value={index}>

@@ -15,7 +15,7 @@ export default function VectorStructurePage() {
   return (
     <>
       <VectorStructure />
-      <div className="pointer-events-none fixed bottom-6 left-5 z-10 select-none md:left-8">
+      <div className="pointer-events-none fixed bottom-6 left-5 z-10 hidden select-none sm:block md:left-8">
         <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40">
           vector structure
         </p>
