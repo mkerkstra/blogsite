@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "pnpm build:pdf && next build && pnpm build:postprocess && pnpm audit:lighthouse",
+    "build": "pnpm build:pdf && next build && pnpm build:postprocess",
     "build:pdf": "tsx scripts/build-resume-pdf.tsx",
     "build:embeddings": "tsx scripts/build-embeddings.ts",
     "build:lab-thumbs": "tsx scripts/build-lab-thumbnails.ts",

@@ -1,0 +1,49 @@
+name: Lighthouse
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - src/features/colophon/data/lighthouse.json
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: refresh Lighthouse scores
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Lighthouse
+        env:
+          LIGHTHOUSE_URL: https://www.kerkstra.dev
+        run: pnpm audit:lighthouse
+
+      - name: Commit updated Lighthouse scores
+        run: |
+          if git diff --quiet -- src/features/colophon/data/lighthouse.json; then
+            echo "Lighthouse scores unchanged."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/features/colophon/data/lighthouse.json
+          git commit -m "Update Lighthouse scores [skip ci]"
+          git push

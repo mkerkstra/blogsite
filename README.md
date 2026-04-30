@@ -1,16 +1,27 @@
 # kerkstra.dev
 
+[![site](https://img.shields.io/badge/site-kerkstra.dev-111827?style=flat-square)](https://www.kerkstra.dev)
+[![colophon](https://img.shields.io/badge/colophon-build%20notes-334155?style=flat-square)](https://www.kerkstra.dev/colophon)
+[![CI](https://img.shields.io/github/actions/workflow/status/mkerkstra/blogsite/ci.yml?branch=main&label=ci&style=flat-square)](https://github.com/mkerkstra/blogsite/actions/workflows/ci.yml)
+[![Lighthouse](https://img.shields.io/github/actions/workflow/status/mkerkstra/blogsite/lighthouse.yml?branch=main&label=lighthouse&style=flat-square)](https://github.com/mkerkstra/blogsite/actions/workflows/lighthouse.yml)
+[![Dependabot](https://img.shields.io/badge/dependabot-enabled-025e8c?style=flat-square&logo=dependabot)](./.github/dependabot.yml)
+
+[![Lighthouse performance](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmkerkstra%2Fblogsite%2Fmain%2Fsrc%2Ffeatures%2Fcolophon%2Fdata%2Flighthouse.json&query=%24.scores.performance&label=performance&suffix=%2F100&style=flat-square)](https://www.kerkstra.dev/colophon)
+[![Lighthouse accessibility](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmkerkstra%2Fblogsite%2Fmain%2Fsrc%2Ffeatures%2Fcolophon%2Fdata%2Flighthouse.json&query=%24.scores.accessibility&label=accessibility&suffix=%2F100&style=flat-square)](https://www.kerkstra.dev/colophon)
+[![Lighthouse best practices](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmkerkstra%2Fblogsite%2Fmain%2Fsrc%2Ffeatures%2Fcolophon%2Fdata%2Flighthouse.json&query=%24.scores.bestPractices&label=best%20practices&suffix=%2F100&style=flat-square)](https://www.kerkstra.dev/colophon)
+[![Lighthouse SEO](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmkerkstra%2Fblogsite%2Fmain%2Fsrc%2Ffeatures%2Fcolophon%2Fdata%2Flighthouse.json&query=%24.scores.seo&label=seo&suffix=%2F100&style=flat-square)](https://www.kerkstra.dev/colophon)
+
 Personal site for [Matt Kerkstra](https://www.kerkstra.dev/): resume, small blog-ish garden, visual lab, reading list, build notes, and a few self-indulgent corners. This repo exists to run the site, keep the resume honest, and give experiments somewhere to live.
 
-## What Is Here
+## Surfaces
 
-- `/` - resume-first homepage with experience, projects, tools, education, structured metadata, and a generated `resume.pdf`.
-- `/now` - current focus, recent GitHub activity, and the "what am I actually doing lately" page.
-- `/reading` - books that keep showing up in my working set.
-- `/lab` - interactive visual experiments across GPU shaders, simulations, math, algorithms, ML explainers, and data structures.
-- `/colophon` - how the site is built: stack, typography, color tokens, accessibility choices, and Lighthouse scores.
+- [`/`](https://www.kerkstra.dev/) - resume-first homepage with experience, projects, tools, education, structured metadata, and a generated `resume.pdf`.
+- [`/lab`](https://www.kerkstra.dev/lab) - interactive visual experiments across GPU shaders, simulations, math, algorithms, ML explainers, and data structures.
+- [`/now`](https://www.kerkstra.dev/now) - current focus, recent GitHub activity, and the "what am I actually doing lately" page.
+- [`/reading`](https://www.kerkstra.dev/reading) - books that keep showing up in my working set.
+- [`/colophon`](https://www.kerkstra.dev/colophon) - stack notes, typography, color tokens, accessibility choices, and Lighthouse scores.
+- [`/api/resume.json`](https://www.kerkstra.dev/api/resume.json) - machine-readable resume data for anything that wants to consume it.
 - `/ollie` - unindexed personal side quest, because the domain has room.
-- `/api/resume.json` - machine-readable resume data for anything that wants to consume it.
 
 The lab is the biggest current surface area. It includes raw WebGL and Canvas2D experiments for things like reaction diffusion, ray marching, flow fields, cloth, boids, Fourier drawing, pathfinding, attention, KV cache behavior, token sampling, wavelet trees, XOR filters, and learned indexes.
 
@@ -70,4 +81,3 @@ public/                   # profile images, lab previews, resume PDF, static med
 ```
 
 Most resume content lives in `src/features/resume/data/*`. Lab entries are registered in `src/features/lab/data/experiments.ts` and implemented under `src/features/lab/components/*` with matching routes under `src/app/lab/*`.
-

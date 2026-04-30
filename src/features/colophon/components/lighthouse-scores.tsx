@@ -37,7 +37,8 @@ export function LighthouseScores() {
   if (!data) {
     return (
       <p className="font-mono text-[11px] text-muted-foreground">
-        Run <code className="text-foreground">pnpm build</code> to generate Lighthouse scores.
+        Run <code className="text-foreground">pnpm audit:lighthouse</code> to generate Lighthouse
+        scores.
       </p>
     );
   }
