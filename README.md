@@ -70,4 +70,3 @@ public/                   # profile images, lab previews, resume PDF, static med
 ```
 
 Most resume content lives in `src/features/resume/data/*`. Lab entries are registered in `src/features/lab/data/experiments.ts` and implemented under `src/features/lab/components/*` with matching routes under `src/app/lab/*`.
-
