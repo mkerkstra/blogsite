@@ -84,7 +84,7 @@ jobs:
           echo "Timed out waiting for CI to pass for $DEPLOYMENT_SHA"
           exit 1
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v6.0.3
         if: steps.deployment.outputs.skip != 'true'
 
       - uses: actions/setup-node@v6
