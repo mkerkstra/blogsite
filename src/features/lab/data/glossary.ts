@@ -159,6 +159,14 @@ export const glossary: Record<string, string> = {
     "A single tile shape that admits a tiling of the plane. An aperiodic monotile forces non-repeating patterns.",
   "substitution-tiling":
     "A tiling built by recursively replacing each tile with a cluster of smaller copies. Each level of the hierarchy is called a supertile.",
+  kirigami:
+    "The art and engineering practice of cutting paper or sheets so folds and openings create deployable structures.",
+  auxetic:
+    "A material or structure with negative Poisson ratio: it expands sideways when stretched lengthwise.",
+  "poisson-ratio":
+    "The ratio of transverse strain to axial strain. Negative values mean sideways expansion under tension.",
+  "mechanical-metamaterial":
+    "A structured material whose unusual behavior comes from geometry and mechanism more than composition.",
 
   // Misc
   "pearson-classification":

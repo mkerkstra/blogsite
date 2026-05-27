@@ -103,6 +103,11 @@ export const sections: ExperimentSection[] = [
         title: "Voronoi",
         description: "Nearest-neighbor tessellation. Delaunay dual, drifting seeds, circumcircles.",
       },
+      {
+        slug: "kirigami",
+        title: "Kirigami",
+        description: "Cut paper as mechanism. Rotating panels, opening pores, auxetic motion.",
+      },
     ],
   },
   {

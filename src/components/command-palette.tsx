@@ -373,6 +373,9 @@ export function CommandPalette() {
       className="fixed inset-0 z-100 flex items-start justify-center bg-black/50 backdrop-blur-xs pt-[15vh]"
     >
       <DialogPrimitive.Title className="sr-only">Command palette</DialogPrimitive.Title>
+      <DialogPrimitive.Description className="sr-only">
+        Search site pages, lab experiments, page sections, actions, and contact links.
+      </DialogPrimitive.Description>
       <div
         className="w-full max-w-xl border border-border bg-background font-mono text-sm shadow-2xl"
         onClick={(e) => e.stopPropagation()}
