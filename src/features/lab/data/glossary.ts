@@ -143,6 +143,43 @@ export const glossary: Record<string, string> = {
     "Removing redundant or unimportant attention heads from a trained model to reduce computation with minimal quality loss.",
   coreference:
     "When two expressions in text refer to the same entity. E.g., 'the cat' and 'it' in 'the cat sat because it was tired.'",
+  "context-window":
+    "The maximum span of tokens a model can condition on during one request, including input and generated output.",
+  "token-budget":
+    "The fixed number of tokens available for instructions, history, retrieved context, tool results, user input, and output.",
+  ci: "Continuous integration. Automated checks that build, test, lint, or deploy code after changes.",
+  prefill:
+    "The initial forward pass over the prompt that builds attention state before token-by-token generation begins.",
+  "lost-in-the-middle":
+    "A long-context failure mode where models use information near the start and end more reliably than buried middle content.",
+  truncation:
+    "Discarding part of the prompt to fit a context limit, often keeping the beginning, the newest text, or both.",
+  "context-compaction":
+    "Distilling older context into compact state that preserves decisions, constraints, evidence, and unresolved work.",
+  "agent-hook":
+    "Code that runs at a defined agent lifecycle event, such as prompt submission, tool use, compaction, or stop.",
+  "pre-tool-use":
+    "A hook event that runs before a supported tool call, allowing policy checks, denial, approval, or input rewriting.",
+  "post-tool-use":
+    "A hook event that runs after a supported tool call, often used for audit logs, result shaping, or added context.",
+  matcher:
+    "A filter pattern that decides which hook handlers run for a given event, often by tool name or event field.",
+
+  // Documentation
+  diataxis:
+    "Diátaxis. A documentation framework that separates tutorials, how-to guides, reference, and explanation by reader need.",
+  "working-vocabulary":
+    "The recurring terms a document defines early so later sections can use them without surprise.",
+  "mental-model":
+    "A reusable understanding of how concepts relate, letting the reader re-derive answers later.",
+  "threaded-example":
+    "One concrete scenario reused across sections so each new idea builds on familiar context.",
+  "given-before-new":
+    "A writing pattern where each sentence starts from known context before introducing new information.",
+  "inverted-pyramid":
+    "A structure that leads with the most important claim, then adds supporting detail.",
+  "cognitive-load":
+    "The amount of working memory a reader spends parsing structure, vocabulary, and claims.",
 
   // Swarm / Agent
   "emergent-behavior":
@@ -242,4 +279,28 @@ export const glossary: Record<string, string> = {
     "The product of probabilities along a path. Beam search maximizes this over the full sequence, not just each step.",
   "sequence-score":
     "The log-probability of a complete generated sequence. Often length-normalized to avoid favoring short outputs.",
+
+  // Agent patterns
+  "advisor-strategy":
+    "A multi-model pattern where a strong advisor plans or reviews while cheaper executors handle routine steps.",
+  "advisor-model":
+    "A high-capability model reserved for planning, review, correction, or ambiguous edge cases.",
+  "executor-model":
+    "A cheaper or faster model that performs the high-volume, repeatable steps in a workflow.",
+  "escalation-policy":
+    "Rules or signals that decide when routine execution should route to a stronger model or human.",
+  "quality-gate":
+    "A checkpoint that evaluates output against a rubric before the workflow can continue or deliver.",
+  subagent:
+    "A specialized agent running with its own prompt, context, model, tools, and optional permissions.",
+  "context-isolation":
+    "Keeping a worker's verbose exploration separate so the parent thread receives only the useful summary.",
+  "evaluator-optimizer":
+    "A loop where one pass generates an answer and another evaluates it, feeding critique into revisions.",
+  rubric: "Explicit criteria for judging whether an output is correct, complete, safe, or ready.",
+  "agent-handoff":
+    "A transfer of active control from one agent or state to another within a multi-agent workflow.",
+  "multi-stage-flow":
+    "A conversation or workflow that must pass through ordered states before later actions are allowed.",
+  "active-agent": "The currently responsible agent or state that owns the next turn in a workflow.",
 };

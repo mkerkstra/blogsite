@@ -144,6 +144,11 @@ export const sections: ExperimentSection[] = [
     label: "ML / AI",
     experiments: [
       {
+        slug: "context-windows",
+        title: "Context Windows",
+        description: "What fits in an LLM prompt, what gets dropped, and why position matters.",
+      },
+      {
         slug: "attention-heads",
         title: "Attention Heads",
         description: "Multi-head self-attention. Different heads learn different patterns.",
@@ -193,6 +198,48 @@ export const sections: ExperimentSection[] = [
         slug: "beam-search",
         title: "Beam Search",
         description: "Tree of candidates, pruned by score. Greedy vs beam width comparison.",
+      },
+    ],
+  },
+  {
+    label: "Agents",
+    experiments: [
+      {
+        slug: "advisor-strategy",
+        title: "Advisor Strategy",
+        description: "Opus advises, Sonnet or Haiku executes. Escalate only when judgment matters.",
+      },
+      {
+        slug: "subagents",
+        title: "Subagents",
+        description: "Separate context windows for focused workers. Delegate, summarize, return.",
+      },
+      {
+        slug: "evaluator-optimizer",
+        title: "Evaluator Optimizer",
+        description: "Generate, critique, revise. A quality loop with explicit stop conditions.",
+      },
+      {
+        slug: "agent-handoffs",
+        title: "Agent Handoffs",
+        description:
+          "State-driven control transfer across specialist agents and conversation stages.",
+      },
+      {
+        slug: "hooks",
+        title: "Hooks",
+        description:
+          "Lifecycle callbacks for guardrails, audit trails, approvals, memory, and cleanup.",
+      },
+    ],
+  },
+  {
+    label: "Writing",
+    experiments: [
+      {
+        slug: "documentation-principles",
+        title: "Documentation Principles",
+        description: "A doc compiler. Mode, vocabulary, examples, visuals, and cognitive load.",
       },
     ],
   },

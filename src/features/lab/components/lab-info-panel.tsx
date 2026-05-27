@@ -30,8 +30,9 @@ export function LabInfoPanel({ children }: { children: React.ReactNode }) {
     <>
       <button
         onClick={() => setOpen(true)}
+        aria-label="Open how it works panel"
         className={cn(
-          "fixed bottom-6 right-5 z-10 cursor-pointer font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/30 transition-all hover:text-accent md:right-8",
+          "fixed bottom-28 right-5 z-10 cursor-pointer font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/30 transition-all hover:text-accent md:right-8",
           open && "pointer-events-none opacity-0",
         )}
         aria-expanded={open}
@@ -46,6 +47,7 @@ export function LabInfoPanel({ children }: { children: React.ReactNode }) {
         role="complementary"
         aria-label="How it works"
         aria-hidden={!open}
+        inert={!open}
         className={cn(
           "fixed inset-y-0 right-0 z-20 flex w-full flex-col border-l border-border bg-background/85 backdrop-blur-sm transition-transform duration-300 ease-out sm:max-w-md",
           open ? "translate-x-0" : "translate-x-full",

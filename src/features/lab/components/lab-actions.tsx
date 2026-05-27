@@ -126,6 +126,7 @@ export function LabActions() {
       <button
         type="button"
         onClick={toggleFullscreen}
+        aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         className={cn(
           "pointer-events-auto cursor-pointer font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/30 transition-colors hover:text-accent",
         )}
@@ -136,6 +137,7 @@ export function LabActions() {
       <button
         type="button"
         onClick={isRecording ? stopRecording : startRecording}
+        aria-label={isRecording ? `Stop recording after ${recordSeconds} seconds` : "Record WebM"}
         className={cn(
           "pointer-events-auto flex cursor-pointer items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.2em] transition-colors",
           isRecording ? "text-accent" : "text-foreground/30 hover:text-accent",
