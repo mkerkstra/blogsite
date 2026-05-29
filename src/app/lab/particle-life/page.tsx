@@ -2,6 +2,7 @@ import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
 import { LabActions } from "@/features/lab/components/lab-actions";
 import { ParticleLife } from "@/features/lab/components/particle-life";
 
+import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
 export const metadata = labMetadata(
@@ -13,6 +14,7 @@ export const metadata = labMetadata(
 export default function ParticleLifePage() {
   return (
     <>
+      <LabHead slug="particle-life" />
       <ParticleLife />
       <div className="pointer-events-none fixed bottom-6 left-5 z-10 select-none md:left-8">
         <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40">

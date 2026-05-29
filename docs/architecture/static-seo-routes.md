@@ -39,19 +39,39 @@ randomize the 404 Ollie pic per request — deopted the **entire app**
 to `ƒ Dynamic`. The root `not-found` renders inside the root layout for
 every route, so reading a request API there poisons every page.
 
-The blast radius was bigger than caching:
-
-- Every page served `cache-control: private, no-cache, no-store` with
-  `x-vercel-cache: MISS` — a cold render per crawler hit.
-- `next build` emitted no `.html` files (dynamic pages aren't
-  prerendered), so `scripts/post-process-html.ts` silently no-opped:
-  - the homepage **Person JSON-LD was never injected**, and
-  - **twitter:\* tags leaked site-wide** (the strip step had no files
-    to strip — Matt is off X, so this violated a hard rule).
+The blast radius was bigger than caching: every page served
+`cache-control: private, no-cache, no-store` with `x-vercel-cache: MISS`
+— a cold render per crawler hit.
 
 The fix was to make the 404 random pic a client component
 (`src/features/ollie/components/ollie-404.tsx`) so `not-found.tsx`
 stays static. One line, whole-site impact.
+
+## Why JSON-LD / OG are rendered in-tree (not post-build)
+
+There used to be a `scripts/post-process-html.ts` that, after
+`next build`, rewrote `.next/server/app/**/*.html` to inject JSON-LD
+and strip the auto-generated `twitter:*` tags. **It never worked in
+production.** Vercel's Next.js builder does not serve those mutated
+`.html` files — post-build edits to `.next` are invisible to the
+deployed pages (it works under local `next start`, which is the trap).
+So in prod the homepage had zero JSON-LD and twitter tags leaked
+site-wide, for as long as the script existed.
+
+The lesson: **anything that must reach the served HTML has to be part
+of the actual render**, not a post-build file edit. So:
+
+- JSON-LD → `<JsonLd>` (`src/components/json-ld.tsx`), a server
+  component rendering `<script type="application/ld+json">` in-tree.
+- OG tags → `<SocialMeta>` (`src/components/social-meta.tsx`). We do
+  **not** use `metadata.openGraph`, because Next 16 auto-derives
+  `twitter:*` from it (and from the `opengraph-image` file convention)
+  with no opt-out, and Matt is off X. Hand-rendering only `og:*` gives
+  Slack/LinkedIn/Discord previews with zero twitter tags. React 19
+  hoists these `<meta>` tags into `<head>` during prerender.
+
+The post-process script is gone; `pnpm build` is just
+`build:pdf && next build`.
 
 ## What forces a page dynamic — keep these out of static routes
 
@@ -102,14 +122,29 @@ page.
 
 ## Structured data + metadata
 
-- JSON-LD is injected post-build by `scripts/post-process-html.ts`
-  (homepage Person, lab CollectionPage/CreativeWork, BreadcrumbList) —
-  not rendered in the React tree (avoids a hydration warning that costs
-  Lighthouse best-practices points). This requires the routes to be
-  static so the `.html` files exist.
-- Per-lab metadata (title, description, canonical, OG) comes from
-  `labMetadata()` in `src/features/lab/lib/metadata.ts`.
+- JSON-LD is rendered in-tree via `<JsonLd>` (see the in-tree section
+  above): homepage `Person`; lab index `CollectionPage` +
+  `BreadcrumbList`; each lab page `CreativeWork` + `BreadcrumbList`
+  (built from the `experiments.ts` registry by
+  `src/features/lab/lib/lab-schema.ts`).
+- OG tags are rendered in-tree via `<SocialMeta>` per page. Lab pages
+  use `<LabHead slug="...">` (`src/features/lab/components/lab-head.tsx`),
+  which composes `<SocialMeta>` + `<JsonLd>` and points og:image at
+  `/lab-previews/<slug>.dark.png`. There is no `metadata.openGraph` and
+  no `opengraph-image.png` convention anywhere (both emit twitter tags).
+- Per-lab title/description/canonical still come from `labMetadata()`
+  in `src/features/lab/lib/metadata.ts` (no `openGraph`).
 - The sitemap (`src/app/sitemap.ts`) generates lab URLs from the
   `experiments.ts` registry. `/ollie` is excluded (it's `noindex`).
 - `sitemap.xml` / `robots.txt` get explicit long-lived `Cache-Control`
   via `next.config.ts` `headers()`.
+
+### Adding a new lab experiment (SEO checklist)
+
+1. Add it to `src/features/lab/data/experiments.ts` (sitemap + JSON-LD
+   read from here).
+2. In `src/app/lab/<slug>/page.tsx`: `export const metadata =
+labMetadata(...)` and render `<LabHead slug="<slug>" />` as the first
+   child (gives it og:\* + JSON-LD).
+3. `pnpm build:lab-thumbs` to generate `public/lab-previews/<slug>.dark.png`
+   (the og:image). It no longer writes an `opengraph-image.png`.

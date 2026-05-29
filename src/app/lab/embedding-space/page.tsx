@@ -3,6 +3,7 @@ import { LabActions } from "@/features/lab/components/lab-actions";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
 import { Term } from "@/features/lab/components/term";
 import { CLUSTER_LABELS, WORDS } from "@/features/lab/data/embedding-data";
+import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
 const CLUSTER_SEEDS = CLUSTER_LABELS.map((label, ci) => {
@@ -33,6 +34,7 @@ export const metadata = labMetadata(
 export default function EmbeddingSpacePage() {
   return (
     <>
+      <LabHead slug="embedding-space" />
       <EmbeddingSpace />
       <div className="pointer-events-none fixed bottom-6 left-5 z-10 select-none md:left-8">
         <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40">

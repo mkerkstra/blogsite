@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 
+import { SocialMeta } from "@/components/social-meta";
 import { ollieBio, olliePics } from "@/features/ollie/data/ollie";
 import { SectionLabel } from "@/features/resume/components/section-label";
 
+const DESCRIPTION =
+  "Meet Ollie the chipoodle. Rescue dog, professional nook-finder, and the real star of kerkstra.dev.";
+
 export const metadata: Metadata = {
   title: "Ollie",
-  description:
-    "Meet Ollie the chipoodle. Rescue dog, professional nook-finder, and the real star of kerkstra.dev.",
+  description: DESCRIPTION,
   robots: { index: false },
 };
 
@@ -21,6 +24,12 @@ export default function OlliePage() {
 
   return (
     <div className="flex flex-col gap-12" style={{ viewTransitionName: "page-body" }}>
+      <SocialMeta
+        title="Ollie · kerkstra.dev"
+        description={DESCRIPTION}
+        url="/ollie"
+        type="profile"
+      />
       <header className="reveal flex flex-col gap-3">
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
           ↳ /ollie

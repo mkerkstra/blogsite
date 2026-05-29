@@ -1,21 +1,18 @@
 import type { Metadata } from "next";
 
 /**
- * Per-lab page metadata. Each /lab/[slug]/ directory also has an
- * opengraph-image.png that Next auto-wires as og:image — this helper
- * fills in og:title and og:description so social previews don't fall
- * back to the site-wide defaults from the root layout.
+ * Per-lab page metadata: title, description, canonical.
+ *
+ * Note: no `openGraph` here. Next 16 auto-derives twitter:* tags from
+ * openGraph, and Matt is off X — so og:* (and the per-lab JSON-LD) are
+ * rendered in-tree by <LabHead> (src/features/lab/components/lab-head.tsx)
+ * instead, which each lab page renders. See
+ * docs/architecture/static-seo-routes.md.
  */
 export function labMetadata(slug: string, title: string, description: string): Metadata {
   return {
     title,
     description,
     alternates: { canonical: `/lab/${slug}` },
-    openGraph: {
-      title: `${title} · kerkstra.dev`,
-      description,
-      url: `/lab/${slug}`,
-      type: "article",
-    },
   };
 }

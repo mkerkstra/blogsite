@@ -1,21 +1,30 @@
 import type { Metadata } from "next";
 
+import { SocialMeta } from "@/components/social-meta";
 import { LighthouseScores } from "@/features/colophon/components/lighthouse-scores";
 import { craftNotes } from "@/features/colophon/data/craft-notes";
 import { stack } from "@/features/colophon/data/stack";
 import { tokenGroups } from "@/features/colophon/data/tokens";
 import { SectionLabel } from "@/features/resume/components/section-label";
 
+const DESCRIPTION =
+  "How kerkstra.dev is built. Stack, typography, color tokens, Lighthouse scores, and the accessibility principles behind the design.";
+
 export const metadata: Metadata = {
   title: "Colophon",
-  description:
-    "How kerkstra.dev is built. Stack, typography, color tokens, Lighthouse scores, and the accessibility principles behind the design.",
+  description: DESCRIPTION,
   alternates: { canonical: "/colophon" },
 };
 
 export default function ColophonPage() {
   return (
     <div className="flex flex-col gap-12" style={{ viewTransitionName: "page-body" }}>
+      <SocialMeta
+        title="Colophon · kerkstra.dev"
+        description={DESCRIPTION}
+        url="/colophon"
+        type="website"
+      />
       <header className="reveal flex flex-col gap-3">
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
           ↳ /colophon

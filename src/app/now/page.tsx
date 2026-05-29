@@ -5,6 +5,7 @@ import Image, { type StaticImageData } from "next/image";
 import heidelbergPic from "../../../public/now/heidelberg.png";
 import olliePic from "../../../public/now/ollie.jpeg";
 
+import { SocialMeta } from "@/components/social-meta";
 import { ContributionGraphView } from "@/features/now/components/contribution-graph";
 import { type FocusImage, nowState } from "@/features/now/data/now";
 import { fetchContributionGraph } from "@/features/now/lib/github-contributions";
@@ -22,18 +23,13 @@ const FOCUS_IMAGES: Record<FocusImage, StaticImageData> = {
   heidelberg: heidelbergPic,
 };
 
+const DESCRIPTION =
+  "What Matt Kerkstra is currently focused on - day job, side projects, open source, and recent GitHub activity.";
+
 export const metadata: Metadata = {
   title: "Now",
-  description:
-    "What Matt Kerkstra is currently focused on - day job, side projects, open source, and recent GitHub activity.",
+  description: DESCRIPTION,
   alternates: { canonical: "/now" },
-  openGraph: {
-    title: "Now · kerkstra.dev",
-    description:
-      "What Matt Kerkstra is currently focused on - day job, side projects, open source, and recent GitHub activity.",
-    url: "https://www.kerkstra.dev/now",
-    type: "profile",
-  },
 };
 
 // Refresh daily — the GitHub fetch is the only dynamic bit and we
@@ -61,6 +57,7 @@ export default async function NowPage() {
 
   return (
     <div className="flex flex-col gap-12" style={{ viewTransitionName: "page-body" }}>
+      <SocialMeta title="Now · kerkstra.dev" description={DESCRIPTION} url="/now" type="profile" />
       <header className="reveal flex flex-col gap-3">
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
           ↳ /now · last updated {updated}

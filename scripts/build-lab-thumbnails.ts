@@ -14,7 +14,7 @@
  *   LAB_THUMBS_THEME=dark|light|both   restrict to one theme (default both)
  */
 
-import { mkdirSync, existsSync, copyFileSync } from "node:fs";
+import { mkdirSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 
 import puppeteer from "puppeteer-core";
@@ -27,7 +27,6 @@ const ONLY = process.env["LAB_THUMBS_ONLY"]?.split(",").map((s) => s.trim()) ?? 
 const THEME_ARG = (process.env["LAB_THUMBS_THEME"] ?? "both") as "dark" | "light" | "both";
 const THEMES: Array<"dark" | "light"> = THEME_ARG === "both" ? ["dark", "light"] : [THEME_ARG];
 const OUT_DIR = resolve("public/lab-previews");
-const APP_LAB_DIR = resolve("src/app/lab");
 const WIDTH = 1200;
 const HEIGHT = 630;
 
@@ -94,13 +93,11 @@ async function main() {
           const out = resolve(OUT_DIR, `${slug}.${theme}.png`);
           await page.screenshot({ path: out as `${string}.png`, type: "png", fullPage: false });
 
-          // Dark variant doubles as the OG image — keep slug dirs in sync.
-          if (theme === "dark") {
-            const ogDir = resolve(APP_LAB_DIR, slug);
-            if (existsSync(ogDir)) {
-              copyFileSync(out, resolve(ogDir, "opengraph-image.png"));
-            }
-          }
+          // The dark variant doubles as each lab's OG image, referenced
+          // directly as /lab-previews/[slug].dark.png by <LabHead>. We no
+          // longer copy it into an opengraph-image.png convention file —
+          // that file convention made Next emit twitter:image tags. See
+          // docs/architecture/static-seo-routes.md.
 
           console.log(`[thumbs] ✓ ${theme} / ${slug}`);
         } catch (err) {

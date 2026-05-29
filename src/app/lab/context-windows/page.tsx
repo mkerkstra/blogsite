@@ -2,6 +2,7 @@ import { ContextWindows } from "@/features/lab/components/context-windows";
 import { LabActions } from "@/features/lab/components/lab-actions";
 import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
 import { Term } from "@/features/lab/components/term";
+import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
 export const metadata = labMetadata(
@@ -13,6 +14,7 @@ export const metadata = labMetadata(
 export default function ContextWindowsPage() {
   return (
     <>
+      <LabHead slug="context-windows" />
       <ContextWindows />
       <LabActions />
       <LabInfoPanel>

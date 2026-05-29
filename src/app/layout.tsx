@@ -73,30 +73,12 @@ export const metadata: Metadata = {
       "application/json": "/api/resume.json",
     },
   },
-  openGraph: {
-    title: DEFAULT_TITLE,
-    description: DEFAULT_DESCRIPTION,
-    url: SITE_URL,
-    siteName: SITE_NAME,
-    type: "website",
-    locale: "en_US",
-    images: [
-      {
-        url: "/og",
-        width: 1200,
-        height: 630,
-        alt: DEFAULT_TITLE,
-        type: "image/png",
-      },
-    ],
-  },
-  // Next 16 auto-derives twitter:* from openGraph with no clean
-  // opt-out (twitter: null doesn't suppress; explicit empty objects
-  // still emit empty tags). Matt is off X and doesn't want twitter
-  // cards. Workaround: scripts/strip-twitter-tags.ts runs as a
-  // post-build step that strips twitter:* meta tags from every
-  // prerendered HTML file under .next/server/app. The openGraph
-  // fields here keep driving Slack/LinkedIn/Discord previews.
+  // No `openGraph` here on purpose. Next 16 auto-derives twitter:*
+  // tags from `metadata.openGraph` (and from the opengraph-image file
+  // convention) with no opt-out, and Matt is off X. So og:* tags are
+  // hand-rendered per page via <SocialMeta> (src/components/social-meta.tsx),
+  // which keeps Slack/LinkedIn/Discord previews while emitting zero
+  // twitter tags. See docs/architecture/static-seo-routes.md.
   robots: {
     index: true,
     follow: true,

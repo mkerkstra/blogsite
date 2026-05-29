@@ -3,6 +3,7 @@ import { LabInfoPanel } from "@/features/lab/components/lab-info-panel";
 import { SemanticSearch } from "@/features/lab/components/semantic-search";
 import { Term } from "@/features/lab/components/term";
 import { DOCUMENT_CHUNKS, SEARCH_QUERIES } from "@/features/lab/data/embedding-data";
+import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
 export const metadata = labMetadata(
@@ -14,6 +15,7 @@ export const metadata = labMetadata(
 export default function SemanticSearchPage() {
   return (
     <>
+      <LabHead slug="semantic-search" />
       <SemanticSearch />
       <div className="pointer-events-none fixed bottom-6 left-5 z-10 hidden select-none sm:block md:left-8">
         <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40">

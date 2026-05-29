@@ -1,20 +1,16 @@
 import type { Metadata } from "next";
 
+import { SocialMeta } from "@/components/social-meta";
 import { bookLink, reading, type Book, type ReadingShelf } from "@/features/reading/data/reading";
 import { SectionLabel } from "@/features/resume/components/section-label";
 
+const DESCRIPTION =
+  "Books Matt Kerkstra keeps reaching for: engineering, sci-fi, and the slow-moving stack.";
+
 export const metadata: Metadata = {
   title: "Reading",
-  description:
-    "Books Matt Kerkstra keeps reaching for: engineering, sci-fi, and the slow-moving stack.",
+  description: DESCRIPTION,
   alternates: { canonical: "/reading" },
-  openGraph: {
-    title: "Reading · kerkstra.dev",
-    description:
-      "Books Matt Kerkstra keeps reaching for: engineering, sci-fi, and the slow-moving stack.",
-    url: "https://www.kerkstra.dev/reading",
-    type: "profile",
-  },
 };
 
 export const revalidate = 86400;
@@ -64,6 +60,12 @@ function Shelf({ shelf, index }: { shelf: ReadingShelf; index: string }) {
 export default function ReadingPage() {
   return (
     <div className="flex flex-col gap-12" style={{ viewTransitionName: "page-body" }}>
+      <SocialMeta
+        title="Reading · kerkstra.dev"
+        description={DESCRIPTION}
+        url="/reading"
+        type="profile"
+      />
       <header className="reveal flex flex-col gap-3">
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
           ↳ /reading
