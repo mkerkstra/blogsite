@@ -18,6 +18,23 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Belt-and-braces cache headers for the SEO metadata routes. Next
+  // serves these from the static cache already, but an explicit long
+  // s-maxage with stale-while-revalidate guarantees crawlers (and the
+  // CDN) hold the sitemap/robots without re-rendering per hit.
+  async headers() {
+    const seoCache = "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800";
+    return [
+      {
+        source: "/sitemap.xml",
+        headers: [{ key: "Cache-Control", value: seoCache }],
+      },
+      {
+        source: "/robots.txt",
+        headers: [{ key: "Cache-Control", value: seoCache }],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

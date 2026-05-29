@@ -1,14 +1,13 @@
-import { headers } from "next/headers";
-import Image from "next/image";
 import Link from "next/link";
 
-import { olliePics } from "@/features/ollie/data/ollie";
+import { Ollie404 } from "@/features/ollie/components/ollie-404";
 
-export default async function NotFound() {
-  // headers() opts into dynamic rendering so Math.random() runs per request
-  await headers();
-  const pick = olliePics[Math.floor(Math.random() * olliePics.length)];
-
+// Static on purpose. This page renders inside the root layout for every
+// unmatched route, so any dynamic API here (it used to `await headers()`
+// to randomize the pic per request) deopts the whole app to dynamic
+// rendering. The random pic now lives in the <Ollie404> client component.
+// See docs/architecture/static-seo-routes.md.
+export default function NotFound() {
   return (
     <div className="flex flex-col gap-10 py-12" style={{ viewTransitionName: "page-body" }}>
       <div className="reveal flex flex-col gap-3">
@@ -23,18 +22,7 @@ export default async function NotFound() {
         </h1>
       </div>
 
-      <div className="reveal reveal-1 flex max-w-sm flex-col gap-2">
-        <Image
-          src={pick.src}
-          alt={pick.alt}
-          placeholder="blur"
-          sizes="(max-width: 768px) 90vw, 384px"
-          className="h-auto w-full border border-border"
-        />
-        <p className="font-mono text-[10px] italic tracking-wide text-muted-foreground">
-          {pick.caption}
-        </p>
-      </div>
+      <Ollie404 />
 
       <p className="reveal reveal-2 max-w-prose text-[13px] leading-[1.7] text-muted-foreground">
         Whatever was here has either been moved, was never here, or got lost in the migration. The
