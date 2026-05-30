@@ -1,7 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { labBounds } from "@/features/lab/lib/layout";
+import { ControlGroup, LabSlider, Transport } from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ────────────────────────────────────────────
    Speculative Decoding — Canvas2D
@@ -184,13 +189,15 @@ function randomToken(): string {
    Component
    ──────────────────────────────────────────── */
 
-export function SpeculativeDecoding() {
+export function SpeculativeDecoding({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // React state for control UI
   const [quality, setQuality] = useState(72);
   const [depth, setDepth] = useState(5);
   const [paused, setPaused] = useState(false);
+  // Live telemetry, lifted from the sim for the readout HUD.
+  const [metrics, setMetrics] = useState({ spec: 0, naive: 0, accept: 0, tokens: 0 });
 
   // Mutable simulation state
   const simRef = useRef<{
@@ -315,8 +322,7 @@ export function SpeculativeDecoding() {
 
     function getLayout(w: number, h: number) {
       const dpr = s.dpr;
-      const navH = 52 * dpr;
-      const pad = navH + 16 * dpr;
+      const pad = 72 * dpr;
       const tokenW = 72 * dpr;
       const tokenH = 28 * dpr;
       const tokenGap = 8 * dpr;
@@ -325,18 +331,21 @@ export function SpeculativeDecoding() {
       const smallFontSize = 8 * dpr;
       const tinyFontSize = 7 * dpr;
 
-      // Output row at top
-      const outputY = pad + 30 * dpr;
       const outputTokenW = 60 * dpr;
       const outputTokenH = 22 * dpr;
       const outputGap = 5 * dpr;
-
-      // Tracks in middle
-      const trackTop = h * 0.3;
       const trackH = 50 * dpr;
       const trackGap = 24 * dpr;
-      const draftTrackY = trackTop;
-      const verifyTrackY = trackTop + trackH + trackGap;
+
+      // Output sequence sits just below the readout HUD; the draft/verifier
+      // mechanism centers in the space beneath it, so the viz fills the height
+      // instead of cramming up top (the bottom stats row moved to the HUD).
+      const bounds = labBounds(w, h, dpr);
+      const outputY = bounds.y + 80 * dpr;
+      const pairH = trackH + trackGap + trackH;
+      const regionTop = outputY + outputTokenH;
+      const draftTrackY = regionTop + Math.max(70 * dpr, (bounds.bottom - regionTop - pairH) / 2);
+      const verifyTrackY = draftTrackY + trackH + trackGap;
 
       // Draft model bar
       const barW = 100 * dpr;
@@ -345,9 +354,6 @@ export function SpeculativeDecoding() {
 
       // Token start position (where they slide in from)
       const tokenStartX = barX + barW + 20 * dpr;
-
-      // Stats area at bottom
-      const statsY = h - 80 * dpr;
 
       return {
         pad,
@@ -362,7 +368,6 @@ export function SpeculativeDecoding() {
         outputTokenW,
         outputTokenH,
         outputGap,
-        trackTop,
         trackH,
         trackGap,
         draftTrackY,
@@ -371,7 +376,6 @@ export function SpeculativeDecoding() {
         barH,
         barX,
         tokenStartX,
-        statsY,
         dpr,
       };
     }
@@ -1002,68 +1006,8 @@ export function SpeculativeDecoding() {
         ctx.restore();
       }
 
-      // ── Stats dashboard ──
-      {
-        ctx.save();
-        const sy = L.statsY;
-        const sx = L.pad;
-        const colW = 150 * L.dpr;
-
-        ctx.font = `${L.labelFontSize}px monospace`;
-        ctx.textBaseline = "top";
-        ctx.textAlign = "left";
-
-        // Divider line
-        ctx.strokeStyle = p.outline;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(L.pad, sy - 12 * L.dpr);
-        ctx.lineTo(w - L.pad, sy - 12 * L.dpr);
-        ctx.stroke();
-
-        // Speculative throughput
-        ctx.fillStyle = p.textDim;
-        ctx.fillText("SPECULATIVE", sx, sy);
-        ctx.font = `bold ${L.fontSize * 1.4}px monospace`;
-        ctx.fillStyle = p.accepted;
-        ctx.fillText(`${s.tokPerSecSpec.toFixed(1)}x`, sx, sy + 14 * L.dpr);
-
-        // Naive throughput
-        ctx.font = `${L.labelFontSize}px monospace`;
-        ctx.fillStyle = p.textDim;
-        ctx.fillText("NAIVE", sx + colW, sy);
-        ctx.font = `bold ${L.fontSize * 1.4}px monospace`;
-        ctx.fillStyle = p.text;
-        ctx.fillText(`${s.tokPerSecNaive.toFixed(1)}x`, sx + colW, sy + 14 * L.dpr);
-
-        // Acceptance rate
-        const acceptRate =
-          s.totalGenerated > 0 ? (s.totalAccepted / (s.totalAccepted + s.cycleCount)) * 100 : 0;
-        ctx.font = `${L.labelFontSize}px monospace`;
-        ctx.fillStyle = p.textDim;
-        ctx.fillText("ACCEPT RATE", sx + colW * 2, sy);
-        ctx.font = `bold ${L.fontSize * 1.4}px monospace`;
-        ctx.fillStyle = acceptRate > 60 ? p.accepted : p.rejected;
-        ctx.fillText(`${acceptRate.toFixed(0)}%`, sx + colW * 2, sy + 14 * L.dpr);
-
-        // Draft length K
-        ctx.font = `${L.labelFontSize}px monospace`;
-        ctx.fillStyle = p.textDim;
-        ctx.fillText("DEPTH K", sx + colW * 3, sy);
-        ctx.font = `bold ${L.fontSize * 1.4}px monospace`;
-        ctx.fillStyle = p.text;
-        ctx.fillText(`${s.depth}`, sx + colW * 3, sy + 14 * L.dpr);
-
-        // Total tokens
-        ctx.font = `${L.labelFontSize}px monospace`;
-        ctx.fillStyle = p.textDim;
-        ctx.fillText("TOTAL TOKENS", sx + colW * 4, sy);
-        ctx.font = `bold ${L.fontSize * 1.4}px monospace`;
-        ctx.fillStyle = p.text;
-        ctx.fillText(`${s.totalGenerated}`, sx + colW * 4, sy + 14 * L.dpr);
-
-        ctx.restore();
-      }
+      // Stats (speculative/naive throughput, accept rate, total tokens) now live
+      // in the top LabReadout HUD — lifted to React state via a throttled sync.
 
       // ── Paused indicator ──
       if (s.paused) {
@@ -1088,37 +1032,57 @@ export function SpeculativeDecoding() {
 
   // ── Keyboard handler ──
 
+  const togglePause = useCallback(() => {
+    const next = !simRef.current.paused;
+    simRef.current.paused = next;
+    setPaused(next);
+  }, []);
+
+  const reset = useCallback(() => {
+    const s = simRef.current;
+    s.outputTokens = [];
+    s.totalGenerated = 0;
+    s.totalAccepted = 0;
+    s.cycleCount = 0;
+    s.tokPerSecSpec = 0;
+    s.tokPerSecNaive = 0;
+    s.paused = false;
+    setPaused(false);
+    startDraftCycle();
+  }, [startDraftCycle]);
+
+  // ── Keyboard: space = pause, r = reset ── (f/fullscreen + ?/how-it-works live in LabChrome)
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-
       if (e.key === " " || e.code === "Space") {
         e.preventDefault();
-        const next = !simRef.current.paused;
-        simRef.current.paused = next;
-        setPaused(next);
-      }
-
-      if (e.key === "r" || e.key === "R") {
-        if (e.metaKey || e.ctrlKey) return; // don't intercept browser reload
+        togglePause();
+      } else if ((e.key === "r" || e.key === "R") && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        const s = simRef.current;
-        s.outputTokens = [];
-        s.totalGenerated = 0;
-        s.totalAccepted = 0;
-        s.cycleCount = 0;
-        s.tokPerSecSpec = 0;
-        s.tokPerSecNaive = 0;
-        s.paused = false;
-        setPaused(false);
-        startDraftCycle();
+        reset();
       }
     }
-
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [startDraftCycle]);
+  }, [togglePause, reset]);
+
+  // ── Lift sim telemetry to React state for the readout HUD ──
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const s = simRef.current;
+      const accept =
+        s.totalGenerated > 0 ? (s.totalAccepted / (s.totalAccepted + s.cycleCount)) * 100 : 0;
+      setMetrics({
+        spec: s.tokPerSecSpec,
+        naive: s.tokPerSecNaive,
+        accept,
+        tokens: s.totalGenerated,
+      });
+    }, 200);
+    return () => window.clearInterval(id);
+  }, []);
 
   // ── Sync slider values to sim ──
 
@@ -1130,10 +1094,6 @@ export function SpeculativeDecoding() {
     simRef.current.depth = depth;
   }, [depth]);
 
-  // ── Styles ──
-
-  const sliderLabel = "font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30";
-
   return (
     <>
       <canvas
@@ -1143,48 +1103,29 @@ export function SpeculativeDecoding() {
         aria-hidden="true"
       />
 
-      {/* Controls overlay — top right */}
-      <div
-        className="fixed right-5 top-16 z-10 md:right-8 md:top-16"
-        style={{ touchAction: "none" }}
-      >
-        <div className="flex flex-col gap-3 rounded bg-background/80 px-4 py-3 backdrop-blur-sm">
-          {/* Draft quality slider */}
-          <label className="flex items-center gap-3">
-            <span className={sliderLabel}>QUALITY</span>
-            <input
-              type="range"
-              min={40}
-              max={95}
-              value={quality}
-              onChange={(e) => setQuality(Number(e.target.value))}
-              className="h-1 w-20 appearance-none rounded bg-foreground/10 accent-foreground/40"
-            />
-            <span className="w-8 font-mono text-[9px] text-foreground/30">{quality}%</span>
-          </label>
+      <LabReadout corner="right">
+        <Gauge label="accept" value={metrics.accept.toFixed(0)} unit="%" primary />
+        <Gauge label="speculative" value={metrics.spec.toFixed(1)} unit="x" />
+        <Gauge label="naive" value={metrics.naive.toFixed(1)} unit="x" />
+        <Gauge label="tokens" value={metrics.tokens} />
+      </LabReadout>
 
-          {/* Speculation depth K slider */}
-          <label className="flex items-center gap-3">
-            <span className={sliderLabel}>DEPTH K</span>
-            <input
-              type="range"
-              min={1}
-              max={8}
-              value={depth}
-              onChange={(e) => setDepth(Number(e.target.value))}
-              className="h-1 w-20 appearance-none rounded bg-foreground/10 accent-foreground/40"
-            />
-            <span className="w-8 font-mono text-[9px] text-foreground/30">{depth}</span>
-          </label>
-
-          {/* Pause indicator */}
-          {paused && (
-            <span className="font-mono text-[8px] uppercase tracking-[0.2em] text-foreground/20">
-              paused
-            </span>
-          )}
-        </div>
-      </div>
+      <LabChrome identity={{ name: "speculative decoding", scent: "draft · verify" }} info={info}>
+        <ControlGroup label="draft">
+          <LabSlider
+            label="quality"
+            min={40}
+            max={95}
+            value={quality}
+            onChange={setQuality}
+            format={(v) => `${v}%`}
+          />
+          <LabSlider label="depth k" min={1} max={8} value={depth} onChange={setDepth} />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={!paused} onToggle={togglePause} onReset={reset} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

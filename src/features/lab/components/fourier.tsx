@@ -1,7 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { Eraser } from "lucide-react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import { ControlGroup, LabSlider, Tool } from "@/features/lab/components/chrome/controls";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 
 /* ────────────────────────────────────────────
    Types
@@ -118,7 +122,7 @@ function resample(path: Point[], count: number): Point[] {
 
 const RESAMPLE_COUNT = 200;
 
-export function Fourier() {
+export function Fourier({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Mutable sim state read by the animation loop
@@ -140,8 +144,9 @@ export function Fourier() {
     speed: 1,
   });
 
-  // React state for UI controls
-  const [phase, setPhase] = useState<Phase>("idle");
+  // React state for UI controls (phase value drives only sim transitions now;
+  // the control strip is always present per the chrome model)
+  const [, setPhase] = useState<Phase>("idle");
   const [maxTerms, setMaxTerms] = useState(80);
   const [speed, setSpeed] = useState(1);
 
@@ -424,65 +429,32 @@ export function Fourier() {
     };
   }, []);
 
-  const btnBase = "px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors";
-  const btnInactive = "text-foreground/30 hover:text-foreground/50";
-
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none", cursor: "crosshair" }}
         aria-hidden="true"
       />
 
-      {/* Controls overlay */}
-      {phase === "playing" && (
-        <div
-          className="fixed bottom-16 left-1/2 z-10 -translate-x-1/2"
-          style={{ touchAction: "none" }}
-        >
-          <div className="flex items-center gap-3 rounded bg-background/80 px-4 py-2.5 backdrop-blur-sm">
-            <button onClick={handleClear} className={`${btnBase} ${btnInactive}`}>
-              CLEAR
-            </button>
-
-            <span className="h-4 w-px bg-foreground/10" />
-
-            <label className="flex items-center gap-2">
-              <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-                TERMS
-              </span>
-              <input
-                type="range"
-                min={10}
-                max={200}
-                value={maxTerms}
-                onChange={(e) => handleTerms(Number(e.target.value))}
-                className="h-1 w-16 appearance-none rounded bg-foreground/10 accent-foreground/40"
-              />
-              <span className="w-6 font-mono text-[9px] text-foreground/30">{maxTerms}</span>
-            </label>
-
-            <span className="h-4 w-px bg-foreground/10" />
-
-            <label className="flex items-center gap-2">
-              <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-                SPD
-              </span>
-              <input
-                type="range"
-                min={1}
-                max={10}
-                value={speed}
-                onChange={(e) => handleSpeed(Number(e.target.value))}
-                className="h-1 w-16 appearance-none rounded bg-foreground/10 accent-foreground/40"
-              />
-              <span className="w-5 font-mono text-[9px] text-foreground/30">{speed}</span>
-            </label>
-          </div>
-        </div>
-      )}
+      <LabChrome
+        identity={{ name: "fourier", scent: "discrete fourier transform · draw a shape" }}
+        info={info}
+      >
+        <ControlGroup label="trace">
+          <LabSlider label="terms" min={10} max={200} value={maxTerms} onChange={handleTerms} />
+          <LabSlider label="speed" min={1} max={10} value={speed} onChange={handleSpeed} />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Tool
+            label="Clear and redraw"
+            title="Clear and redraw"
+            onClick={handleClear}
+            icon={<Eraser className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

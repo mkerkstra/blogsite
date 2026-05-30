@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { getTheme } from "@/features/lab/lib/env";
 import { PALETTE } from "@/features/lab/lib/palette";
 import { compileShader, linkProgram, FULLSCREEN_VERT_UV as VERT } from "@/features/lab/lib/webgl";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 
 const FRAG = `#version 300 es
 precision highp float;
@@ -168,7 +170,7 @@ void main() {
 
 /* ── Component ── */
 
-export function RayMarch() {
+export function RayMarch({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -255,11 +257,17 @@ export function RayMarch() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 h-full w-full bg-background"
-      style={{ zIndex: 0, cursor: "grab" }}
-      aria-hidden="true"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className={LAB_CANVAS_CLASS}
+        style={{ zIndex: 0, cursor: "grab" }}
+        aria-hidden="true"
+      />
+      <LabChrome
+        identity={{ name: "ray march", scent: "signed distance fields · move to orbit" }}
+        info={info}
+      />
+    </>
   );
 }

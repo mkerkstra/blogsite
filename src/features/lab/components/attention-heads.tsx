@@ -1,7 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { getTheme } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSelect,
+  Segmented,
+  Toggle,
+} from "@/features/lab/components/chrome/controls";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 
 /* ────────────────────────────────────────────
    Types
@@ -393,7 +401,7 @@ function makeS3(): Sentence {
 
 const SENTENCES: Sentence[] = [makeS1(), makeS2(), makeS3()];
 
-const _SENTENCE_LABELS = [
+const SENTENCE_LABELS = [
   "The cat sat on the mat because it was tired",
   "She told him that the key was under the flower pot",
   "The bank by the river had no money in it",
@@ -411,16 +419,10 @@ interface Palette {
   tokenRect: string;
   tokenText: string;
   tokenHover: string;
-  headActive: string;
-  headInactive: string;
-  headText: string;
-  headActiveText: string;
   heatCell: (w: number) => string;
   text: string;
   textMuted: string;
-  btnBg: string;
   btnBorder: string;
-  btnHover: string;
   glowColor: string;
   glowInColor: string;
 }
@@ -436,16 +438,10 @@ const DARK: Palette = {
   tokenRect: "rgba(224,226,220,0.06)",
   tokenText: "rgba(224,226,220,0.7)",
   tokenHover: "rgba(212,255,0,0.15)",
-  headActive: "rgba(212,255,0,0.3)",
-  headInactive: "rgba(224,226,220,0.06)",
-  headText: "rgba(224,226,220,0.4)",
-  headActiveText: "rgba(224,226,220,0.85)",
   heatCell: (w) => `rgba(212,255,0,${(w * 0.7).toFixed(3)})`,
   text: "rgba(224,226,220,0.5)",
   textMuted: "rgba(224,226,220,0.25)",
-  btnBg: "rgba(224,226,220,0.04)",
   btnBorder: "rgba(224,226,220,0.08)",
-  btnHover: "rgba(224,226,220,0.08)",
   glowColor: "rgba(212,255,0,0.4)",
   glowInColor: "rgba(0,212,255,0.3)",
 };
@@ -461,16 +457,10 @@ const LIGHT: Palette = {
   tokenRect: "rgba(10,10,10,0.06)",
   tokenText: "rgba(10,10,10,0.6)",
   tokenHover: "rgba(42,138,14,0.1)",
-  headActive: "rgba(42,138,14,0.25)",
-  headInactive: "rgba(10,10,10,0.06)",
-  headText: "rgba(10,10,10,0.35)",
-  headActiveText: "rgba(10,10,10,0.75)",
   heatCell: (w) => `rgba(42,138,14,${(w * 0.6).toFixed(3)})`,
   text: "rgba(10,10,10,0.4)",
   textMuted: "rgba(10,10,10,0.2)",
-  btnBg: "rgba(10,10,10,0.04)",
   btnBorder: "rgba(10,10,10,0.08)",
-  btnHover: "rgba(10,10,10,0.08)",
   glowColor: "rgba(42,138,14,0.35)",
   glowInColor: "rgba(0,120,180,0.25)",
 };
@@ -487,7 +477,7 @@ function easeInOutCubic(t: number): number {
    Component
    ──────────────────────────────────────────── */
 
-export function AttentionHeads() {
+export function AttentionHeads({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef({
     sentenceIdx: 0,
@@ -508,7 +498,14 @@ export function AttentionHeads() {
     sentenceFrom: 0,
     sentenceTo: 0,
     sentenceTransStart: 0,
+    // recompute layout when chrome controls mutate the sim
+    layoutDirty: false,
   });
+
+  // React-side control state, mirrored into stateRef for the draw loop.
+  const [sentenceIdx, setSentenceIdx] = useState(0);
+  const [activeHead, setActiveHead] = useState(0);
+  const [allHeads, setAllHeads] = useState(false);
 
   const getPalette = useCallback((): Palette => {
     if (typeof document === "undefined") return DARK;
@@ -539,28 +536,10 @@ export function AttentionHeads() {
     let tokenStartX = 0;
     let tokenGap = 0;
 
-    // Head selector geometry
-    let headGridX = 0;
-    let headGridY = 0;
-    let headBoxSize = 0;
-    let headGap = 0;
-
     // Heatmap geometry
     let heatX = 0;
     let heatY = 0;
     let heatCellSize = 0;
-
-    // Sentence button geometry
-    let sentBtnX = 0;
-    let sentBtnY = 0;
-    let sentBtnW = 0;
-    let sentBtnH = 0;
-
-    // All-heads toggle
-    let allBtnX = 0;
-    let allBtnY = 0;
-    let allBtnW = 0;
-    let allBtnH = 0;
 
     function computeLayout() {
       dpr = window.devicePixelRatio || 1;
@@ -576,22 +555,17 @@ export function AttentionHeads() {
       const N = sent.tokens.length;
       const isSmall = W < 640;
 
-      // Token row: center of canvas vertically, shifted up a bit to make room for heatmap
+      // Token row: centered horizontally; the head selector + sentence cycle
+      // now live in the bottom chrome strip, so the canvas no longer reserves a
+      // left sidebar — content centers across the full width.
       tokenBoxH = isSmall ? 28 : 34;
       tokenBoxW = isSmall ? Math.min(60, (W - 120) / N - 4) : Math.min(80, (W - 200) / N - 6);
       tokenGap = isSmall ? 4 : 6;
       const totalTokenW = N * tokenBoxW + (N - 1) * tokenGap;
-      const sidebarW = isSmall ? 0 : 140;
+      const sidebarW = 0;
       const contentW = W - sidebarW;
       tokenStartX = sidebarW + (contentW - totalTokenW) / 2;
       tokenY = H * 0.38;
-
-      // Head selector: left sidebar
-      headBoxSize = isSmall ? 28 : 36;
-      headGap = isSmall ? 4 : 6;
-      const navH = 52;
-      headGridX = isSmall ? 10 : 28;
-      headGridY = isSmall ? navH + 10 : Math.max(navH + 10, tokenY - 3 * (headBoxSize + headGap));
 
       // Heatmap: centered below tokens, constrained to fit above footer
       const footerH = 80;
@@ -603,18 +577,6 @@ export function AttentionHeads() {
         : Math.min(24, (contentW * 0.5) / N, maxCellFromSpace);
       const heatTotalW = N * heatCellSize;
       heatX = sidebarW + (contentW - heatTotalW) / 2;
-
-      // Sentence button: top right
-      sentBtnW = isSmall ? 130 : 160;
-      sentBtnH = 28;
-      sentBtnX = W - sentBtnW - (isSmall ? 10 : 28);
-      sentBtnY = navH + (isSmall ? 10 : 12);
-
-      // All-heads toggle: below head grid
-      allBtnW = 2 * headBoxSize + headGap;
-      allBtnH = 22;
-      allBtnX = headGridX;
-      allBtnY = headGridY + 4 * (headBoxSize + headGap) + 8;
     }
 
     computeLayout();
@@ -627,19 +589,6 @@ export function AttentionHeads() {
         const tx = tokenStartX + i * (tokenBoxW + tokenGap);
         if (mx >= tx && mx <= tx + tokenBoxW && my >= tokenY - 4 && my <= tokenY + tokenBoxH + 4) {
           return i;
-        }
-      }
-      return -1;
-    }
-
-    function hitTestHead(mx: number, my: number): number {
-      for (let h = 0; h < 8; h++) {
-        const col = h % 2;
-        const row = Math.floor(h / 2);
-        const hx = headGridX + col * (headBoxSize + headGap);
-        const hy = headGridY + row * (headBoxSize + headGap);
-        if (mx >= hx && mx <= hx + headBoxSize && my >= hy && my <= hy + headBoxSize) {
-          return h;
         }
       }
       return -1;
@@ -660,16 +609,6 @@ export function AttentionHeads() {
       return [-1, -1];
     }
 
-    function hitTestSentenceBtn(mx: number, my: number): boolean {
-      return (
-        mx >= sentBtnX && mx <= sentBtnX + sentBtnW && my >= sentBtnY && my <= sentBtnY + sentBtnH
-      );
-    }
-
-    function hitTestAllBtn(mx: number, my: number): boolean {
-      return mx >= allBtnX && mx <= allBtnX + allBtnW && my >= allBtnY && my <= allBtnY + allBtnH;
-    }
-
     /* ── Event handlers ── */
 
     function onMouseMove(e: MouseEvent) {
@@ -680,17 +619,7 @@ export function AttentionHeads() {
       state.hoveredHeatRow = hr;
       state.hoveredHeatCol = hc;
 
-      // Sync: hovering a heatmap cell also highlights the corresponding token
-      if (hr >= 0 && hc >= 0) {
-        // Don't override token hover
-      }
-
-      canvas.style.cursor =
-        hitTestHead(e.clientX, e.clientY) >= 0 ||
-        hitTestSentenceBtn(e.clientX, e.clientY) ||
-        hitTestAllBtn(e.clientX, e.clientY)
-          ? "pointer"
-          : "default";
+      canvas.style.cursor = "default";
     }
 
     function onMouseLeave() {
@@ -699,37 +628,6 @@ export function AttentionHeads() {
       state.hoveredHeatCol = -1;
       state.mouseX = -1;
       state.mouseY = -1;
-    }
-
-    function onClick(e: MouseEvent) {
-      const headHit = hitTestHead(e.clientX, e.clientY);
-      if (headHit >= 0) {
-        state.allHeads = false;
-        if (headHit !== state.activeHead) {
-          state.transitionFrom = state.activeHead;
-          state.transitionTo = headHit;
-          state.transitionProgress = 0;
-          state.transitionStart = performance.now();
-          state.activeHead = headHit;
-        }
-        return;
-      }
-
-      if (hitTestSentenceBtn(e.clientX, e.clientY)) {
-        const next = (state.sentenceIdx + 1) % SENTENCES.length;
-        state.sentenceFrom = state.sentenceIdx;
-        state.sentenceTo = next;
-        state.sentenceTransition = 0;
-        state.sentenceTransStart = performance.now();
-        state.sentenceIdx = next;
-        computeLayout();
-        return;
-      }
-
-      if (hitTestAllBtn(e.clientX, e.clientY)) {
-        state.allHeads = !state.allHeads;
-        return;
-      }
     }
 
     function onTouchStart(e: TouchEvent) {
@@ -741,37 +639,6 @@ export function AttentionHeads() {
       const [hr, hc] = hitTestHeatmap(t.clientX, t.clientY);
       state.hoveredHeatRow = hr;
       state.hoveredHeatCol = hc;
-
-      // Handle taps as clicks
-      const headHit = hitTestHead(t.clientX, t.clientY);
-      if (headHit >= 0) {
-        state.allHeads = false;
-        if (headHit !== state.activeHead) {
-          state.transitionFrom = state.activeHead;
-          state.transitionTo = headHit;
-          state.transitionProgress = 0;
-          state.transitionStart = performance.now();
-          state.activeHead = headHit;
-        }
-        e.preventDefault();
-        return;
-      }
-      if (hitTestSentenceBtn(t.clientX, t.clientY)) {
-        const next = (state.sentenceIdx + 1) % SENTENCES.length;
-        state.sentenceFrom = state.sentenceIdx;
-        state.sentenceTo = next;
-        state.sentenceTransition = 0;
-        state.sentenceTransStart = performance.now();
-        state.sentenceIdx = next;
-        computeLayout();
-        e.preventDefault();
-        return;
-      }
-      if (hitTestAllBtn(t.clientX, t.clientY)) {
-        state.allHeads = !state.allHeads;
-        e.preventDefault();
-        return;
-      }
     }
 
     function onTouchMove(e: TouchEvent) {
@@ -793,8 +660,7 @@ export function AttentionHeads() {
 
     canvas.addEventListener("mousemove", onMouseMove);
     canvas.addEventListener("mouseleave", onMouseLeave);
-    canvas.addEventListener("click", onClick);
-    canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+    canvas.addEventListener("touchstart", onTouchStart, { passive: true });
     canvas.addEventListener("touchmove", onTouchMove, { passive: true });
     canvas.addEventListener("touchend", onTouchEnd);
 
@@ -890,6 +756,12 @@ export function AttentionHeads() {
     }
 
     function draw(now: number) {
+      // Pick up control mutations that need a layout recompute (sentence change).
+      if (state.layoutDirty) {
+        state.layoutDirty = false;
+        computeLayout();
+      }
+
       const p = getPalette();
       const c = ctx;
 
@@ -1063,76 +935,7 @@ export function AttentionHeads() {
         c.font = `${W < 640 ? 10 : 12}px "JetBrains Mono", monospace`;
       }
 
-      // ── Draw head selector ──
       const isSmall = W < 640;
-      for (let h = 0; h < 8; h++) {
-        const col = h % 2;
-        const row = Math.floor(h / 2);
-        const hx = headGridX + col * (headBoxSize + headGap);
-        const hy = headGridY + row * (headBoxSize + headGap);
-        const isActive = !state.allHeads && state.activeHead === h;
-
-        // Head box
-        c.fillStyle = isActive ? p.headActive : p.headInactive;
-        c.strokeStyle = isActive ? p.arcOut(0.3) : "transparent";
-        c.lineWidth = 1;
-        c.beginPath();
-        c.roundRect(hx, hy, headBoxSize, headBoxSize, 4);
-        c.fill();
-        if (isActive) c.stroke();
-
-        // All-heads mode: colored indicator
-        if (state.allHeads) {
-          const hc = ALL_HEADS_COLORS[h];
-          c.fillStyle = `rgba(${hc[0]},${hc[1]},${hc[2]},0.3)`;
-          c.beginPath();
-          c.roundRect(hx, hy, headBoxSize, headBoxSize, 4);
-          c.fill();
-        }
-
-        // Head number
-        c.font = `bold ${isSmall ? 9 : 10}px "JetBrains Mono", monospace`;
-        c.textAlign = "center";
-        c.fillStyle = isActive || state.allHeads ? p.headActiveText : p.headText;
-        c.fillText(String(h), hx + headBoxSize / 2, hy + headBoxSize * 0.38);
-
-        // Head role
-        c.font = `${isSmall ? 6 : 7}px "JetBrains Mono", monospace`;
-        c.fillStyle = isActive ? p.headActiveText : p.textMuted;
-        c.fillText(HEAD_META[h].role, hx + headBoxSize / 2, hy + headBoxSize * 0.7);
-      }
-
-      // ── All-heads toggle ──
-      c.fillStyle = state.allHeads ? p.headActive : p.btnBg;
-      c.strokeStyle = state.allHeads ? p.arcOut(0.2) : p.btnBorder;
-      c.lineWidth = 1;
-      c.beginPath();
-      c.roundRect(allBtnX, allBtnY, allBtnW, allBtnH, 3);
-      c.fill();
-      c.stroke();
-
-      c.font = `${isSmall ? 7 : 8}px "JetBrains Mono", monospace`;
-      c.textAlign = "center";
-      c.fillStyle = state.allHeads ? p.headActiveText : p.text;
-      c.fillText("ALL HEADS", allBtnX + allBtnW / 2, allBtnY + allBtnH / 2 + 1);
-
-      // ── Sentence cycle button ──
-      c.fillStyle = p.btnBg;
-      c.strokeStyle = p.btnBorder;
-      c.lineWidth = 1;
-      c.beginPath();
-      c.roundRect(sentBtnX, sentBtnY, sentBtnW, sentBtnH, 3);
-      c.fill();
-      c.stroke();
-
-      c.font = `${isSmall ? 7 : 8}px "JetBrains Mono", monospace`;
-      c.textAlign = "center";
-      c.fillStyle = p.text;
-      c.fillText(
-        `SENTENCE ${state.sentenceIdx + 1}/${SENTENCES.length}`,
-        sentBtnX + sentBtnW / 2,
-        sentBtnY + sentBtnH / 2 + 1,
-      );
 
       // ── Draw heatmap ──
       const heatWeights = sent.heads[state.activeHead];
@@ -1254,9 +1057,7 @@ export function AttentionHeads() {
       // ── Legend for hover mode ──
       if (hovToken >= 0 && !state.allHeads) {
         const legendY = tokenY + tokenBoxH + 30;
-        const sidebarW = isSmall ? 0 : 140;
-        const contentW = W - sidebarW;
-        const legendX = sidebarW + contentW / 2;
+        const legendX = W / 2;
 
         c.font = `${isSmall ? 7 : 8}px "JetBrains Mono", monospace`;
         c.textAlign = "center";
@@ -1286,7 +1087,6 @@ export function AttentionHeads() {
       cancelAnimationFrame(raf);
       canvas.removeEventListener("mousemove", onMouseMove);
       canvas.removeEventListener("mouseleave", onMouseLeave);
-      canvas.removeEventListener("click", onClick);
       canvas.removeEventListener("touchstart", onTouchStart);
       canvas.removeEventListener("touchmove", onTouchMove);
       canvas.removeEventListener("touchend", onTouchEnd);
@@ -1295,11 +1095,76 @@ export function AttentionHeads() {
     };
   }, [getPalette]);
 
+  /* ── Control handlers (mutate the shared stateRef + mirror to React) ── */
+
+  const handleHead = useCallback((h: number) => {
+    const state = stateRef.current;
+    state.allHeads = false;
+    setAllHeads(false);
+    if (h !== state.activeHead) {
+      state.transitionFrom = state.activeHead;
+      state.transitionTo = h;
+      state.transitionProgress = 0;
+      state.transitionStart = performance.now();
+      state.activeHead = h;
+      setActiveHead(h);
+    }
+  }, []);
+
+  const handleAllHeads = useCallback((next: boolean) => {
+    stateRef.current.allHeads = next;
+    setAllHeads(next);
+  }, []);
+
+  const handleSentence = useCallback((idx: number) => {
+    const state = stateRef.current;
+    if (idx === state.sentenceIdx) return;
+    state.sentenceFrom = state.sentenceIdx;
+    state.sentenceTo = idx;
+    state.sentenceTransition = 0;
+    state.sentenceTransStart = performance.now();
+    state.sentenceIdx = idx;
+    state.layoutDirty = true;
+    setSentenceIdx(idx);
+  }, []);
+
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 h-full w-full"
-      style={{ touchAction: "none" }}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className={LAB_CANVAS_CLASS}
+        style={{ touchAction: "none" }}
+        aria-hidden="true"
+      />
+
+      <LabChrome
+        identity={{ name: "attention heads", scent: "multi-head self-attention · hover tokens" }}
+        info={info}
+      >
+        <ControlGroup label="head">
+          <LabSelect
+            label="head"
+            value={String(activeHead)}
+            onChange={(v) => handleHead(Number(v))}
+            options={HEAD_META.map((meta, i) => ({
+              value: String(i),
+              label: `${i} ${meta.role}`,
+            }))}
+          />
+          <Toggle label="all heads" pressed={allHeads} onChange={handleAllHeads} />
+        </ControlGroup>
+        <ControlGroup label="input">
+          <Segmented
+            label="sentence"
+            value={sentenceIdx}
+            onChange={handleSentence}
+            options={SENTENCE_LABELS.map((_, i) => ({
+              value: i,
+              label: String(i + 1),
+            }))}
+          />
+        </ControlGroup>
+      </LabChrome>
+    </>
   );
 }

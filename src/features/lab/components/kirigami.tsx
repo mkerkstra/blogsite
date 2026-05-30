@@ -1,9 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
-import { btnActive, btnBase, btnInactive, controlBar } from "@/features/lab/lib/control-styles";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import { ControlGroup, Segmented, Toggle } from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 type Pattern = "rotors" | "wave" | "radial";
 
@@ -20,6 +24,7 @@ interface SimulationState {
   pattern: Pattern;
   showCuts: boolean;
   pointer: PointerState;
+  panelCount: number;
 }
 
 interface Colors {
@@ -270,20 +275,11 @@ function drawScene(
     }
   }
 
-  ctx.font = "10px 'JetBrains Mono', monospace";
-  ctx.textAlign = "left";
-  ctx.textBaseline = "bottom";
-  ctx.fillStyle = colors.text;
-  ctx.fillText(`OPEN ${(state.open * 100).toFixed(0)}%`, 16, height - 72);
-  ctx.fillText(`PATTERN ${state.pattern.toUpperCase()}`, 16, height - 56);
-  ctx.fillText(`PANELS ${cols * rows}`, 16, height - 40);
-
-  ctx.font = "9px 'JetBrains Mono', monospace";
-  ctx.fillStyle = colors.textDim;
-  ctx.fillText("CLICK OPEN/CLOSE  -  POINTER PULLS THE SHEET", 16, height - 8);
+  // Live stats (OPEN%, PATTERN, PANELS) are lifted to the LabReadout HUD.
+  state.panelCount = cols * rows;
 }
 
-export function Kirigami() {
+export function Kirigami({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const simRef = useRef<SimulationState>({
     open: 0.64,
@@ -292,10 +288,14 @@ export function Kirigami() {
     pattern: "rotors",
     showCuts: true,
     pointer: { x: 0, y: 0, active: false },
+    panelCount: 0,
   });
   const [targetOpen, setTargetOpen] = useState(0.64);
   const [pattern, setPattern] = useState<Pattern>("rotors");
   const [showCuts, setShowCuts] = useState(true);
+  // Live telemetry lifted from the sim for the readout HUD.
+  const [openPct, setOpenPct] = useState(64);
+  const [panels, setPanels] = useState(0);
 
   const setOpenTarget = useCallback((next: number) => {
     simRef.current.targetOpen = next;
@@ -374,11 +374,22 @@ export function Kirigami() {
     };
   }, [setOpenTarget, setPatternMode]);
 
+  /* ── Lift sim telemetry to React state for the readout HUD ── */
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const sim = simRef.current;
+      setOpenPct(Math.round(sim.open * 100));
+      setPanels(sim.panelCount);
+    }, 200);
+    return () => window.clearInterval(id);
+  }, []);
+
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none" }}
         aria-hidden="true"
         onClick={() => setOpenTarget(simRef.current.targetOpen > 0.5 ? 0.16 : 0.74)}
@@ -394,28 +405,36 @@ export function Kirigami() {
           simRef.current.pointer.active = false;
         }}
       />
-      <div className={`${controlBar} max-w-[calc(100vw-2rem)] flex-wrap justify-center`}>
-        <button
-          onClick={() => setOpenTarget(targetOpen > 0.5 ? 0.16 : 0.74)}
-          className={`${btnBase} ${targetOpen > 0.5 ? btnActive : btnInactive}`}
-        >
-          {targetOpen > 0.5 ? "open" : "closed"}
-        </button>
-        <span className="h-4 w-px bg-foreground/10" />
-        {PATTERNS.map((entry) => (
-          <button
-            key={entry.id}
-            onClick={() => setPatternMode(entry.id)}
-            className={`${btnBase} ${pattern === entry.id ? btnActive : btnInactive}`}
-          >
-            {entry.label}
-          </button>
-        ))}
-        <span className="h-4 w-px bg-foreground/10" />
-        <button onClick={toggleCuts} className={`${btnBase} ${showCuts ? btnActive : btnInactive}`}>
-          cuts
-        </button>
-      </div>
+      <LabReadout corner="left">
+        <Gauge label="open" value={`${openPct}%`} primary />
+        <Gauge label="pattern" value={pattern} />
+        <Gauge label="panels" value={panels} />
+      </LabReadout>
+
+      <LabChrome
+        identity={{
+          name: "kirigami",
+          scent: "rotating-square lattice · click to open, pointer pulls",
+        }}
+        info={info}
+      >
+        <ControlGroup label="sheet">
+          <Toggle
+            label={targetOpen > 0.5 ? "open" : "closed"}
+            pressed={targetOpen > 0.5}
+            onChange={() => setOpenTarget(targetOpen > 0.5 ? 0.16 : 0.74)}
+          />
+          <Toggle label="cuts" pressed={showCuts} onChange={toggleCuts} />
+        </ControlGroup>
+        <ControlGroup label="pattern">
+          <Segmented
+            label="pattern"
+            value={pattern}
+            onChange={setPatternMode}
+            options={PATTERNS.map((entry) => ({ value: entry.id, label: entry.label }))}
+          />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

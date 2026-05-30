@@ -1,7 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { StepForward } from "lucide-react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSelect,
+  LabSlider,
+  Tool,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ── Types ── */
 
@@ -14,6 +26,19 @@ interface CellStep {
 }
 
 type SimState = "idle" | "running" | "paused" | "done" | "traceback";
+
+/* ── Preset string pairs ──
+   The chrome has no free-text primitive, so the typed inputs become a curated
+   set of recognizable edit-distance demo pairs. The classic SATURDAY/SUNDAY
+   pair (Levenshtein's textbook example) stays the default. */
+
+const PAIRS: { value: string; label: string; a: string; b: string }[] = [
+  { value: "saturday", label: "saturday / sunday", a: "SATURDAY", b: "SUNDAY" },
+  { value: "kitten", label: "kitten / sitting", a: "KITTEN", b: "SITTING" },
+  { value: "intention", label: "intention / execution", a: "INTENTION", b: "EXECUTION" },
+  { value: "flaw", label: "flaw / lawn", a: "FLAW", b: "LAWN" },
+  { value: "sunday", label: "sunday / saturday", a: "SUNDAY", b: "SATURDAY" },
+];
 
 /* ── Palette ── */
 
@@ -122,12 +147,17 @@ function computeTraceback(
 
 /* ── Component ── */
 
-export function DpTable() {
+export function DpTable({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [stringA, setStringA] = useState("SATURDAY");
-  const [stringB, setStringB] = useState("SUNDAY");
+  const [pair, setPair] = useState(PAIRS[0].value);
   const [simState, setSimState] = useState<SimState>("idle");
   const [speed, setSpeed] = useState(1);
+  // Live telemetry, lifted from the sim for the readout HUD.
+  const [distance, setDistance] = useState<number | null>(null);
+
+  const active = PAIRS.find((p) => p.value === pair) ?? PAIRS[0];
+  const stringA = active.a;
+  const stringB = active.b;
 
   // Refs for animation loop access
   const stateRef = useRef<{
@@ -150,8 +180,8 @@ export function DpTable() {
     gen: null,
     simState: "idle",
     speed: 1,
-    stringA: "SATURDAY",
-    stringB: "SUNDAY",
+    stringA: PAIRS[0].a,
+    stringB: PAIRS[0].b,
     frameCount: 0,
     traceAnimIndex: 0,
   });
@@ -182,12 +212,14 @@ export function DpTable() {
 
   const reset = useCallback(() => {
     initTable(stringA, stringB);
+    setDistance(null);
     setSimState("running");
   }, [stringA, stringB, initTable]);
 
   // Auto-start on mount and string changes
   useEffect(() => {
     initTable(stringA, stringB);
+    setDistance(null);
     setSimState("running");
   }, [stringA, stringB, initTable]);
 
@@ -214,6 +246,7 @@ export function DpTable() {
       s.traceAnimIndex = s.tracebackPath.length;
       s.currentCell = null;
       s.dependencies = [];
+      setDistance(s.table[s.stringA.length]?.[s.stringB.length] ?? null);
       setSimState("done");
     }
   }, [stepOnce]);
@@ -251,6 +284,7 @@ export function DpTable() {
         s.dependencies = [];
         s.tracebackPath = computeTraceback(s.table, s.stringA, s.stringB);
         s.traceAnimIndex = s.tracebackPath.length;
+        setDistance(s.table[s.stringA.length]?.[s.stringB.length] ?? null);
         setSimState("done");
       }
     }
@@ -303,6 +337,7 @@ export function DpTable() {
             s.traceAnimIndex = 0;
             s.currentCell = null;
             s.dependencies = [];
+            setDistance(s.table[s.stringA.length]?.[s.stringB.length] ?? null);
             setSimState("traceback");
             break;
           }
@@ -471,18 +506,6 @@ export function DpTable() {
         }
         g.stroke();
       }
-
-      // ── Show result when done ──
-      if (s.simState === "done") {
-        const result = s.table[s.stringA.length]?.[s.stringB.length];
-        if (result !== null && result !== undefined) {
-          g.font = `${Math.min(16, cellSize * 0.45)}px monospace`;
-          g.fillStyle = colors.text;
-          g.textAlign = "center";
-          g.textBaseline = "middle";
-          g.fillText(`edit distance: ${result}`, w / 2, offsetY + tableH + cellSize * 0.8);
-        }
-      }
     }
 
     raf = requestAnimationFrame(frame);
@@ -497,77 +520,41 @@ export function DpTable() {
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0 }}
         aria-hidden="true"
       />
 
-      {/* Controls overlay */}
-      <div
-        className="fixed bottom-16 left-1/2 z-20 flex -translate-x-1/2 items-center gap-3 rounded bg-background/70 px-4 py-2.5 backdrop-blur-sm"
-        style={{ zIndex: 20 }}
+      <LabReadout corner="left">
+        <Gauge label="state" value={simState} />
+        <Gauge label="edit distance" value={distance ?? "..."} primary />
+      </LabReadout>
+
+      <LabChrome
+        identity={{ name: "dp table", scent: "edit distance · wagner-fischer fill" }}
+        info={info}
       >
-        <input
-          type="text"
-          value={stringA}
-          onChange={(e) => setStringA(e.target.value.toUpperCase().slice(0, 12))}
-          maxLength={12}
-          className="w-[6.5rem] border-b border-foreground/10 bg-transparent px-1 py-0.5 font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60 outline-none focus:border-foreground/30"
-          aria-label="String A"
-          spellCheck={false}
-        />
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/25">
-          vs
-        </span>
-        <input
-          type="text"
-          value={stringB}
-          onChange={(e) => setStringB(e.target.value.toUpperCase().slice(0, 12))}
-          maxLength={12}
-          className="w-[6.5rem] border-b border-foreground/10 bg-transparent px-1 py-0.5 font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60 outline-none focus:border-foreground/30"
-          aria-label="String B"
-          spellCheck={false}
-        />
-
-        <div className="mx-1 h-4 w-px bg-foreground/10" />
-
-        <button
-          onClick={handlePlayPause}
-          disabled={simState === "done" || simState === "traceback"}
-          className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/50 hover:text-foreground/80 disabled:opacity-30"
-        >
-          {simState === "running" ? "pause" : "play"}
-        </button>
-        <button
-          onClick={handleStep}
-          disabled={simState === "done" || simState === "traceback" || simState === "running"}
-          className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/50 hover:text-foreground/80 disabled:opacity-30"
-        >
-          step
-        </button>
-        <button
-          onClick={reset}
-          className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/50 hover:text-foreground/80"
-        >
-          reset
-        </button>
-
-        <div className="mx-1 h-4 w-px bg-foreground/10" />
-
-        <label className="flex items-center gap-1.5">
-          <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/25">
-            spd
-          </span>
-          <input
-            type="range"
-            min={1}
-            max={10}
-            value={speed}
-            onChange={(e) => setSpeed(Number(e.target.value))}
-            className="h-1 w-14 accent-foreground/40"
+        <ControlGroup label="input">
+          <LabSelect
+            label="pair"
+            value={pair}
+            onChange={setPair}
+            options={PAIRS.map((p) => ({ value: p.value, label: p.label }))}
           />
-        </label>
-      </div>
+        </ControlGroup>
+        <ControlGroup label="speed">
+          <LabSlider label="spd" min={1} max={10} value={speed} onChange={setSpeed} />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Tool
+            label="Step"
+            title="Step one cell"
+            onClick={handleStep}
+            icon={<StepForward className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+          <Transport playing={simState === "running"} onToggle={handlePlayPause} onReset={reset} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 import { TRAIL_PALETTE as PALETTE } from "@/features/lab/lib/palette";
 import {
@@ -8,6 +8,8 @@ import {
   linkProgram as link,
   FULLSCREEN_VERT as FADE_VERT,
 } from "@/features/lab/lib/webgl";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 
 const FADE_FRAG = `#version 300 es
 precision highp float;
@@ -87,7 +89,7 @@ function curl2d(x: number, y: number, z: number): [number, number] {
 
 const N = 100000;
 
-export function FlowField() {
+export function FlowField({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -268,11 +270,17 @@ export function FlowField() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 h-full w-full"
-      style={{ zIndex: 0, cursor: "crosshair" }}
-      aria-hidden="true"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className={LAB_CANVAS_CLASS}
+        style={{ zIndex: 0, cursor: "crosshair" }}
+        aria-hidden="true"
+      />
+      <LabChrome
+        identity={{ name: "flow field", scent: "curl noise · move to attract" }}
+        info={info}
+      />
+    </>
   );
 }

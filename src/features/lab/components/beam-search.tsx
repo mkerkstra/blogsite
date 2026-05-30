@@ -1,7 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { type ReactNode, useEffect, useRef, useState, useCallback } from "react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSlider,
+  Segmented,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ── Types ── */
 
@@ -1029,7 +1039,7 @@ function drawEdge(
 
 /* ── Component ── */
 
-export function BeamSearch() {
+export function BeamSearch({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef(0);
 
@@ -1471,110 +1481,61 @@ export function BeamSearch() {
     setPaused(pausedRef.current);
   }, []);
 
-  const beamOptions = [1, 2, 3, 5];
-
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none" }}
         aria-hidden="true"
       />
 
-      {/* ── Stats overlay (top-left) ── */}
-      <div className="fixed left-4 top-16 z-10 flex flex-col gap-1 rounded bg-background/80 px-3 py-2 backdrop-blur-sm">
-        <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-          prompt
-        </div>
-        <div className="font-mono text-[11px] text-foreground/70">&quot;{statsPrompt}&quot;</div>
-        <div className="mt-1 font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-          beam width
-        </div>
-        <div className="font-mono text-[11px] text-foreground/70">
-          {statsBeamWidth === 1 ? "1 (greedy)" : statsBeamWidth}
-        </div>
-        <div className="mt-1 font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-          active beams
-        </div>
-        <div className="font-mono text-[11px] text-foreground/70">{statsActiveBeams}</div>
-        <div className="mt-1 font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-          best sequence
-        </div>
-        <div className="max-w-[200px] font-mono text-[11px] leading-tight text-foreground/70">
-          {statsBestSeq}
-        </div>
-        <div className="font-mono text-[9px] text-foreground/30">p={statsBestProb.toFixed(4)}</div>
-      </div>
+      <LabReadout corner="left">
+        <Gauge label="prompt" value={`"${statsPrompt}"`} />
+        <Gauge label="beam width" value={statsBeamWidth === 1 ? "1 greedy" : statsBeamWidth} />
+        <Gauge label="active beams" value={statsActiveBeams} />
+        <Gauge
+          label="best sequence"
+          value={
+            <span className="inline-flex flex-col">
+              <span>{statsBestSeq}</span>
+              <span className="text-[8px] text-foreground/30">p={statsBestProb.toFixed(4)}</span>
+            </span>
+          }
+          primary
+        />
+      </LabReadout>
 
-      {/* ── Controls overlay (top-right) ── */}
-      <div className="fixed right-4 top-16 z-10 flex flex-col gap-2 rounded bg-background/80 px-3 py-2 backdrop-blur-sm">
-        {/* Beam width buttons */}
-        <div>
-          <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-            beam width
-          </div>
-          <div className="mt-1 flex gap-1">
-            {beamOptions.map((bw) => (
-              <button
-                key={bw}
-                onClick={() => handleBeamChange(bw)}
-                className={`rounded px-2 py-0.5 font-mono text-[10px] transition-colors ${
-                  beamWidth === bw
-                    ? "bg-foreground/10 text-foreground/80"
-                    : "text-foreground/30 hover:text-foreground/50"
-                }`}
-              >
-                {bw === 1 ? "1" : bw}
-              </button>
-            ))}
-          </div>
-          {beamWidth === 1 && (
-            <div className="mt-0.5 font-mono text-[8px] text-foreground/25">greedy</div>
-          )}
-        </div>
-
-        {/* Speed slider */}
-        <div>
-          <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-            speed
-          </div>
-          <div className="mt-1 flex items-center gap-1">
-            <input
-              type="range"
-              min={1}
-              max={4}
-              step={0.5}
-              value={speed}
-              onChange={(e) => setSpeed(parseFloat(e.target.value))}
-              className="h-1 w-16 cursor-pointer accent-foreground/40"
-            />
-            <span className="w-6 font-mono text-[9px] text-foreground/30">{speed}x</span>
-          </div>
-        </div>
-
-        {/* Pause / Reset */}
-        <div className="flex gap-1">
-          <button
-            onClick={handlePause}
-            className="rounded px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-foreground/40 transition-colors hover:text-foreground/70"
-          >
-            {paused ? "play" : "pause"}
-          </button>
-          <button
-            onClick={handleReset}
-            className="rounded px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-foreground/40 transition-colors hover:text-foreground/70"
-          >
-            reset
-          </button>
-        </div>
-
-        {/* Keyboard hints */}
-        <div className="flex gap-2 border-t border-foreground/5 pt-1">
-          <span className="font-mono text-[8px] text-foreground/20">space=pause</span>
-          <span className="font-mono text-[8px] text-foreground/20">r=reset</span>
-        </div>
-      </div>
+      <LabChrome
+        identity={{ name: "beam search", scent: "pruned candidate tree · space pause, r reset" }}
+        info={info}
+      >
+        <ControlGroup label="search">
+          <Segmented
+            label="beam width"
+            value={beamWidth}
+            onChange={handleBeamChange}
+            options={[
+              { value: 1, label: "1" },
+              { value: 2, label: "2" },
+              { value: 3, label: "3" },
+              { value: 5, label: "5" },
+            ]}
+          />
+          <LabSlider
+            label="speed"
+            min={1}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={setSpeed}
+            format={(v) => `${v}x`}
+          />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={!paused} onToggle={handlePause} onReset={handleReset} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

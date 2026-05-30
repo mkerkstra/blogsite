@@ -1,7 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { Eraser, SkipForward } from "lucide-react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSlider,
+  Segmented,
+  Tool,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ────────────────────────────────────────────
    Types
@@ -275,7 +287,7 @@ const ALGORITHMS: Record<Algorithm, typeof bfs> = { bfs, dijkstra, astar };
    Component
    ──────────────────────────────────────────── */
 
-export function Pathfinding() {
+export function Pathfinding({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Mutable refs that the animation loop reads
@@ -324,6 +336,7 @@ export function Pathfinding() {
   const [runState, setRunState] = useState<RunState>("drawing");
   const [speed, setSpeed] = useState(5);
   const [visitedCount, setVisitedCount] = useState(0);
+  const [pathLength, setPathLength] = useState(0);
 
   const initGrid = useCallback((canvas: HTMLCanvasElement) => {
     const s = stateRef.current;
@@ -380,6 +393,7 @@ export function Pathfinding() {
     s.visitedCount = 0;
     s.gen = null;
     setVisitedCount(0);
+    setPathLength(0);
   }, []);
 
   useEffect(() => {
@@ -534,7 +548,6 @@ export function Pathfinding() {
 
     function render() {
       raf = requestAnimationFrame(render);
-      const dpr = window.devicePixelRatio || 1;
       const theme = getTheme();
       const colors = COLORS[theme];
 
@@ -641,17 +654,7 @@ export function Pathfinding() {
       ctx.fillStyle = colors.text;
       ctx.fillText("E", ec * cellSize + cellSize / 2, er * cellSize + cellSize / 2);
 
-      // Stats overlay (top-left, inside the grid)
-      if (s.visitedCount > 0) {
-        ctx.fillStyle = colors.text;
-        ctx.font = `${Math.round(10 * dpr)}px monospace`;
-        ctx.textAlign = "left";
-        ctx.textBaseline = "top";
-        ctx.fillText(`VISITED: ${s.visitedCount}`, 8 * dpr, 8 * dpr);
-        if (s.path.length > 0) {
-          ctx.fillText(`PATH: ${s.path.length}`, 8 * dpr, 22 * dpr);
-        }
-      }
+      // Live stats (visited / path) now live in the top LabReadout HUD.
 
       // Advance generator
       if (s.runState === "running" && s.gen) {
@@ -675,6 +678,7 @@ export function Pathfinding() {
               break;
             case "path":
               s.path = step.cells;
+              setPathLength(step.cells.length);
               break;
             case "done":
               s.runState = "done";
@@ -708,7 +712,8 @@ export function Pathfinding() {
     setRunState("running");
   }, [clearResults]);
 
-  const handlePause = useCallback(() => {
+  // Transport play/pause: pause/resume an in-flight search, or start a fresh one.
+  const handleToggle = useCallback(() => {
     const s = stateRef.current;
     if (s.runState === "running") {
       s.runState = "paused";
@@ -716,8 +721,10 @@ export function Pathfinding() {
     } else if (s.runState === "paused") {
       s.runState = "running";
       setRunState("running");
+    } else {
+      handleRun();
     }
-  }, []);
+  }, [handleRun]);
 
   const handleStep = useCallback(() => {
     const s = stateRef.current;
@@ -748,6 +755,7 @@ export function Pathfinding() {
         break;
       case "path":
         s.path = step.cells;
+        setPathLength(step.cells.length);
         break;
       case "done":
         s.runState = "done";
@@ -787,99 +795,59 @@ export function Pathfinding() {
     setSpeed(val);
   }, []);
 
-  const btnBase = "px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors";
-  const btnActive = "bg-foreground/10 text-foreground/80";
-  const btnInactive = "text-foreground/30 hover:text-foreground/50";
+  const running = runState === "running";
 
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none", cursor: "crosshair" }}
         aria-hidden="true"
       />
 
-      {/* Controls overlay */}
-      <div
-        className="fixed bottom-16 left-1/2 z-10 -translate-x-1/2"
-        style={{ touchAction: "none" }}
+      {visitedCount > 0 && (
+        <LabReadout corner="right">
+          <Gauge label="visited" value={visitedCount} primary />
+          {pathLength > 0 && <Gauge label="path" value={pathLength} unit="cells" />}
+        </LabReadout>
+      )}
+
+      <LabChrome
+        identity={{ name: "pathfinding", scent: "grid search · draw walls, drag endpoints" }}
+        info={info}
       >
-        <div className="flex items-center gap-3 rounded bg-background/80 px-4 py-2.5 backdrop-blur-sm">
-          {/* Algorithm selector */}
-          <div className="flex gap-1">
-            {(["bfs", "dijkstra", "astar"] as const).map((alg) => (
-              <button
-                key={alg}
-                onClick={() => handleAlgorithm(alg)}
-                className={`${btnBase} ${algorithm === alg ? btnActive : btnInactive}`}
-              >
-                {alg === "astar" ? "A*" : alg.toUpperCase()}
-              </button>
-            ))}
-          </div>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          {/* Run / Pause / Step */}
-          <button
-            onClick={handleRun}
-            className={`${btnBase} ${btnInactive}`}
-            disabled={runState === "running"}
-          >
-            {runState === "done" ? "RERUN" : "RUN"}
-          </button>
-          <button
-            onClick={handlePause}
-            className={`${btnBase} ${btnInactive}`}
-            disabled={runState !== "running" && runState !== "paused"}
-          >
-            {runState === "paused" ? "RESUME" : "PAUSE"}
-          </button>
-          <button
+        <ControlGroup label="algorithm">
+          <Segmented
+            label="search"
+            value={algorithm}
+            onChange={handleAlgorithm}
+            options={[
+              { value: "bfs", label: "BFS" },
+              { value: "dijkstra", label: "Dijkstra" },
+              { value: "astar", label: "A*" },
+            ]}
+          />
+        </ControlGroup>
+        <ControlGroup label="grid">
+          <Tool
+            label="Step"
+            title="Advance one step"
             onClick={handleStep}
-            className={`${btnBase} ${btnInactive}`}
-            disabled={runState === "running"}
-          >
-            STEP
-          </button>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          {/* Clear */}
-          <button onClick={handleClear} className={`${btnBase} ${btnInactive}`}>
-            CLEAR
-          </button>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          {/* Speed */}
-          <label className="flex items-center gap-2">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-              SPD
-            </span>
-            <input
-              type="range"
-              min={1}
-              max={30}
-              value={speed}
-              onChange={(e) => handleSpeed(Number(e.target.value))}
-              className="h-1 w-16 appearance-none rounded bg-foreground/10 accent-foreground/40"
-            />
-            <span className="w-5 font-mono text-[9px] text-foreground/30">{speed}</span>
-          </label>
-
-          {/* Visited count */}
-          {visitedCount > 0 && (
-            <>
-              <span className="h-4 w-px bg-foreground/10" />
-              <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-                {visitedCount} visited
-              </span>
-            </>
-          )}
-        </div>
-      </div>
+            icon={<SkipForward className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+          <Tool
+            label="Clear walls"
+            title="Clear walls"
+            onClick={handleClear}
+            icon={<Eraser className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+          <LabSlider label="speed" min={1} max={30} value={speed} onChange={handleSpeed} />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={running} onToggle={handleToggle} onReset={handleRun} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

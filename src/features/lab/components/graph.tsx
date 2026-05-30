@@ -1,7 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSlider,
+  Tool,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
+import { Shuffle } from "lucide-react";
 
 /* ────────────────────────────────────────────
    Types
@@ -267,7 +278,7 @@ function hexToRgba(hex: string, alpha: number): string {
    Component
    ──────────────────────────────────────────── */
 
-export function Graph() {
+export function Graph({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const nodesRef = useRef<Node[]>([]);
   const edgesRef = useRef<Edge[]>([]);
@@ -291,6 +302,8 @@ export function Graph() {
 
   const [runState, setRunState] = useState<RunState>("idle");
   const [speed, setSpeed] = useState(3);
+  // Live telemetry, lifted from the sim refs for the readout HUD.
+  const [metrics, setMetrics] = useState({ nodes: 0, edges: 0, sccs: 0, stackDepth: 0 });
 
   /* ── Drawing ── */
   const draw = useCallback(() => {
@@ -329,7 +342,6 @@ export function Graph() {
     const discovery = discoveryRef.current;
     const lowLink = lowLinkRef.current;
     const stack = stackRef.current;
-    const sccs = sccsRef.current;
     const currentEdge = currentEdgeRef.current;
     const nodeToScc = nodeToSccRef.current;
     const treeEdges = treeEdgesRef.current;
@@ -466,39 +478,8 @@ export function Graph() {
       }
     }
 
-    /* ── Info panel: DFS stack ── */
-    if (stack.length > 0 || sccs.length > 0) {
-      const panelX = 12 * dpr;
-      const panelY = 56 * dpr;
-      const lineH = 14 * dpr;
-      const panelPad = 8 * dpr;
-
-      ctx.font = `${9 * dpr}px monospace`;
-      ctx.textAlign = "left";
-      ctx.textBaseline = "top";
-
-      let yOff = panelY + panelPad;
-
-      if (stack.length > 0) {
-        ctx.fillStyle = textDim;
-        ctx.fillText("STACK", panelX + panelPad, yOff);
-        yOff += lineH;
-        ctx.fillStyle = textColor;
-        ctx.fillText(`[ ${stack.join(", ")} ]`, panelX + panelPad, yOff);
-        yOff += lineH * 1.3;
-      }
-
-      if (sccs.length > 0) {
-        ctx.fillStyle = textDim;
-        ctx.fillText("SCCs FOUND", panelX + panelPad, yOff);
-        yOff += lineH;
-        for (let i = 0; i < sccs.length; i++) {
-          ctx.fillStyle = hexToRgba(sccColors[i % sccColors.length], isDark ? 0.8 : 0.7);
-          ctx.fillText(`{ ${sccs[i].join(", ")} }`, panelX + panelPad, yOff);
-          yOff += lineH;
-        }
-      }
-    }
+    // The DFS stack + discovered SCC counts now live in the top LabReadout HUD,
+    // lifted to React state via the throttled sync below.
   }, []);
 
   /* ── Step the algorithm ── */
@@ -751,61 +732,77 @@ export function Graph() {
     };
   }, [draw, instantReveal]);
 
-  const handleSpeedChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = Number(e.target.value);
+  const handleSpeedChange = useCallback((v: number) => {
     speedRef.current = v;
     setSpeed(v);
+  }, []);
+
+  const toggleRun = useCallback(() => {
+    if (stateRef.current === "running") pause();
+    else run();
+  }, [pause, run]);
+
+  // Transport reset: rewind the algorithm to idle on the *same* graph and
+  // repaint so the SCC coloring clears. "New graph" (the shuffle tool) is the
+  // separate action that regenerates the layout.
+  const resetRun = useCallback(() => {
+    resetAlgoState();
+    draw();
+  }, [resetAlgoState, draw]);
+
+  /* ── Lift sim telemetry to React state for the readout HUD ── */
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setMetrics({
+        nodes: nodesRef.current.length,
+        edges: edgesRef.current.length,
+        sccs: sccsRef.current.length,
+        stackDepth: stackRef.current.length,
+      });
+    }, 200);
+    return () => window.clearInterval(id);
   }, []);
 
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0 }}
         aria-hidden="true"
       />
-      {/* Controls overlay */}
-      <div
-        className="fixed bottom-16 left-1/2 z-10 flex -translate-x-1/2 items-center gap-3 rounded bg-background/60 px-4 py-2 backdrop-blur-sm"
-        style={{ zIndex: 10 }}
-      >
-        <button
-          onClick={generateNewGraph}
-          className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60 transition-colors hover:text-foreground/90"
-        >
-          new graph
-        </button>
-        <span className="text-foreground/10">|</span>
-        <button
-          onClick={runState === "running" ? pause : run}
-          disabled={runState === "done"}
-          className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60 transition-colors hover:text-foreground/90 disabled:text-foreground/20"
-        >
-          {runState === "running" ? "pause" : "run"}
-        </button>
-        <span className="text-foreground/10">|</span>
-        <button
-          onClick={manualStep}
-          disabled={runState === "running" || runState === "done"}
-          className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60 transition-colors hover:text-foreground/90 disabled:text-foreground/20"
-        >
-          step
-        </button>
-        <span className="text-foreground/10">|</span>
-        <label className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40">
-          spd
-          <input
-            type="range"
-            min={1}
-            max={20}
-            value={speed}
-            onChange={handleSpeedChange}
-            className="h-1 w-16 cursor-pointer appearance-none rounded bg-foreground/10 accent-foreground/40"
+
+      <LabReadout corner="left">
+        <Gauge label="nodes" value={metrics.nodes} />
+        <Gauge label="edges" value={metrics.edges} />
+        <Gauge label="stack" value={metrics.stackDepth} />
+        <Gauge label="sccs" value={metrics.sccs} primary />
+      </LabReadout>
+
+      <LabChrome identity={{ name: "graph", scent: "tarjan scc · step to trace dfs" }} info={info}>
+        <ControlGroup label="graph">
+          <Tool
+            label="New graph"
+            title="New graph"
+            onClick={generateNewGraph}
+            icon={<Shuffle className="h-3.5 w-3.5" aria-hidden="true" />}
           />
-          <span className="w-5 text-right tabular-nums text-foreground/60">{speed}</span>
-        </label>
-      </div>
+          <Tool
+            label="Step"
+            title="Step"
+            onClick={manualStep}
+            active={runState !== "running" && runState !== "done"}
+            icon={<span className="font-mono text-[10px] uppercase tracking-[0.1em]">step</span>}
+          />
+        </ControlGroup>
+        <ControlGroup label="speed">
+          <LabSlider label="spd" min={1} max={20} value={speed} onChange={handleSpeedChange} />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={runState === "running"} onToggle={toggleRun} onReset={resetRun} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { type ReactNode, useEffect } from "react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 import { PALETTE } from "@/features/lab/lib/palette";
 import { compileShader, linkProgram, FULLSCREEN_VERT_UV as VERT } from "@/features/lab/lib/webgl";
+import { LAB_CANVAS_CLASS, useLabCanvas } from "@/features/lab/lib/use-lab-canvas";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 
 /* ────────────────────────────────────────────
    GLSL — Gray-Scott simulation step
@@ -158,8 +160,8 @@ function createFBO(gl: WebGL2RenderingContext, w: number, h: number) {
    Component
    ──────────────────────────────────────────── */
 
-export function ReactionDiffusion() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export function ReactionDiffusion({ info }: { info?: ReactNode }) {
+  const { canvasRef } = useLabCanvas();
 
   useEffect(() => {
     const cvs = canvasRef.current;
@@ -183,11 +185,7 @@ export function ReactionDiffusion() {
       return;
     }
 
-    // ── Canvas & sim dimensions ──
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = Math.round(rect.width * dpr);
-    canvas.height = Math.round(rect.height * dpr);
+    // ── Sim dimensions (canvas already sized full-bleed by useLabCanvas) ──
     const sw = Math.ceil(canvas.width / 2);
     const sh = Math.ceil(canvas.height / 2);
 
@@ -269,14 +267,6 @@ export function ReactionDiffusion() {
     canvas.addEventListener("pointerdown", onDown);
     window.addEventListener("pointerup", onUp);
 
-    // ── Resize observer ──
-    const observer = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
-      canvas.width = Math.round(width * dpr);
-      canvas.height = Math.round(height * dpr);
-    });
-    observer.observe(canvas);
-
     // ── Reduced motion ──
     const reduced = prefersReducedMotion();
     const stepsPerFrame = reduced ? 2 : 16;
@@ -328,7 +318,6 @@ export function ReactionDiffusion() {
     // ── Cleanup ──
     return () => {
       cancelAnimationFrame(raf);
-      observer.disconnect();
       window.removeEventListener("pointermove", onMove);
       canvas.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointerup", onUp);
@@ -346,11 +335,17 @@ export function ReactionDiffusion() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 h-full w-full bg-background"
-      style={{ zIndex: 0, touchAction: "none", cursor: "crosshair" }}
-      aria-hidden="true"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className={LAB_CANVAS_CLASS}
+        style={{ zIndex: 0, touchAction: "none", cursor: "crosshair" }}
+        aria-hidden="true"
+      />
+      <LabChrome
+        identity={{ name: "reaction–diffusion", scent: "gray-scott · click to seed" }}
+        info={info}
+      />
+    </>
   );
 }

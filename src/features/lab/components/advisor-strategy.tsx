@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { AgentPatternCanvas, type AgentPatternConfig } from "./agent-pattern-canvas";
 
 const config: AgentPatternConfig = {
@@ -348,6 +350,6 @@ const config: AgentPatternConfig = {
   ],
 };
 
-export function AdvisorStrategy() {
-  return <AgentPatternCanvas config={config} />;
+export function AdvisorStrategy({ info }: { info?: ReactNode }) {
+  return <AgentPatternCanvas config={config} info={info} />;
 }

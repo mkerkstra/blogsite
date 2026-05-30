@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { btnActive, btnBase, btnInactive, controlBar } from "@/features/lab/lib/control-styles";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import { ControlGroup, Segmented, Transport } from "@/features/lab/components/chrome/controls";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 
 type AgentNodeType = "control" | "worker" | "review" | "state" | "user" | "tool";
 type Pace = "steady" | "busy" | "busier";
@@ -177,7 +179,13 @@ function relativeMetricLabel(value: number) {
   return "low";
 }
 
-export function AgentPatternCanvas({ config }: { config: AgentPatternConfig }) {
+export function AgentPatternCanvas({
+  config,
+  info,
+}: {
+  config: AgentPatternConfig;
+  info?: ReactNode;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const descriptionId = useId();
   const liveRegionId = useId();
@@ -476,7 +484,7 @@ export function AgentPatternCanvas({ config }: { config: AgentPatternConfig }) {
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-screen w-screen touch-none"
+        className={cn(LAB_CANVAS_CLASS, "touch-none")}
         role="img"
         aria-label={`${config.title} agent pattern visualization`}
         aria-describedby={`${descriptionId} ${liveRegionId}`}
@@ -494,54 +502,49 @@ export function AgentPatternCanvas({ config }: { config: AgentPatternConfig }) {
         Selected node: {selected ? `${selected.label}, ${selected.type}. ${selected.detail}` : ""}
         Animation pace: {pace}. {paused ? "Animation paused." : "Animation running."}
       </p>
-      <div
-        className={cn(
-          controlBar,
-          "bottom-28 max-w-[calc(100vw-2rem)] flex-wrap justify-center gap-2",
-        )}
-        role="toolbar"
-        aria-label={`${config.title} visualization controls`}
+      <LabChrome
+        identity={{ name: config.title.toLowerCase(), scent: "click nodes · switch scenarios" }}
+        info={info}
       >
-        <div className="flex flex-wrap items-center justify-center gap-1" aria-label="Scenarios">
-          {config.scenarios.map((item, index) => (
-            <button
-              key={item.id}
-              type="button"
-              className={cn(btnBase, scenarioIndex === index ? btnActive : btnInactive)}
-              aria-pressed={scenarioIndex === index}
-              aria-label={`Show ${item.label} scenario`}
-              onClick={() => {
+        <ControlGroup label="scenario">
+          <Segmented
+            label="view"
+            value={scenario.id}
+            onChange={(id) => {
+              const index = config.scenarios.findIndex((item) => item.id === id);
+              if (index >= 0) {
                 setScenarioIndex(index);
                 setSelectedNode(null);
-              }}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-        <div className="h-4 w-px bg-foreground/10" aria-hidden="true" />
-        <button
-          type="button"
-          className={cn(btnBase, pace !== "steady" ? btnActive : btnInactive)}
-          aria-label={`Animation pace: ${pace}. Activate to switch pace.`}
-          onClick={() =>
-            setPace((value) =>
-              value === "steady" ? "busy" : value === "busy" ? "busier" : "steady",
-            )
-          }
-        >
-          {pace}
-        </button>
-        <button
-          type="button"
-          className={cn(btnBase, paused ? btnActive : btnInactive)}
-          aria-pressed={paused}
-          aria-label={paused ? "Resume animation" : "Pause animation"}
-          onClick={() => setPaused((value) => !value)}
-        >
-          {paused ? "play" : "pause"}
-        </button>
-      </div>
+              }
+            }}
+            options={config.scenarios.map((item) => ({ value: item.id, label: item.label }))}
+          />
+        </ControlGroup>
+        <ControlGroup label="pace">
+          <Segmented
+            label="rate"
+            value={pace}
+            onChange={(value) => setPace(value as Pace)}
+            options={[
+              { value: "steady", label: "steady" },
+              { value: "busy", label: "busy" },
+              { value: "busier", label: "busier" },
+            ]}
+          />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport
+            playing={!paused}
+            onToggle={() => setPaused((value) => !value)}
+            onReset={() => {
+              setScenarioIndex(initialScenarioIndex);
+              setSelectedNode(null);
+              setPaused(false);
+              setPace(initialPace);
+            }}
+          />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

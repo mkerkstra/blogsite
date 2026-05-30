@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 import { PALETTE } from "@/features/lab/lib/palette";
 import {
@@ -8,6 +8,8 @@ import {
   linkProgram,
   FULLSCREEN_VERT_UV as FULLSCREEN_VERT,
 } from "@/features/lab/lib/webgl";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 
 /* ────────────────────────────────────────────
    Physarum polycephalum slime mold — WebGL2
@@ -273,7 +275,7 @@ const MAX_AGENT_TEX = 1024; // ~1M agents
    Component
    ──────────────────────────────────────────── */
 
-export function Physarum() {
+export function Physarum({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -628,11 +630,20 @@ export function Physarum() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 h-full w-full bg-background"
-      style={{ zIndex: 0, touchAction: "none", cursor: "crosshair" }}
-      aria-hidden="true"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className={LAB_CANVAS_CLASS}
+        style={{ zIndex: 0, touchAction: "none", cursor: "crosshair" }}
+        aria-hidden="true"
+      />
+      <LabChrome
+        identity={{
+          name: "physarum slime mold",
+          scent: "agent chemotaxis · hold to attract, shift-click to disperse",
+        }}
+        info={info}
+      />
+    </>
   );
 }

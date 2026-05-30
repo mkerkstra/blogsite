@@ -1,7 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { Shuffle, StepForward } from "lucide-react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSelect,
+  LabSlider,
+  Tool,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ────────────────────────────────────────────
    Constants
@@ -145,7 +157,7 @@ function idx(col: number, row: number, cols: number): number {
    Component
    ──────────────────────────────────────────── */
 
-export function GameOfLife() {
+export function GameOfLife({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Mutable simulation state accessed by the animation loop
@@ -179,6 +191,7 @@ export function GameOfLife() {
   const [playing, setPlaying] = useState(false);
   const [generation, setGeneration] = useState(0);
   const [gps, setGps] = useState(10);
+  const [pattern, setPattern] = useState<PatternId>("gun");
 
   /* ── Initialize grid dimensions from canvas ── */
   const initGrid = useCallback((width: number, height: number) => {
@@ -271,18 +284,19 @@ export function GameOfLife() {
   /* ── Load pattern centered in viewport ── */
   const loadPattern = useCallback((id: PatternId) => {
     const s = simRef.current;
-    const pattern = PATTERNS[id];
+    const pat = PATTERNS[id];
 
     // Clear grid first
     s.grid.fill(0);
     s.prev.fill(0);
     s.generation = 0;
     setGeneration(0);
+    setPattern(id);
 
     // Find pattern bounding box
     let maxR = 0;
     let maxC = 0;
-    for (const [c, r] of pattern.cells) {
+    for (const [c, r] of pat.cells) {
       if (c > maxC) maxC = c;
       if (r > maxR) maxR = r;
     }
@@ -291,7 +305,7 @@ export function GameOfLife() {
     const offsetC = Math.floor((s.cols - maxC) / 2);
     const offsetR = Math.floor((s.rows - maxR) / 2);
 
-    for (const [c, r] of pattern.cells) {
+    for (const [c, r] of pat.cells) {
       const gc = c + offsetC;
       const gr = r + offsetR;
       if (gc >= 0 && gc < s.cols && gr >= 0 && gr < s.rows) {
@@ -335,12 +349,12 @@ export function GameOfLife() {
 
     // Seed with a glider gun so the board starts alive
     {
-      const pattern = PATTERNS.gun;
-      const maxC = Math.max(...pattern.cells.map(([c]) => c));
-      const maxR = Math.max(...pattern.cells.map(([, r]) => r));
+      const pat = PATTERNS.gun;
+      const maxC = Math.max(...pat.cells.map(([c]) => c));
+      const maxR = Math.max(...pat.cells.map(([, r]) => r));
       const offsetC = Math.floor((s.cols - maxC) / 2);
       const offsetR = Math.floor((s.rows - maxR) / 2);
-      for (const [c, r] of pattern.cells) {
+      for (const [c, r] of pat.cells) {
         const gc = c + offsetC;
         const gr = r + offsetR;
         if (gc >= 0 && gc < s.cols && gr >= 0 && gr < s.rows) {
@@ -510,92 +524,55 @@ export function GameOfLife() {
   }, [initGrid, step]);
 
   /* ── Speed change handler ── */
-  const handleSpeedChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = Number(e.target.value);
+  const handleSpeedChange = useCallback((v: number) => {
     simRef.current.gps = v;
     setGps(v);
   }, []);
-
-  /* ── Styles ── */
-  const btnBase =
-    "px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors text-foreground/40 hover:text-foreground/70";
 
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none", cursor: "crosshair" }}
         aria-hidden="true"
       />
 
-      {/* Controls overlay */}
-      <div
-        className="fixed bottom-16 left-1/2 z-10 -translate-x-1/2"
-        style={{ touchAction: "none" }}
+      <LabReadout corner="left">
+        <Gauge label="generation" value={generation} primary />
+      </LabReadout>
+
+      <LabChrome
+        identity={{ name: "game of life", scent: "conway's automaton · draw cells to seed" }}
+        info={info}
       >
-        <div className="flex items-center gap-2 rounded bg-background/80 px-4 py-2.5 backdrop-blur-sm">
-          {/* Play / Pause */}
-          <button onClick={togglePlay} className={btnBase}>
-            {playing ? "PAUSE" : "PLAY"}
-          </button>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          {/* Step */}
-          <button onClick={manualStep} className={btnBase}>
-            STEP
-          </button>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          {/* Clear */}
-          <button onClick={clear} className={btnBase}>
-            CLEAR
-          </button>
-
-          {/* Random */}
-          <button onClick={randomize} className={btnBase}>
-            RANDOM
-          </button>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          {/* Patterns */}
-          {PATTERN_IDS.map((id) => (
-            <button key={id} onClick={() => loadPattern(id)} className={btnBase}>
-              {PATTERNS[id].label}
-            </button>
-          ))}
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          {/* Generation counter */}
-          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-foreground/50">
-            GEN {generation}
-          </span>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          {/* Speed slider */}
-          <label className="flex items-center gap-2">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-              SPD
-            </span>
-            <input
-              type="range"
-              min={1}
-              max={30}
-              value={gps}
-              onChange={handleSpeedChange}
-              className="h-1 w-16 appearance-none rounded bg-foreground/10 accent-foreground/40"
-            />
-            <span className="w-5 text-right font-mono text-[9px] tabular-nums text-foreground/30">
-              {gps}
-            </span>
-          </label>
-        </div>
-      </div>
+        <ControlGroup label="seed">
+          <LabSelect
+            label="pattern"
+            value={pattern}
+            onChange={loadPattern}
+            options={PATTERN_IDS.map((id) => ({ value: id, label: PATTERNS[id].label }))}
+          />
+          <Tool
+            label="Randomize"
+            title="Randomize"
+            onClick={randomize}
+            icon={<Shuffle className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+        </ControlGroup>
+        <ControlGroup label="speed">
+          <LabSlider label="gps" min={1} max={30} value={gps} onChange={handleSpeedChange} />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Tool
+            label="Step one generation"
+            title="Step"
+            onClick={manualStep}
+            icon={<StepForward className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+          <Transport playing={playing} onToggle={togglePlay} onReset={clear} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

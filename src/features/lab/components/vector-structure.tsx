@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import {
   ANALOGIES,
@@ -9,7 +9,10 @@ import {
   type EmbeddingAnalogy,
   type EmbeddingContextualExample,
 } from "@/features/lab/data/embedding-data";
+import { ControlGroup, LabSelect, Segmented } from "@/features/lab/components/chrome/controls";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
 
 type ViewMode = "directions" | "context";
 
@@ -299,7 +302,7 @@ function drawContext(
   });
 }
 
-export function VectorStructure() {
+export function VectorStructure({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef(0);
   const stateRef = useRef<RenderState>({
@@ -393,66 +396,57 @@ export function VectorStructure() {
     };
   }, []);
 
-  const btnBase =
-    "px-2 py-1 font-mono text-[9px] uppercase tracking-[0.14em] transition-colors cursor-pointer";
-  const active = "bg-foreground/10 text-foreground/75";
-  const inactive = "text-foreground/35 hover:text-foreground/60";
-  const selectClass =
-    "h-7 border border-foreground/15 bg-background/70 px-2 font-mono text-[9px] uppercase tracking-[0.12em] text-foreground/65 focus:border-accent focus:outline-none";
-
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0 }}
         aria-hidden="true"
       />
 
-      <div className="fixed left-5 right-5 top-24 z-10 grid grid-cols-2 gap-2 bg-background/80 px-2 py-2 backdrop-blur-sm sm:left-auto sm:right-5 sm:flex sm:max-w-[calc(100vw-2.5rem)] sm:flex-wrap sm:items-center sm:justify-end md:right-8">
-        <button
-          type="button"
-          onClick={() => setMode("directions")}
-          className={`${btnBase} ${mode === "directions" ? active : inactive}`}
-        >
-          directions
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode("context")}
-          className={`${btnBase} ${mode === "context" ? active : inactive}`}
-        >
-          context
-        </button>
-
-        {mode === "directions" ? (
-          <select
-            value={analogyIndex}
-            aria-label="analogy"
-            onChange={(event) => setAnalogyIndex(Number(event.target.value))}
-            className={`${selectClass} col-span-2 sm:col-span-1`}
-          >
-            {ANALOGIES.map((analogy, index) => (
-              <option key={analogy.label} value={index}>
-                {analogy.label}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <select
-            value={contextIndex}
-            aria-label="contextual example"
-            onChange={(event) => setContextIndex(Number(event.target.value))}
-            className={`${selectClass} col-span-2 sm:col-span-1`}
-          >
-            {CONTEXTUAL_EXAMPLES.map((example, index) => (
-              <option key={example.word} value={index}>
-                {example.word}
-              </option>
-            ))}
-          </select>
-        )}
-      </div>
+      <LabChrome
+        identity={{
+          name: "vector structure",
+          scent: "embedding geometry · directions and context",
+        }}
+        info={info}
+      >
+        <ControlGroup label="view">
+          <Segmented
+            label="mode"
+            value={mode}
+            onChange={setMode}
+            options={[
+              { value: "directions", label: "directions" },
+              { value: "context", label: "context" },
+            ]}
+          />
+        </ControlGroup>
+        <ControlGroup label="example">
+          {mode === "directions" ? (
+            <LabSelect
+              label="analogy"
+              value={String(analogyIndex)}
+              onChange={(v) => setAnalogyIndex(Number(v))}
+              options={ANALOGIES.map((analogy, index) => ({
+                value: String(index),
+                label: analogy.label,
+              }))}
+            />
+          ) : (
+            <LabSelect
+              label="word"
+              value={String(contextIndex)}
+              onChange={(v) => setContextIndex(Number(v))}
+              options={CONTEXTUAL_EXAMPLES.map((example, index) => ({
+                value: String(index),
+                label: example.word,
+              }))}
+            />
+          )}
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

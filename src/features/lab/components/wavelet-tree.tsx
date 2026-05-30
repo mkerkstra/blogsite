@@ -1,7 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { Play, RotateCcw, Shuffle } from "lucide-react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSlider,
+  Segmented,
+  Tool,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ────────────────────────────────────────────
    Wavelet tree data structures
@@ -214,7 +225,7 @@ function getThemeColors(): ThemeColors {
    Component
    ──────────────────────────────────────────── */
 
-export function WaveletTree() {
+export function WaveletTree({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef(0);
   const speedRef = useRef(1);
@@ -237,7 +248,7 @@ export function WaveletTree() {
   const [_sourceString, setSourceString] = useState("abracadabra");
   const [queryChar, setQueryChar] = useState<string | null>(null);
   const [queryPos, setQueryPos] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [_isAnimating, setIsAnimating] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [uniqueChars, setUniqueChars] = useState<string[]>([]);
   const [resultDisplay, setResultDisplay] = useState<number | null>(null);
@@ -738,17 +749,9 @@ export function WaveletTree() {
         }
       }
 
-      // ── Result overlay ──
-      if (result !== null && queryCharRef.current) {
-        ctx.fillStyle = theme.accent;
-        ctx.font = "bold 12px monospace";
-        ctx.textAlign = "center";
-        ctx.fillText(
-          `rank("${queryCharRef.current}", ${queryPosRef.current}) = ${result}`,
-          cw / 2,
-          sourceY - 28,
-        );
-      }
+      // Headline result now lives in the top LabReadout HUD (lifted to React
+      // state below); the canvas keeps only the inline per-node / per-leaf
+      // annotations that are tied to the animation path.
     }
 
     rafRef.current = requestAnimationFrame(drawFrame);
@@ -813,98 +816,62 @@ export function WaveletTree() {
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full cursor-pointer"
-        style={{ zIndex: 0, touchAction: "none" }}
+        className={LAB_CANVAS_CLASS}
+        style={{ zIndex: 0, cursor: "pointer", touchAction: "none" }}
         aria-hidden="true"
       />
 
-      {/* Controls overlay */}
-      <div
-        className="fixed bottom-16 left-1/2 z-20 flex -translate-x-1/2 flex-wrap items-center justify-center gap-2"
-        style={{
-          background: "rgba(128,128,128,0.1)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderRadius: "6px",
-          padding: "8px 12px",
-          maxWidth: "calc(100vw - 40px)",
-        }}
+      <LabReadout corner="left">
+        <Gauge label="char" value={queryChar ?? "—"} />
+        <Gauge label="pos" value={queryPos} />
+        <Gauge label="rank" value={resultDisplay ?? "—"} primary />
+      </LabReadout>
+
+      <LabChrome
+        identity={{ name: "wavelet tree", scent: "bitvector rank · pick a char, query rank" }}
+        info={info}
       >
-        {/* Character buttons */}
-        <div className="flex items-center gap-1">
-          <span className="font-mono text-[9px] uppercase tracking-wider text-foreground/30">
-            char
-          </span>
-          {uniqueChars.map((c) => (
-            <button
-              key={c}
-              onClick={() => selectChar(c)}
-              disabled={isAnimating}
-              className={`rounded border px-2 py-1 font-mono text-[10px] uppercase tracking-wider disabled:opacity-40 ${
-                queryChar === c
-                  ? "border-foreground/30 text-foreground/80"
-                  : "border-foreground/10 text-foreground/50 hover:text-foreground/80"
-              }`}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-
-        {/* Position display */}
-        <span className="font-mono text-[9px] text-foreground/30">pos={queryPos}</span>
-
-        {/* Query button */}
-        <button
-          onClick={runQuery}
-          disabled={isAnimating || !queryChar}
-          className="rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80 disabled:opacity-40"
-        >
-          query
-        </button>
-
-        {/* Clear */}
-        <button
-          onClick={clearQuery}
-          disabled={isAnimating}
-          className="rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80 disabled:opacity-40"
-        >
-          clear
-        </button>
-
-        {/* New string */}
-        <button
-          onClick={cycleString}
-          disabled={isAnimating}
-          className="rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80 disabled:opacity-40"
-        >
-          new string
-        </button>
-
-        {/* Speed slider */}
-        <div className="flex items-center gap-1">
-          <label className="font-mono text-[9px] uppercase tracking-wider text-foreground/30">
-            spd
-          </label>
-          <input
-            type="range"
+        <ControlGroup label="query">
+          <Segmented
+            label="char"
+            value={queryChar ?? ""}
+            onChange={selectChar}
+            options={uniqueChars.map((c) => ({ value: c, label: c }))}
+          />
+        </ControlGroup>
+        <ControlGroup label="anim">
+          <LabSlider
+            label="spd"
             min={0.25}
             max={3}
             step={0.25}
             value={speed}
-            onChange={(e) => setSpeed(parseFloat(e.target.value))}
-            className="h-1 w-14 cursor-pointer accent-foreground/40"
+            onChange={setSpeed}
+            format={(v) => `${v}x`}
           />
-          <span className="w-6 font-mono text-[9px] text-foreground/30">{speed}x</span>
-        </div>
-
-        {/* Result */}
-        {resultDisplay !== null && queryChar && (
-          <span className="font-mono text-[10px] text-foreground/60">
-            rank({queryChar},{queryPos})={resultDisplay}
-          </span>
-        )}
-      </div>
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Tool
+            label="New string"
+            title="New string"
+            onClick={cycleString}
+            icon={<Shuffle className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+          <Tool
+            label="Clear"
+            title="Clear"
+            onClick={clearQuery}
+            icon={<RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+          <Tool
+            label="Query rank"
+            title="Query rank"
+            onClick={runQuery}
+            primary
+            icon={<Play className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

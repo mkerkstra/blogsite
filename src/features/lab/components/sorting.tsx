@@ -1,7 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { SkipForward } from "lucide-react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { labBounds } from "@/features/lab/lib/layout";
+import { LAB_CANVAS_CLASS, useLabCanvas } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSelect,
+  LabSlider,
+  Segmented,
+  Tool,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 
 /* ────────────────────────────────────────────
    Types
@@ -338,8 +350,10 @@ function createAlgoState(
    Component
    ──────────────────────────────────────────── */
 
-export function Sorting() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export function Sorting({ info }: { info?: ReactNode }) {
+  // Repaint the static view on resize so a paused race rebalances cleanly.
+  const drawRef = useRef<() => void>(() => {});
+  const { canvasRef } = useLabCanvas({ onResize: () => drawRef.current() });
   const algosRef = useRef<AlgoState[]>([]);
   const stateRef = useRef<RunState>("idle");
   const speedRef = useRef(5);
@@ -443,10 +457,12 @@ export function Sorting() {
 
     const panelW = w / panelCount;
     const dpr = window.devicePixelRatio || 1;
-    const navH = 52 * dpr;
-    const headerH = navH + 40 * dpr;
-    const bottomPad = 80 * dpr;
-    const barAreaH = h - headerH - bottomPad;
+    const bounds = labBounds(w, h, dpr);
+    // Panel header sits at the top of the safe band; the bar area fills the rest
+    // down to the safe bottom (clear of the navbar and the control strip).
+    const headerH = bounds.y + 40 * dpr;
+    const barAreaTop = headerH + 8 * dpr;
+    const barAreaH = Math.max(1, bounds.bottom - barAreaTop);
     const rankLabels = ["1ST", "2ND", "3RD"];
 
     for (let p = 0; p < panelCount; p++) {
@@ -464,7 +480,7 @@ export function Sorting() {
       for (let i = 0; i < n; i++) {
         const barH = (arr[i] / 100) * barAreaH;
         const bx = barStartX + i * (barW + gap);
-        const by = headerH + barAreaH - barH;
+        const by = barAreaTop + barAreaH - barH;
 
         if (algo.done) {
           ctx.fillStyle = sortedColor;
@@ -477,16 +493,16 @@ export function Sorting() {
       }
 
       // Header backdrop — gradient fading from bg to transparent
-      const grad = ctx.createLinearGradient(x0, navH, x0, headerH + 12 * dpr);
+      const grad = ctx.createLinearGradient(x0, bounds.y, x0, headerH + 12 * dpr);
       grad.addColorStop(0, bg);
       grad.addColorStop(0.6, bg);
       grad.addColorStop(1, isDark ? "rgba(10,10,10,0)" : "rgba(245,241,232,0)");
       ctx.fillStyle = grad;
-      ctx.fillRect(x0, navH, panelW, headerH - navH + 12 * dpr);
+      ctx.fillRect(x0, bounds.y, panelW, headerH - bounds.y + 12 * dpr);
 
       // Panel header — name + rank badge
       const textX = x0 + 10 * dpr;
-      const nameY = navH + 6 * dpr;
+      const nameY = bounds.y + 4 * dpr;
       ctx.font = `bold ${11 * dpr}px monospace`;
       ctx.textBaseline = "top";
       ctx.fillStyle = algo.done ? sortedColor : textColor;
@@ -520,7 +536,12 @@ export function Sorting() {
         ctx.stroke();
       }
     }
-  }, []);
+  }, [canvasRef]);
+
+  // Keep the resize repaint pointed at the latest draw closure.
+  useEffect(() => {
+    drawRef.current = draw;
+  }, [draw]);
 
   /* ── Build algo states from current config ── */
   const buildAlgos = useCallback(() => {
@@ -572,23 +593,8 @@ export function Sorting() {
     draw();
   }, [stepAll, draw]);
 
-  /* ── Mount ── */
+  /* ── Mount — canvas is already sized full-bleed by useLabCanvas ── */
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
-      draw();
-    };
-
-    const observer = new ResizeObserver(() => resize());
-    observer.observe(canvas);
-    resize();
-
     // Generate initial array
     buildAlgos();
     draw();
@@ -608,12 +614,10 @@ export function Sorting() {
 
     return () => {
       cancelAnimationFrame(rafRef.current);
-      observer.disconnect();
     };
   }, [draw, loop, buildAlgos]);
 
-  const handleSpeedChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = Number(e.target.value);
+  const handleSpeedChange = useCallback((v: number) => {
     speedRef.current = v;
     setSpeed(v);
   }, []);
@@ -634,114 +638,88 @@ export function Sorting() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, arraySize, distribution]);
 
-  const btnBase =
-    "font-mono text-[10px] uppercase tracking-[0.12em] transition-colors px-1.5 py-0.5";
-  const btnActive = "text-foreground/80";
-  const btnInactive = "text-foreground/30 hover:text-foreground/50";
+  // Play/pause toggle shared by the keyboard handler and the Transport control.
+  const togglePlay = useCallback(() => {
+    if (stateRef.current === "running") pause();
+    else play();
+  }, [pause, play]);
+
+  // ── Keyboard: space = play/pause, r = reset (f/? owned by LabChrome) ──
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === " " || e.code === "Space") {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.key === "r" || e.key === "R") {
+        e.preventDefault();
+        handleGenerate();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [togglePlay, handleGenerate]);
+
+  const algoOptions = ALL_ALGOS.map((id) => ({ value: id, label: ALGO_REGISTRY[id].label }));
 
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0 }}
         aria-hidden="true"
       />
-      {/* Controls overlay */}
-      <div
-        className="fixed bottom-16 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1.5 rounded bg-background/60 px-4 py-2.5 backdrop-blur-sm"
-        style={{ zIndex: 10 }}
-      >
-        {/* Row 1: Algorithm slots */}
-        <div className="flex items-center gap-1">
+
+      <LabChrome identity={{ name: "sorting", scent: "comparison race" }} info={info}>
+        <ControlGroup label="race">
           {([0, 1, 2] as const).map((slot) => (
-            <select
+            <LabSelect
               key={slot}
+              label={`algo ${slot + 1}`}
               value={selected[slot]}
-              onChange={(e) => {
-                const algo = e.target.value as AlgoId;
+              onChange={(algo) =>
                 setSelected((prev) => {
                   const next = [...prev] as [AlgoId, AlgoId, AlgoId];
                   next[slot] = algo;
                   return next;
-                });
-              }}
-              className={`${btnBase} ${btnActive} cursor-pointer appearance-none rounded border border-foreground/10 bg-transparent px-2 py-0.5`}
-            >
-              {ALL_ALGOS.map((id) => (
-                <option key={id} value={id}>
-                  {ALGO_REGISTRY[id].label}
-                </option>
-              ))}
-            </select>
-          ))}
-
-          <span className="mx-1 h-3 w-px bg-foreground/10" />
-
-          {/* Array size */}
-          {SIZES.map((n) => (
-            <button
-              key={n}
-              onClick={() => setArraySize(n)}
-              className={`${btnBase} ${arraySize === n ? btnActive : btnInactive}`}
-            >
-              {n}
-            </button>
-          ))}
-
-          <span className="mx-1 h-3 w-px bg-foreground/10" />
-
-          {/* Distribution */}
-          {DISTRIBUTIONS.map((d) => (
-            <button
-              key={d.id}
-              onClick={() => setDistribution(d.id)}
-              className={`${btnBase} ${distribution === d.id ? btnActive : btnInactive}`}
-            >
-              {d.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Row 2: Playback controls */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleGenerate}
-            className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60 transition-colors hover:text-foreground/90"
-          >
-            generate
-          </button>
-          <span className="text-foreground/10">|</span>
-          <button
-            onClick={runState === "running" ? pause : play}
-            disabled={runState === "done"}
-            className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60 transition-colors hover:text-foreground/90 disabled:text-foreground/20"
-          >
-            {runState === "running" ? "pause" : "play"}
-          </button>
-          <span className="text-foreground/10">|</span>
-          <button
-            onClick={manualStep}
-            disabled={runState === "running" || runState === "done"}
-            className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60 transition-colors hover:text-foreground/90 disabled:text-foreground/20"
-          >
-            step
-          </button>
-          <span className="text-foreground/10">|</span>
-          <label className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40">
-            spd
-            <input
-              type="range"
-              min={1}
-              max={50}
-              value={speed}
-              onChange={handleSpeedChange}
-              className="h-1 w-16 cursor-pointer appearance-none rounded bg-foreground/10 accent-foreground/40"
+                })
+              }
+              options={algoOptions}
             />
-            <span className="w-5 text-right tabular-nums text-foreground/60">{speed}</span>
-          </label>
-        </div>
-      </div>
+          ))}
+        </ControlGroup>
+        <ControlGroup label="array">
+          <Segmented
+            label="size"
+            value={arraySize}
+            onChange={setArraySize}
+            options={SIZES.map((n) => ({ value: n, label: String(n) }))}
+          />
+          <Segmented
+            label="dist"
+            value={distribution}
+            onChange={setDistribution}
+            options={DISTRIBUTIONS.map((d) => ({ value: d.id, label: d.label }))}
+          />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport
+            playing={runState === "running"}
+            onToggle={runState === "running" ? pause : play}
+            onReset={handleGenerate}
+          />
+          <Tool
+            label="Step"
+            title="Step"
+            onClick={manualStep}
+            icon={<SkipForward className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+          <LabSlider label="speed" min={1} max={50} value={speed} onChange={handleSpeedChange} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

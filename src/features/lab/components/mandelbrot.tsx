@@ -1,8 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { RotateCcw } from "lucide-react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 import { compileShader, linkProgram, FULLSCREEN_VERT_UV as VERT } from "@/features/lab/lib/webgl";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import { ControlGroup, Tool } from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ── GLSL — Mandelbrot fragment shader ── */
 
@@ -102,7 +108,7 @@ const MIN_ZOOM = 1e-13;
 
 /* ── Component ── */
 
-export function Mandelbrot() {
+export function Mandelbrot({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // View state kept in refs for the GL render loop, mirrored to React state for display
@@ -346,31 +352,31 @@ export function Mandelbrot() {
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none", cursor: "crosshair" }}
         aria-hidden="true"
       />
-      {/* Controls bar */}
-      <div className="pointer-events-auto fixed bottom-16 left-1/2 z-10 flex -translate-x-1/2 items-center gap-3 rounded bg-background/70 px-3 py-1.5 backdrop-blur-sm md:bottom-14">
-        <button
-          onClick={handleReset}
-          className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/50 transition-colors hover:text-foreground/80"
-        >
-          reset
-        </button>
-        <span className="text-foreground/20">|</span>
-        <span className="font-mono text-[10px] tabular-nums tracking-wide text-foreground/40">
-          {formatZoom(displayZoom)}
-        </span>
-        <span className="text-foreground/20">|</span>
-        <span className="font-mono text-[10px] tabular-nums tracking-wide text-foreground/40">
-          {displayIter} iter
-        </span>
-        <span className="hidden text-foreground/20 sm:inline">|</span>
-        <span className="hidden font-mono text-[10px] tabular-nums tracking-wide text-foreground/40 sm:inline">
-          {formatCoord(displayCenter[0])}, {formatCoord(displayCenter[1])}i
-        </span>
-      </div>
+
+      <LabReadout corner="right">
+        <Gauge label="zoom" value={formatZoom(displayZoom)} primary />
+        <Gauge label="iterations" value={displayIter} />
+        <Gauge label="re" value={formatCoord(displayCenter[0])} />
+        <Gauge label="im" value={formatCoord(displayCenter[1])} />
+      </LabReadout>
+
+      <LabChrome
+        identity={{ name: "mandelbrot", scent: "escape-time fractal · drag to pan, click to zoom" }}
+        info={info}
+      >
+        <ControlGroup label="view" sticky>
+          <Tool
+            label="Reset view"
+            title="Reset view"
+            onClick={handleReset}
+            icon={<RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 import { PALETTE } from "@/features/lab/lib/palette";
 import { compileShader, linkProgram, FULLSCREEN_VERT_UV as VERT } from "@/features/lab/lib/webgl";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 
 /* ────────────────────────────────────────────
    Navier-Stokes fluid simulation — WebGL2
@@ -207,7 +209,7 @@ function createDoubleFBO(
    Component
    ──────────────────────────────────────────── */
 
-export function Fluid() {
+export function Fluid({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -554,11 +556,17 @@ export function Fluid() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 h-full w-full bg-background"
-      style={{ zIndex: 0, touchAction: "none", cursor: "crosshair" }}
-      aria-hidden="true"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className={LAB_CANVAS_CLASS}
+        style={{ zIndex: 0, touchAction: "none", cursor: "crosshair" }}
+        aria-hidden="true"
+      />
+      <LabChrome
+        identity={{ name: "fluid", scent: "navier-stokes · drag to inject" }}
+        info={info}
+      />
+    </>
   );
 }

@@ -1,7 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { Dices, Eraser, Plus, Search } from "lucide-react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_INSETS } from "@/features/lab/lib/layout";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSlider,
+  Tool,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { ProgressGauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ────────────────────────────────────────────
    Cuckoo filter data structure
@@ -223,7 +235,7 @@ function easeInOut(t: number): number {
    Component
    ──────────────────────────────────────────── */
 
-export function CuckooFilter() {
+export function CuckooFilter({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef(0);
   const speedRef = useRef(1);
@@ -249,16 +261,13 @@ export function CuckooFilter() {
 
   // React state for controls
   const [speed, setSpeed] = useState(1);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [autoMode, setAutoMode] = useState(false);
-  const [lookupKey, setLookupKey] = useState("");
-  const [insertKey, setInsertKey] = useState("");
-  const [loadDisplay, setLoadDisplay] = useState("0/32");
+  const [autoOn, setAutoOn] = useState(false);
+  const [pendingKey, setPendingKey] = useState(13);
+  const [itemCount, setItemCount] = useState(0);
 
-  /* ── Update load display ── */
+  /* ── Update load readout ── */
   const updateLoad = useCallback(() => {
-    const f = filterRef.current;
-    setLoadDisplay(`${f.itemCount}/${NUM_BUCKETS * BUCKET_SIZE}`);
+    setItemCount(filterRef.current.itemCount);
   }, []);
 
   /* ── Compute insert animation (does NOT mutate state) ── */
@@ -450,7 +459,6 @@ export function CuckooFilter() {
       phaseStartTime: now,
     };
     animatingRef.current = true;
-    setIsAnimating(true);
 
     // Set info text
     if (anim.type === "insert") {
@@ -529,7 +537,7 @@ export function CuckooFilter() {
   const toggleAuto = useCallback(() => {
     const next = !autoRef.current;
     autoRef.current = next;
-    setAutoMode(next);
+    setAutoOn(next);
     if (next) {
       scheduleAuto();
     } else {
@@ -593,9 +601,10 @@ export function CuckooFilter() {
       const totalW = NUM_BUCKETS * SLOT_W + (NUM_BUCKETS - 1) * BUCKET_GAP_X;
       const totalH = HEADER_H + BUCKET_SIZE * SLOT_H + (BUCKET_SIZE - 1) * SLOT_GAP_Y;
       const startX = (cw - totalW) / 2;
-      // Center within the usable area between navbar (48px) and controls/footer (~140px)
-      const usableTop = 60;
-      const usableBottom = ch - 140;
+      // Center within the safe band between the navbar (top) and the LabChrome
+      // control strip (bottom) — see LAB_INSETS (CSS px; cw/ch are CSS px here).
+      const usableTop = LAB_INSETS.top;
+      const usableBottom = ch - LAB_INSETS.bottom;
       const usableH = usableBottom - usableTop;
       const startY = usableTop + (usableH - totalH) / 2;
 
@@ -608,8 +617,8 @@ export function CuckooFilter() {
       const totalW = NUM_BUCKETS * SLOT_W + (NUM_BUCKETS - 1) * BUCKET_GAP_X;
       const totalH = HEADER_H + BUCKET_SIZE * SLOT_H + (BUCKET_SIZE - 1) * SLOT_GAP_Y;
       const startX = (cw - totalW) / 2;
-      const usableTop = 60;
-      const usableBottom = ch - 140;
+      const usableTop = LAB_INSETS.top;
+      const usableBottom = ch - LAB_INSETS.bottom;
       const usableH = usableBottom - usableTop;
       const startY = usableTop + (usableH - totalH) / 2;
       return { startX, startY, totalW, totalH };
@@ -710,7 +719,6 @@ export function CuckooFilter() {
         if (elapsed >= dur) {
           pb.phase = "done";
           animatingRef.current = false;
-          setIsAnimating(false);
         }
       } else if (pb.phase === "found") {
         const dur = reduced ? 50 : FOUND_DUR;
@@ -718,7 +726,6 @@ export function CuckooFilter() {
         if (elapsed >= dur) {
           pb.phase = "done";
           animatingRef.current = false;
-          setIsAnimating(false);
         }
       } else if (pb.phase === "not-found") {
         const dur = reduced ? 50 : NOT_FOUND_DUR;
@@ -726,7 +733,6 @@ export function CuckooFilter() {
         if (elapsed >= dur) {
           pb.phase = "done";
           animatingRef.current = false;
-          setIsAnimating(false);
         }
       } else if (pb.phase === "delete-fade") {
         const dur = reduced ? 50 : DELETE_FADE_DUR;
@@ -742,7 +748,6 @@ export function CuckooFilter() {
           }
           pb.phase = "done";
           animatingRef.current = false;
-          setIsAnimating(false);
         }
       }
     }
@@ -1012,7 +1017,7 @@ export function CuckooFilter() {
 
     // Auto-insert on startup
     autoRef.current = true;
-    setAutoMode(true);
+    setAutoOn(true);
     scheduleAuto();
 
     return () => {
@@ -1028,137 +1033,79 @@ export function CuckooFilter() {
   }, [doInsert]);
 
   const handleInsertSpecific = useCallback(() => {
-    const parsed = parseInt(insertKey, 10);
-    if (Number.isNaN(parsed)) return;
-    doInsert(parsed);
-  }, [doInsert, insertKey]);
+    doInsert(pendingKey);
+  }, [doInsert, pendingKey]);
 
   const handleLookup = useCallback(() => {
-    const parsed = parseInt(lookupKey, 10);
-    if (Number.isNaN(parsed)) return;
-    doLookup(parsed);
-  }, [doLookup, lookupKey]);
+    doLookup(pendingKey);
+  }, [doLookup, pendingKey]);
 
   const handleDelete = useCallback(() => {
-    const parsed = parseInt(lookupKey, 10);
-    if (Number.isNaN(parsed)) return;
-    doDelete(parsed);
-  }, [doDelete, lookupKey]);
+    doDelete(pendingKey);
+  }, [doDelete, pendingKey]);
 
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none" }}
         aria-hidden="true"
       />
 
-      {/* Controls overlay */}
-      <div
-        className="fixed bottom-16 left-1/2 z-20 flex -translate-x-1/2 flex-wrap items-center justify-center gap-2"
-        style={{
-          background: "rgba(128,128,128,0.1)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderRadius: "6px",
-          padding: "8px 12px",
-          maxWidth: "calc(100vw - 40px)",
+      <LabReadout corner="right">
+        <ProgressGauge label="load" value={itemCount} total={NUM_BUCKETS * BUCKET_SIZE} />
+      </LabReadout>
+
+      <LabChrome
+        identity={{
+          name: "cuckoo filter",
+          scent: "partial-key cuckoo hashing · insert to trigger kicks",
         }}
+        info={info}
       >
-        {/* Insert random */}
-        <button
-          onClick={handleInsertRandom}
-          disabled={isAnimating}
-          className="rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80 disabled:opacity-40"
-        >
-          insert
-        </button>
-
-        {/* Insert specific */}
-        <div className="flex items-center gap-1">
-          <input
-            type="number"
-            value={insertKey}
-            onChange={(e) => setInsertKey(e.target.value)}
-            placeholder="#"
-            className="w-12 rounded border border-foreground/10 bg-transparent px-1.5 py-1 font-mono text-[10px] text-foreground/60 outline-none placeholder:text-foreground/20"
-          />
-          <button
+        <ControlGroup label="key">
+          <LabSlider label="value" min={1} max={99} value={pendingKey} onChange={setPendingKey} />
+          <Tool
+            label="Insert key"
+            title="Insert key"
+            icon={<Plus className="h-3.5 w-3.5" aria-hidden="true" />}
             onClick={handleInsertSpecific}
-            disabled={isAnimating || !insertKey}
-            className="rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80 disabled:opacity-40"
-          >
-            insert #
-          </button>
-        </div>
-
-        {/* Auto toggle */}
-        <button
-          onClick={toggleAuto}
-          className={`rounded border px-2 py-1 font-mono text-[10px] uppercase tracking-wider ${
-            autoMode
-              ? "border-foreground/30 text-foreground/80"
-              : "border-foreground/10 text-foreground/50 hover:text-foreground/80"
-          }`}
-        >
-          auto
-        </button>
-
-        {/* Lookup / delete */}
-        <div className="flex items-center gap-1">
-          <input
-            type="number"
-            value={lookupKey}
-            onChange={(e) => setLookupKey(e.target.value)}
-            placeholder="key"
-            className="w-12 rounded border border-foreground/10 bg-transparent px-1.5 py-1 font-mono text-[10px] text-foreground/60 outline-none placeholder:text-foreground/20"
           />
-          <button
+          <Tool
+            label="Insert random key"
+            title="Insert random key"
+            icon={<Dices className="h-3.5 w-3.5" aria-hidden="true" />}
+            onClick={handleInsertRandom}
+          />
+          <Tool
+            label="Look up key"
+            title="Look up key"
+            icon={<Search className="h-3.5 w-3.5" aria-hidden="true" />}
             onClick={handleLookup}
-            disabled={isAnimating || !lookupKey}
-            className="rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80 disabled:opacity-40"
-          >
-            lookup
-          </button>
-          <button
+          />
+          <Tool
+            label="Delete key"
+            title="Delete key"
+            icon={<Eraser className="h-3.5 w-3.5" aria-hidden="true" />}
             onClick={handleDelete}
-            disabled={isAnimating || !lookupKey}
-            className="rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80 disabled:opacity-40"
-          >
-            delete
-          </button>
-        </div>
-
-        {/* Speed slider */}
-        <div className="flex items-center gap-1">
-          <label className="font-mono text-[9px] uppercase tracking-wider text-foreground/30">
-            spd
-          </label>
-          <input
-            type="range"
+          />
+        </ControlGroup>
+        <ControlGroup label="speed">
+          <LabSlider
+            label="spd"
             min={0.25}
             max={3}
             step={0.25}
             value={speed}
-            onChange={(e) => setSpeed(parseFloat(e.target.value))}
-            className="h-1 w-14 cursor-pointer accent-foreground/40"
+            onChange={setSpeed}
+            format={(v) => `${v}x`}
           />
-          <span className="w-6 font-mono text-[9px] text-foreground/30">{speed}x</span>
-        </div>
-
-        {/* Clear */}
-        <button
-          onClick={doClear}
-          disabled={isAnimating}
-          className="rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80 disabled:opacity-40"
-        >
-          clear
-        </button>
-
-        {/* Load indicator */}
-        <span className="font-mono text-[9px] text-foreground/30">{loadDisplay}</span>
-      </div>
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={autoOn} onToggle={toggleAuto} onReset={doClear} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

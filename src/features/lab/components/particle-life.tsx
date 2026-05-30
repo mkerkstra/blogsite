@@ -1,7 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { Shuffle } from "lucide-react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSlider,
+  Segmented,
+  Toggle,
+  Tool,
+} from "@/features/lab/components/chrome/controls";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 
 /* ────────────────────────────────────────────
    Particle Life — Canvas2D
@@ -99,7 +109,7 @@ function createParticles(count: number, numSpecies: number, w: number, h: number
    Component
    ──────────────────────────────────────────── */
 
-export function ParticleLife() {
+export function ParticleLife({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Mutable simulation state accessed by the animation loop
@@ -294,9 +304,8 @@ export function ParticleLife() {
 
   // ── Control handlers ──
 
-  const handleSymmetry = useCallback(() => {
+  const handleSymmetry = useCallback((next: boolean) => {
     const s = simRef.current;
-    const next = !s.symmetric;
     s.symmetric = next;
     setSymmetric(next);
 
@@ -305,8 +314,9 @@ export function ParticleLife() {
   }, []);
 
   const handleFriction = useCallback((val: number) => {
-    simRef.current.friction = val;
-    setFriction(val);
+    const next = val / 100;
+    simRef.current.friction = next;
+    setFriction(next);
   }, []);
 
   const handleSpecies = useCallback(
@@ -323,74 +333,53 @@ export function ParticleLife() {
     [initSim],
   );
 
-  // ── Styles ──
-
-  const btnBase = "px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors";
-  const btnActive = "bg-foreground/10 text-foreground/80";
-  const btnInactive = "text-foreground/30 hover:text-foreground/50";
-
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none", cursor: "crosshair" }}
         aria-hidden="true"
       />
 
-      {/* Controls overlay */}
-      <div
-        className="fixed bottom-16 left-1/2 z-10 -translate-x-1/2"
-        style={{ touchAction: "none" }}
+      <LabChrome
+        identity={{ name: "particle life", scent: "force-matrix swarm · randomize to reshuffle" }}
+        info={info}
       >
-        <div className="flex items-center gap-3 rounded bg-background/80 px-4 py-2.5 backdrop-blur-sm">
-          <button onClick={randomize} className={`${btnBase} ${btnInactive}`}>
-            RANDOMIZE
-          </button>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          <button
-            onClick={handleSymmetry}
-            className={`${btnBase} ${symmetric ? btnActive : btnInactive}`}
-          >
-            SYMMETRY
-          </button>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          <label className="flex items-center gap-2">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-              FRIC
-            </span>
-            <input
-              type="range"
-              min={10}
-              max={90}
-              value={Math.round(friction * 100)}
-              onChange={(e) => handleFriction(Number(e.target.value) / 100)}
-              className="h-1 w-16 appearance-none rounded bg-foreground/10 accent-foreground/40"
-            />
-            <span className="w-6 font-mono text-[9px] text-foreground/30">
-              {friction.toFixed(1)}
-            </span>
-          </label>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          <div className="flex items-center gap-1">
-            {[3, 4, 5, 6].map((n) => (
-              <button
-                key={n}
-                onClick={() => handleSpecies(n)}
-                className={`${btnBase} ${numSpecies === n ? btnActive : btnInactive}`}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+        <ControlGroup label="rules">
+          <Segmented
+            label="species"
+            value={numSpecies}
+            onChange={handleSpecies}
+            options={[
+              { value: 3, label: "3" },
+              { value: 4, label: "4" },
+              { value: 5, label: "5" },
+              { value: 6, label: "6" },
+            ]}
+          />
+          <Toggle label="symmetry" pressed={symmetric} onChange={handleSymmetry} />
+        </ControlGroup>
+        <ControlGroup label="motion">
+          <LabSlider
+            label="friction"
+            min={10}
+            max={90}
+            value={Math.round(friction * 100)}
+            onChange={handleFriction}
+            format={() => friction.toFixed(1)}
+          />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Tool
+            label="Randomize"
+            title="Randomize"
+            onClick={randomize}
+            primary
+            icon={<Shuffle className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
 import { TRAIL_PALETTE as PALETTE } from "@/features/lab/lib/palette";
 import {
@@ -8,6 +8,8 @@ import {
   linkProgram as link,
   FULLSCREEN_VERT as FADE_VERT,
 } from "@/features/lab/lib/webgl";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 
 /* ────────────────────────────────────────────
    Thomas' cyclically symmetric attractor — WebGL2
@@ -60,7 +62,7 @@ const N = 150000;
 const MAX_LIFE = 8;
 const DT = 0.035;
 
-export function StrangeAttractor() {
+export function StrangeAttractor({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -255,11 +257,17 @@ export function StrangeAttractor() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 h-full w-full"
-      style={{ zIndex: 0, cursor: "grab" }}
-      aria-hidden="true"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className={LAB_CANVAS_CLASS}
+        style={{ zIndex: 0, cursor: "grab" }}
+        aria-hidden="true"
+      />
+      <LabChrome
+        identity={{ name: "strange attractor", scent: "thomas attractor · move to orbit" }}
+        info={info}
+      />
+    </>
   );
 }

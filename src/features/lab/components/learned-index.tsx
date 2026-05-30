@@ -1,7 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { Plus, Search } from "lucide-react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSlider,
+  Segmented,
+  Tool,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ────────────────────────────────────────────
    Data structures
@@ -460,7 +472,7 @@ function generateInitialKeys(dist: Distribution): number[] {
    Component
    ──────────────────────────────────────────── */
 
-export function LearnedIndex() {
+export function LearnedIndex({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const treeRef = useRef<InnerNode | null>(null);
   const animRef = useRef<AnimState>({
@@ -483,12 +495,11 @@ export function LearnedIndex() {
   const reducedMotionRef = useRef(false);
 
   const [distribution, setDistribution] = useState<Distribution>("uniform");
-  const [isAnimating, setIsAnimating] = useState(false);
   const [isAuto, setIsAuto] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [nodeCount, setNodeCount] = useState(0);
   const [leafCount, setLeafCount] = useState(0);
-  const [lookupValue, setLookupValue] = useState("");
+  const [lookupKey, setLookupKey] = useState(42);
 
   const distributionRef = useRef<Distribution>("uniform");
 
@@ -537,7 +548,6 @@ export function LearnedIndex() {
       const tree = treeRef.current;
       if (!tree || animatingRef.current) return;
       animatingRef.current = true;
-      setIsAnimating(true);
 
       const anim = animRef.current;
       anim.type = "lookup";
@@ -588,7 +598,6 @@ export function LearnedIndex() {
 
       resetAnim();
       animatingRef.current = false;
-      setIsAnimating(false);
     },
     [sleep, resetAnim],
   );
@@ -603,7 +612,6 @@ export function LearnedIndex() {
       if (existing.has(key)) return;
 
       animatingRef.current = true;
-      setIsAnimating(true);
 
       const anim = animRef.current;
       anim.type = "insert";
@@ -658,7 +666,6 @@ export function LearnedIndex() {
       updateCounts();
       resetAnim();
       animatingRef.current = false;
-      setIsAnimating(false);
     },
     [sleep, resetAnim, updateCounts],
   );
@@ -706,11 +713,10 @@ export function LearnedIndex() {
 
   /* ── Lookup handler ── */
   const handleLookup = useCallback(() => {
-    const v = parseInt(lookupValue, 10);
-    if (!Number.isNaN(v) && v >= 1 && v <= 99) {
-      animateLookup(v);
+    if (lookupKey >= 1 && lookupKey <= 99) {
+      animateLookup(lookupKey);
     }
-  }, [lookupValue, animateLookup]);
+  }, [lookupKey, animateLookup]);
 
   /* ── Reset ── */
   const handleReset = useCallback(() => {
@@ -723,7 +729,6 @@ export function LearnedIndex() {
       }
     }
     animatingRef.current = false;
-    setIsAnimating(false);
     resetAnim();
     initTree(distributionRef.current);
   }, [resetAnim, initTree]);
@@ -1126,108 +1131,66 @@ export function LearnedIndex() {
     distributionRef.current = distribution;
   }, [distribution]);
 
-  const btnClass =
-    "rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80 disabled:opacity-40";
-  const btnActiveClass =
-    "rounded border border-foreground/30 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/80";
-
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none" }}
         aria-hidden="true"
       />
 
-      {/* Controls overlay */}
-      <div
-        className="fixed bottom-16 left-1/2 z-20 flex -translate-x-1/2 flex-wrap items-center justify-center gap-2"
-        style={{
-          background: "rgba(128,128,128,0.1)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderRadius: "6px",
-          padding: "8px 12px",
-          maxWidth: "calc(100vw - 40px)",
-        }}
+      <LabReadout corner="right">
+        <Gauge label="keys" value={nodeCount} primary />
+        <Gauge label="leaves" value={leafCount} />
+      </LabReadout>
+
+      <LabChrome
+        identity={{ name: "learned index", scent: "alex · insert keys, watch the cdf" }}
+        info={info}
       >
-        {/* Distribution picker */}
-        <div className="flex items-center gap-1">
-          {(["uniform", "normal", "skew"] as const).map((d) => (
-            <button
-              key={d}
-              onClick={() => setDistribution(d)}
-              className={distribution === d ? btnActiveClass : btnClass}
-            >
-              {d}
-            </button>
-          ))}
-        </div>
-
-        <div className="h-4 w-px bg-foreground/10" />
-
-        {/* Insert */}
-        <button onClick={handleInsertRandom} disabled={isAnimating} className={btnClass}>
-          insert
-        </button>
-
-        {/* Auto */}
-        <button onClick={toggleAuto} className={isAuto ? btnActiveClass : btnClass}>
-          {isAuto ? "stop" : "auto"}
-        </button>
-
-        <div className="h-4 w-px bg-foreground/10" />
-
-        {/* Lookup */}
-        <div className="flex items-center gap-1">
-          <input
-            type="number"
-            min={1}
-            max={99}
-            value={lookupValue}
-            onChange={(e) => setLookupValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleLookup();
-            }}
-            placeholder="key"
-            disabled={isAnimating}
-            className="w-12 rounded border border-foreground/10 bg-transparent px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/70 placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none disabled:opacity-40"
+        <ControlGroup label="data">
+          <Segmented
+            label="dist"
+            value={distribution}
+            onChange={setDistribution}
+            options={[
+              { value: "uniform", label: "uniform" },
+              { value: "normal", label: "normal" },
+              { value: "skew", label: "skew" },
+            ]}
           />
-          <button onClick={handleLookup} disabled={isAnimating} className={btnClass}>
-            lookup
-          </button>
-        </div>
-
-        <div className="h-4 w-px bg-foreground/10" />
-
-        {/* Speed */}
-        <div className="flex items-center gap-1">
-          <label className="font-mono text-[9px] uppercase tracking-wider text-foreground/30">
-            spd
-          </label>
-          <input
-            type="range"
+        </ControlGroup>
+        <ControlGroup label="lookup">
+          <LabSlider label="key" min={1} max={99} value={lookupKey} onChange={setLookupKey} />
+          <Tool
+            label="Look up key"
+            title="Look up key"
+            icon={<Search className="h-3.5 w-3.5" aria-hidden="true" />}
+            onClick={handleLookup}
+          />
+        </ControlGroup>
+        <ControlGroup label="ops">
+          <Tool
+            label="Insert random key"
+            title="Insert random key"
+            icon={<Plus className="h-3.5 w-3.5" aria-hidden="true" />}
+            onClick={handleInsertRandom}
+          />
+          <LabSlider
+            label="spd"
             min={0.25}
             max={3}
             step={0.25}
             value={speed}
-            onChange={(e) => setSpeed(parseFloat(e.target.value))}
-            className="h-1 w-14 cursor-pointer accent-foreground/40"
+            onChange={setSpeed}
+            format={(v) => `${v}x`}
           />
-          <span className="w-6 font-mono text-[9px] text-foreground/30">{speed}x</span>
-        </div>
-
-        {/* Reset */}
-        <button onClick={handleReset} className={btnClass}>
-          reset
-        </button>
-
-        {/* Counters */}
-        <span className="font-mono text-[9px] text-foreground/25">
-          n={nodeCount} leaves={leafCount}
-        </span>
-      </div>
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={isAuto} onToggle={toggleAuto} onReset={handleReset} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

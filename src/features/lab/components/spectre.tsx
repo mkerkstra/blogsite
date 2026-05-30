@@ -1,7 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSelect,
+  Segmented,
+  Tool,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
+import { RotateCcw } from "lucide-react";
 
 /* ────────────────────────────────────────────
    Spectre aperiodic monotile — Canvas2D
@@ -368,7 +379,7 @@ function getTileColor(tile: FlatTile, mode: ColorMode, isDark: boolean): string 
 
 /* ── Component ── */
 
-export function Spectre() {
+export function Spectre({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef(0);
 
@@ -496,21 +507,14 @@ export function Spectre() {
     viewRef.current.dirty = true;
   }, [regenerate]);
 
-  const COLOR_MODES: ColorMode[] = ["type", "orientation", "mono"];
-  const COLOR_MODE_LABELS: Record<ColorMode, string> = {
-    type: "TYPE",
-    orientation: "ANGLE",
-    mono: "MONO",
-  };
+  const handleColorMode = useCallback((next: ColorMode) => {
+    colorModeRef.current = next;
+    viewRef.current.dirty = true;
+    setColorMode(next);
+  }, []);
 
-  const cycleColorMode = useCallback(() => {
-    setColorMode((prev) => {
-      const idx = COLOR_MODES.indexOf(prev);
-      const next = COLOR_MODES[(idx + 1) % COLOR_MODES.length];
-      colorModeRef.current = next;
-      viewRef.current.dirty = true;
-      return next;
-    });
+  const handleLevel = useCallback((next: number) => {
+    setLevel(next);
   }, []);
 
   // Canvas setup, interaction, render loop
@@ -682,59 +686,56 @@ export function Spectre() {
     viewRef.current.dirty = true;
   }, [colorMode]);
 
-  const btnBase = "px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors";
-  const btnInactive = "text-foreground/40 hover:text-foreground/70";
-  const btnActive = "text-foreground/90";
-
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none", cursor: "grab" }}
         aria-hidden="true"
       />
-      <div
-        className="fixed bottom-16 left-1/2 z-10 -translate-x-1/2"
-        style={{ touchAction: "none" }}
+
+      <LabReadout corner="left">
+        <Gauge label="tiles" value={tileCount.toLocaleString()} primary />
+      </LabReadout>
+
+      <LabChrome
+        identity={{ name: "spectre", scent: "substitution tiling · drag to pan, scroll to zoom" }}
+        info={info}
       >
-        <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-2 rounded bg-background/70 px-3 py-1.5 backdrop-blur-sm">
-          <label className="flex items-center gap-1.5">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-              LEVEL
-            </span>
-            <select
-              value={level}
-              onChange={(e) => setLevel(Number(e.target.value))}
-              className="rounded bg-foreground/5 px-1.5 py-0.5 font-mono text-[10px] text-foreground/60 outline-none"
-            >
-              {[0, 1, 2, 3, 4].map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          <button onClick={cycleColorMode} className={`${btnBase} ${btnActive}`}>
-            {COLOR_MODE_LABELS[colorMode]}
-          </button>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          <span className="font-mono text-[10px] tabular-nums tracking-wide text-foreground/40">
-            {tileCount.toLocaleString()} tiles
-          </span>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          <button onClick={handleReset} className={`${btnBase} ${btnInactive}`}>
-            RESET
-          </button>
-        </div>
-      </div>
+        <ControlGroup label="tiling">
+          <LabSelect
+            label="level"
+            value={String(level)}
+            onChange={(v) => handleLevel(Number(v))}
+            options={[
+              { value: "0", label: "0" },
+              { value: "1", label: "1" },
+              { value: "2", label: "2" },
+              { value: "3", label: "3" },
+              { value: "4", label: "4" },
+            ]}
+          />
+          <Segmented
+            label="color"
+            value={colorMode}
+            onChange={handleColorMode}
+            options={[
+              { value: "type", label: "type" },
+              { value: "orientation", label: "angle" },
+              { value: "mono", label: "mono" },
+            ]}
+          />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Tool
+            label="Reset"
+            title="Reset"
+            onClick={handleReset}
+            icon={<RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

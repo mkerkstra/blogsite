@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import {
   DOCUMENT_CHUNKS,
@@ -9,6 +9,11 @@ import {
   type EmbeddingSearchQuery,
 } from "@/features/lab/data/embedding-data";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import { ControlGroup, LabSelect, LabSlider } from "@/features/lab/components/chrome/controls";
+import { FormulaGauge, Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 type Category = "all" | (typeof DOCUMENT_CHUNKS)[number]["category"];
 
@@ -99,7 +104,13 @@ function rankedMatches(query: EmbeddingSearchQuery, category: Category) {
     });
 }
 
-export function SemanticSearch() {
+interface Telemetry {
+  ranked: number;
+  passing: number;
+  best: number;
+}
+
+export function SemanticSearch({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef(0);
   const stateRef = useRef<RenderState>({
@@ -110,11 +121,13 @@ export function SemanticSearch() {
     time: 0,
     reduced: false,
   });
+  const telemetryRef = useRef<Telemetry>({ ranked: 0, passing: 0, best: 0 });
 
   const [queryIndex, setQueryIndex] = useState(INITIAL_QUERY_INDEX);
   const [topK, setTopK] = useState(5);
   const [threshold, setThreshold] = useState(0.36);
   const [category, setCategory] = useState<Category>("all");
+  const [telemetry, setTelemetry] = useState<Telemetry>({ ranked: 0, passing: 0, best: 0 });
 
   useEffect(() => {
     stateRef.current.queryIndex = queryIndex;
@@ -168,6 +181,11 @@ export function SemanticSearch() {
       const matches = rankedMatches(query, s.category);
       const visible = matches.slice(0, s.topK);
       const passing = visible.filter((match) => match.score >= s.threshold);
+      telemetryRef.current = {
+        ranked: visible.length,
+        passing: passing.length,
+        best: visible[0]?.score ?? 0,
+      };
       const isCompact = W < 640;
       const queryPoint = pointFor(query, W, H);
       const pulse = s.reduced ? 0.45 : 0.35 + 0.25 * Math.sin(s.time * 2.2);
@@ -189,23 +207,6 @@ export function SemanticSearch() {
         ctx.lineTo(W, gy);
         ctx.stroke();
       }
-
-      ctx.textAlign = "left";
-      ctx.textBaseline = "top";
-      ctx.font = "10px 'JetBrains Mono', monospace";
-      ctx.fillStyle = c.textDim;
-      ctx.fillText("SEMANTIC SEARCH", 20, 58);
-      ctx.font = "9px 'JetBrains Mono', monospace";
-      ctx.fillText(
-        `query embedding -> cosine ranking over ${DOCUMENT_CHUNKS.length} chunks`,
-        20,
-        73,
-      );
-      ctx.fillText(
-        `top-k=${s.topK} · threshold=${s.threshold.toFixed(2)} · filter=${s.category}`,
-        20,
-        86,
-      );
 
       const matchIds = new Set(visible.map((match) => match.chunk.id));
       const passIds = new Set(passing.map((match) => match.chunk.id));
@@ -328,84 +329,71 @@ export function SemanticSearch() {
     };
   }, []);
 
-  const btnBase =
-    "px-2 py-1 font-mono text-[9px] uppercase tracking-[0.14em] transition-colors cursor-pointer";
-  const fieldClass =
-    "h-7 border border-foreground/15 bg-background/70 px-2 font-mono text-[9px] uppercase tracking-[0.12em] text-foreground/65 focus:border-accent focus:outline-none";
+  // Lift the live ranking telemetry to React state for the readout HUD.
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const t = telemetryRef.current;
+      setTelemetry((prev) =>
+        prev.ranked === t.ranked && prev.passing === t.passing && prev.best === t.best
+          ? prev
+          : { ranked: t.ranked, passing: t.passing, best: t.best },
+      );
+    }, 200);
+    return () => window.clearInterval(id);
+  }, []);
 
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0 }}
         aria-hidden="true"
       />
 
-      <div className="fixed left-5 right-5 top-24 z-10 grid grid-cols-2 gap-2 bg-background/80 px-2 py-2 backdrop-blur-sm sm:left-auto sm:right-5 sm:flex sm:max-w-[calc(100vw-2.5rem)] sm:flex-wrap sm:items-center sm:justify-end md:right-8">
-        <select
-          value={queryIndex}
-          aria-label="query example"
-          onChange={(event) => setQueryIndex(Number(event.target.value))}
-          className={`${fieldClass} col-span-2 sm:col-span-1`}
-        >
-          {SEARCH_QUERIES.map((query, index) => (
-            <option key={query.id} value={index}>
-              {query.label}
-            </option>
-          ))}
-        </select>
+      <LabReadout corner="left">
+        <Gauge label="ranked" value={telemetry.ranked} />
+        <Gauge label="passing" value={telemetry.passing} primary />
+        <FormulaGauge label="best" expr="cos" value={telemetry.best.toFixed(2)} />
+        <Gauge label="filter" value={category} />
+      </LabReadout>
 
-        <label className="flex min-w-0 items-center gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-foreground/35">
-          top-k
-          <input
-            type="range"
-            min="1"
-            max="8"
-            value={topK}
-            onChange={(event) => setTopK(Number(event.target.value))}
-            className="min-w-0 flex-1 accent-[var(--accent)] sm:w-20 sm:flex-none"
+      <LabChrome
+        identity={{ name: "semantic search", scent: "cosine ranking · query · threshold · filter" }}
+        info={info}
+      >
+        <ControlGroup label="query">
+          <LabSelect
+            label="example"
+            value={String(queryIndex)}
+            onChange={(value) => setQueryIndex(Number(value))}
+            options={SEARCH_QUERIES.map((query, index) => ({
+              value: String(index),
+              label: query.label,
+            }))}
           />
-          <span className="w-3 text-foreground/60">{topK}</span>
-        </label>
-
-        <label className="flex min-w-0 items-center gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-foreground/35">
-          threshold
-          <input
-            type="range"
-            min="0"
-            max="0.8"
-            step="0.01"
+        </ControlGroup>
+        <ControlGroup label="retrieval">
+          <LabSlider label="top-k" min={1} max={8} value={topK} onChange={setTopK} />
+          <LabSlider
+            label="threshold"
+            min={0}
+            max={0.8}
+            step={0.01}
             value={threshold}
-            onChange={(event) => setThreshold(Number(event.target.value))}
-            className="min-w-0 flex-1 accent-[var(--accent)] sm:w-20 sm:flex-none"
+            onChange={setThreshold}
+            format={(v) => v.toFixed(2)}
           />
-          <span className="w-7 text-foreground/60">{threshold.toFixed(2)}</span>
-        </label>
-
-        <select
-          value={category}
-          aria-label="metadata filter"
-          onChange={(event) => setCategory(event.target.value as Category)}
-          className={`${fieldClass} min-w-0`}
-        >
-          {CATEGORIES.map((value) => (
-            <option key={value} value={value}>
-              {value}
-            </option>
-          ))}
-        </select>
-
-        <button
-          type="button"
-          onClick={() => {
-            setQueryIndex((queryIndex + 1) % SEARCH_QUERIES.length);
-          }}
-          className={`${btnBase} text-foreground/35 hover:text-foreground/60`}
-        >
-          next
-        </button>
-      </div>
+        </ControlGroup>
+        <ControlGroup label="filter">
+          <LabSelect
+            label="metadata"
+            value={category}
+            onChange={(value) => setCategory(value as Category)}
+            options={CATEGORIES.map((value) => ({ value, label: value }))}
+          />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

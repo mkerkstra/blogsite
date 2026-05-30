@@ -1,7 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_INSETS } from "@/features/lab/lib/layout";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  Segmented,
+  Toggle,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ────────────────────────────────────────────
    Double Pendulum — Chaotic Divergence
@@ -155,7 +166,7 @@ function defaultInitial(): { a: PendulumState; b: PendulumState } {
 
 /* ── Component ── */
 
-export function DoublePendulum() {
+export function DoublePendulum({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const simRef = useRef<{
@@ -183,6 +194,8 @@ export function DoublePendulum() {
   const [paused, setPaused] = useState(false);
   const [showTrails, setShowTrails] = useState(true);
   const [speed, setSpeed] = useState(1);
+  // Live telemetry, lifted from the sim for the readout HUD.
+  const [metrics, setMetrics] = useState({ elapsed: 0, divergence: 0 });
 
   /* ── Reset handler ── */
 
@@ -281,9 +294,11 @@ export function DoublePendulum() {
       const theme = getTheme();
       const colors = getColors(theme);
 
-      /* ── Compute scale: arm length in CSS pixels ── */
-      const navH = 52; // navbar clearance
-      const footerH = 80; // footer clearance
+      /* ── Compute scale: arm length in CSS pixels ──
+         Keep the pendulum clear of the navbar band (top) and the LabChrome
+         control strip (bottom), both owned by LAB_INSETS. */
+      const navH = LAB_INSETS.top; // navbar clearance
+      const footerH = LAB_INSETS.bottom; // control-strip clearance
       const usableH = cssH - navH - footerH;
       const armScale = Math.min(cssW, usableH) * 0.18;
       const pivotX = cssW / 2;
@@ -343,26 +358,8 @@ export function DoublePendulum() {
       // Pendulum B
       drawPendulum(ctx, pivotX, pivotY, posB, colors.secondary, colors.arm);
 
-      /* ── Bottom stats ── */
-      const divergence = Math.abs(s.pendulumA.theta2 - s.pendulumB.theta2);
-      ctx.font = "10px 'JetBrains Mono', monospace";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "bottom";
-      ctx.fillStyle = colors.text;
-
-      const statsY = cssH - 70;
-      ctx.fillText(`TIME  ${s.elapsed.toFixed(1)}s`, 16, statsY);
-      ctx.fillText(`DIV   ${divergence.toFixed(4)} rad`, 16, statsY + 16);
-      ctx.fillText(`\u0394\u03B8\u2082 = ${DELTA_THETA} rad`, 16, statsY + 32);
-
-      /* ── Bottom-left label ── */
-      ctx.font = "9px 'JetBrains Mono', monospace";
-      ctx.fillStyle = colors.text;
-      ctx.textAlign = "left";
-      ctx.textBaseline = "bottom";
-      ctx.fillText("DOUBLE PENDULUM", 16, cssH - 16);
-      ctx.fillStyle = theme === "dark" ? "rgba(224,226,220,0.25)" : "rgba(10,10,10,0.2)";
-      ctx.fillText("SPACE PAUSE  \u00B7  R RESET", 16, cssH - 4);
+      // Live stats (time, divergence, delta-theta) now live in the top
+      // LabReadout HUD, lifted to React state via a throttled sync below.
     }
 
     raf = requestAnimationFrame(frame);
@@ -374,67 +371,61 @@ export function DoublePendulum() {
     };
   }, [reset]);
 
-  /* ── Styles ── */
+  /* ── Lift sim telemetry to React state for the readout HUD ── */
 
-  const btnBase = "px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors";
-  const btnActive = "bg-foreground/10 text-foreground/80";
-  const btnInactive = "text-foreground/30 hover:text-foreground/50";
-  const label = "font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30";
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const s = simRef.current;
+      setMetrics({
+        elapsed: s.elapsed,
+        divergence: Math.abs(s.pendulumA.theta2 - s.pendulumB.theta2),
+      });
+    }, 200);
+    return () => window.clearInterval(id);
+  }, []);
 
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none" }}
         aria-hidden="true"
       />
 
-      {/* ── Controls overlay (top-right) ── */}
-      <div
-        className="fixed right-4 top-16 z-10 flex flex-col gap-2 rounded bg-background/80 px-3 py-2.5 backdrop-blur-sm"
-        style={{ touchAction: "none" }}
+      <LabReadout corner="left">
+        <Gauge label="time" value={metrics.elapsed.toFixed(1)} unit="s" />
+        <Gauge label="divergence" value={metrics.divergence.toFixed(4)} unit="rad" primary />
+        <Gauge label="delta-theta" value={DELTA_THETA} unit="rad" />
+      </LabReadout>
+
+      <LabChrome
+        identity={{ name: "double pendulum", scent: "rk4 lagrangian · space pause, r reset" }}
+        info={info}
       >
-        {/* Trail toggle */}
-        <div className="flex items-center gap-2">
-          <span className={label}>TRAIL</span>
-          <button
-            onClick={toggleTrails}
-            className={`${btnBase} ${showTrails ? btnActive : btnInactive}`}
-          >
-            {showTrails ? "ON" : "OFF"}
-          </button>
-        </div>
-
-        {/* Speed selector */}
-        <div className="flex items-center gap-1">
-          <span className={label}>SPEED</span>
-          {[1, 2, 4].map((n) => (
-            <button
-              key={n}
-              onClick={() => setSpeedMultiplier(n)}
-              className={`${btnBase} ${speed === n ? btnActive : btnInactive}`}
-            >
-              {n}x
-            </button>
-          ))}
-        </div>
-
-        <span className="h-px w-full bg-foreground/10" />
-
-        {/* Pause / Reset */}
-        <div className="flex items-center gap-1">
-          <button
-            onClick={togglePause}
-            className={`${btnBase} ${paused ? btnActive : btnInactive}`}
-          >
-            {paused ? "PLAY" : "PAUSE"}
-          </button>
-          <button onClick={() => reset(true)} className={`${btnBase} ${btnInactive}`}>
-            RESET
-          </button>
-        </div>
-      </div>
+        <ControlGroup label="view">
+          <Toggle
+            label={showTrails ? "trail on" : "trail off"}
+            pressed={showTrails}
+            onChange={toggleTrails}
+          />
+        </ControlGroup>
+        <ControlGroup label="speed">
+          <Segmented
+            label="rate"
+            value={speed}
+            onChange={setSpeedMultiplier}
+            options={[
+              { value: 1, label: "1x" },
+              { value: 2, label: "2x" },
+              { value: 4, label: "4x" },
+            ]}
+          />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={!paused} onToggle={togglePause} onReset={() => reset(true)} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

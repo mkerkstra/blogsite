@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { AgentPatternCanvas, type AgentPatternConfig } from "./agent-pattern-canvas";
 
 const config: AgentPatternConfig = {
@@ -159,6 +161,6 @@ const config: AgentPatternConfig = {
   ],
 };
 
-export function AgentHandoffs() {
-  return <AgentPatternCanvas config={config} />;
+export function AgentHandoffs({ info }: { info?: ReactNode }) {
+  return <AgentPatternCanvas config={config} info={info} />;
 }

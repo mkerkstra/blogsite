@@ -1,7 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { RotateCcw, Search, StepForward } from "lucide-react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSlider,
+  Stepper,
+  Toggle,
+  Tool,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge, ProgressGauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ── Types ── */
 
@@ -215,14 +227,15 @@ function generateKeys(count: number): number[] {
 
 /* ── Component ── */
 
-export function XorFilter() {
+export function XorFilter({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, setPhase] = useState<Phase>("idle");
   const [speed, setSpeed] = useState(1);
   const [autoPlay, setAutoPlay] = useState(true);
-  const [queryInput, setQueryInput] = useState("");
-  const [queryResult, setQueryResult] = useState<string | null>(null);
-  const [statusText, setStatusText] = useState("press build to start");
+  const [queryKey, setQueryKey] = useState(42);
+  const [verdict, setVerdict] = useState("idle");
+  // Live progress lifted from the sim for the readout HUD.
+  const [progress, setProgress] = useState({ value: 0, total: 0, keys: 0 });
 
   const stateRef = useRef<{
     keys: number[];
@@ -309,7 +322,6 @@ export function XorFilter() {
 
     if (!result.success) {
       // Extremely unlikely with 10 keys, but handle it
-      setStatusText("peeling failed, retrying...");
       setTimeout(() => doBuild(), 100);
       return;
     }
@@ -335,10 +347,8 @@ export function XorFilter() {
     s.queryIsMember = null;
     s.pendingStep = false;
 
-    setQueryInput("");
-    setQueryResult(null);
+    setVerdict("idle");
     setPhase("build");
-    setStatusText("building hypergraph...");
   }, []);
 
   const doQuery = useCallback((value: number) => {
@@ -356,14 +366,8 @@ export function XorFilter() {
     s.queryIsMember = isMember;
 
     const inSet = s.keys.includes(value);
-    const label = isMember
-      ? inSet
-        ? "member (true positive)"
-        : "probable member (false positive!)"
-      : "not a member";
-    setQueryResult(
-      `B[${positions[0]}]=${hex(s.B[positions[0]])} ^ B[${positions[1]}]=${hex(s.B[positions[1]])} ^ B[${positions[2]}]=${hex(s.B[positions[2]])} = ${hex(xorResult)} vs fp=${hex(fp)} => ${label}`,
-    );
+    const label = isMember ? (inSet ? "member" : "false positive") : "not a member";
+    setVerdict(label);
   }, []);
 
   const advanceStep = useCallback(() => {
@@ -375,6 +379,26 @@ export function XorFilter() {
     const t = setTimeout(() => doBuild(), 300);
     return () => clearTimeout(t);
   }, [doBuild]);
+
+  // Lift sim progress to React state for the readout HUD (throttled).
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const s = stateRef.current;
+      const keys = s.keys.length;
+      if (s.phase === "build") {
+        setProgress({ value: s.buildStep, total: s.edges.length, keys });
+      } else if (s.phase === "peel") {
+        setProgress({ value: s.peelStep, total: s.peelOrder.length, keys });
+      } else if (s.phase === "assign") {
+        setProgress({ value: s.assignStep, total: s.peelOrder.length, keys });
+      } else if (s.phase === "ready") {
+        setProgress({ value: s.peelOrder.length, total: s.peelOrder.length, keys });
+      } else {
+        setProgress({ value: 0, total: 0, keys });
+      }
+    }, 200);
+    return () => window.clearInterval(id);
+  }, []);
 
   // Main canvas rendering and animation loop
   useEffect(() => {
@@ -429,7 +453,6 @@ export function XorFilter() {
           if (s.phase === "build") {
             s.buildStep = s.edges.length;
             setPhase("peel");
-            setStatusText("peeling...");
             s.phase = "peel";
           }
           if (s.phase === "peel") {
@@ -439,14 +462,12 @@ export function XorFilter() {
             }
             s.peelStep = s.peelOrder.length;
             setPhase("assign");
-            setStatusText("assigning...");
             s.phase = "assign";
           }
           if (s.phase === "assign") {
             s.B = assignFingerprints(s.edges, s.peelOrder, s.tableSize);
             s.assignStep = s.peelOrder.length;
             setPhase("ready");
-            setStatusText("ready - enter a key to query");
             s.phase = "ready";
           }
           tickAccum = 0;
@@ -461,11 +482,9 @@ export function XorFilter() {
             if (s.phase === "build") {
               if (s.buildStep < s.edges.length) {
                 s.buildStep++;
-                setStatusText(`building hypergraph ${s.buildStep}/${s.edges.length}`);
               }
               if (s.buildStep >= s.edges.length) {
                 setPhase("peel");
-                setStatusText(`peeling 0/${s.peelOrder.length}`);
                 s.phase = "peel";
               }
             } else if (s.phase === "peel") {
@@ -476,13 +495,11 @@ export function XorFilter() {
                 s.highlightEdge = peel.edgeIndex;
                 s.edgeFadeProgress.set(peel.edgeIndex, 0);
                 s.peelStep++;
-                setStatusText(`peeling ${s.peelStep}/${s.peelOrder.length}`);
               }
               if (s.peelStep >= s.peelOrder.length) {
                 s.flashVertex = -1;
                 s.highlightEdge = -1;
                 setPhase("assign");
-                setStatusText(`assigning 0/${s.peelOrder.length}`);
                 s.phase = "assign";
               }
             } else if (s.phase === "assign") {
@@ -500,14 +517,12 @@ export function XorFilter() {
                 s.highlightPositions = [a, b, c];
                 s.assigningValue = s.B[vertex];
                 s.assignStep++;
-                setStatusText(`assigning ${s.assignStep}/${s.peelOrder.length}`);
               }
               if (s.assignStep >= s.peelOrder.length) {
                 s.flashVertex = -1;
                 s.highlightPositions = [];
                 s.assigningValue = null;
                 setPhase("ready");
-                setStatusText("ready - enter a key to query");
                 s.phase = "ready";
               }
             }
@@ -731,8 +746,7 @@ export function XorFilter() {
         }
       }
 
-      // ── Status text (bottom zone) ──
-      // Status is rendered by React, but we can draw additional info on canvas
+      // ── Pedagogical XOR computation (mid-canvas, not HUD telemetry) ──
       // Draw the XOR computation during assignment
       if (s.phase === "assign" && s.assignStep > 0 && s.assignStep <= s.peelOrder.length) {
         const ri = s.peelOrder.length - s.assignStep;
@@ -787,113 +801,59 @@ export function XorFilter() {
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none" }}
         aria-hidden="true"
       />
 
-      {/* Controls */}
-      <div
-        className="fixed bottom-16 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2"
-        style={{
-          background: "rgba(128,128,128,0.1)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderRadius: "6px",
-          padding: "8px 12px",
-        }}
+      <LabReadout corner="left">
+        <Gauge label="phase" value={phase} />
+        <ProgressGauge label="step" value={progress.value} total={progress.total} />
+        <Gauge label="keys" value={progress.keys} />
+        <Gauge label="query" value={verdict} primary />
+      </LabReadout>
+
+      <LabChrome
+        identity={{ name: "xor filter", scent: "hypergraph peeling · query a key" }}
+        info={info}
       >
-        <button
-          onClick={doBuild}
-          className="rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80"
-        >
-          build
-        </button>
-
-        <button
-          onClick={advanceStep}
-          disabled={phase === "idle" || phase === "ready"}
-          className="rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80 disabled:opacity-30"
-        >
-          step
-        </button>
-
-        <button
-          onClick={() => setAutoPlay((v) => !v)}
-          className={`rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider ${
-            autoPlay ? "text-foreground/80" : "text-foreground/50 hover:text-foreground/80"
-          }`}
-        >
-          {autoPlay ? "auto" : "manual"}
-        </button>
-
-        <div className="mx-0.5 h-4 w-px bg-foreground/10" />
-
-        <input
-          type="number"
-          min={10}
-          max={99}
-          value={queryInput}
-          onChange={(e) => setQueryInput(e.target.value)}
-          placeholder="key"
-          disabled={phase !== "ready"}
-          className="w-12 rounded border border-foreground/10 bg-transparent px-1.5 py-1 font-mono text-[10px] text-foreground/60 outline-none placeholder:text-foreground/20 disabled:opacity-30"
-          aria-label="Query key"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && queryInput) {
-              doQuery(Number(queryInput));
-            }
-          }}
-        />
-        <button
-          onClick={() => queryInput && doQuery(Number(queryInput))}
-          disabled={phase !== "ready" || !queryInput}
-          className="rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80 disabled:opacity-30"
-        >
-          query
-        </button>
-
-        <div className="mx-0.5 h-4 w-px bg-foreground/10" />
-
-        <label className="flex items-center gap-1.5">
-          <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/25">
-            spd
-          </span>
-          <input
-            type="range"
+        <ControlGroup label="query">
+          <Stepper label="key" value={queryKey} min={10} max={99} onChange={setQueryKey} />
+          <Tool
+            label="Query key"
+            title="Query key"
+            icon={<Search className="h-3.5 w-3.5" aria-hidden="true" />}
+            onClick={() => doQuery(queryKey)}
+          />
+        </ControlGroup>
+        <ControlGroup label="speed">
+          <LabSlider
+            label="spd"
             min={0.25}
             max={3}
             step={0.25}
             value={speed}
-            onChange={(e) => setSpeed(Number(e.target.value))}
-            className="h-1 w-14 accent-foreground/40"
+            onChange={setSpeed}
+            format={(v) => `${v}x`}
           />
-        </label>
-
-        <div className="mx-0.5 h-4 w-px bg-foreground/10" />
-
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/30">
-          {statusText}
-        </span>
-      </div>
-
-      {/* Query result */}
-      {queryResult && (
-        <div
-          className="fixed bottom-32 left-1/2 z-20 -translate-x-1/2 font-mono text-[10px] text-foreground/50"
-          style={{
-            background: "rgba(128,128,128,0.08)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
-            borderRadius: "4px",
-            padding: "6px 10px",
-            maxWidth: "90vw",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {queryResult}
-        </div>
-      )}
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Toggle label="auto" pressed={autoPlay} onChange={setAutoPlay} />
+          <Tool
+            label="Step"
+            title="Step (manual)"
+            icon={<StepForward className="h-3.5 w-3.5" aria-hidden="true" />}
+            onClick={advanceStep}
+          />
+          <Tool
+            label="Rebuild"
+            title="Rebuild"
+            primary
+            icon={<RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />}
+            onClick={doBuild}
+          />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

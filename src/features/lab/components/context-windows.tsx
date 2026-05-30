@@ -1,18 +1,14 @@
 "use client";
 
-import type { MutableRefObject } from "react";
+import type { MutableRefObject, ReactNode } from "react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
-import { cn } from "@/lib/utils";
-import {
-  btnActive,
-  btnBase,
-  btnInactive,
-  controlBar,
-  controlDivider,
-  controlLabel,
-} from "@/features/lab/lib/control-styles";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import { ControlGroup, Segmented, Transport } from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 type Strategy = "truncate" | "retrieve" | "compact";
 
@@ -724,29 +720,7 @@ function drawAttentionMap(
   fillText(ctx, "recent", x + w, y + h + 54);
 }
 
-function drawStats(
-  ctx: CanvasRenderingContext2D,
-  palette: Palette,
-  x: number,
-  y: number,
-  w: number,
-  strategy: Strategy,
-  windowTokens: number,
-  allocations: Allocation[],
-): void {
-  const reserve = reserveFor(windowTokens);
-  const placed = allocations.reduce((sum, allocation) => sum + allocation.allocated, 0);
-  const compressed = allocations.filter((allocation) => allocation.compressed).length;
-  const dropped = Math.max(0, RAW_TOTAL - placed);
-  const stats = `usable ${formatTokens(windowTokens - reserve)}  |  placed ${formatTokens(placed)}  |  dropped ${formatTokens(dropped)}  |  ${strategy}  |  compressed ${compressed}`;
-
-  ctx.fillStyle = palette.textFaint;
-  ctx.font = "10px ui-monospace, SFMono-Regular, Menlo, monospace";
-  ctx.textAlign = "center";
-  fillText(ctx, stats.toUpperCase(), x + w / 2, y, w);
-}
-
-export function ContextWindows() {
+export function ContextWindows({ info }: { info?: ReactNode }) {
   const descriptionId = useId();
   const liveRegionId = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -768,6 +742,8 @@ export function ContextWindows() {
     0,
   );
   const droppedTokens = Math.max(0, RAW_TOTAL - placedTokens);
+  const usableTokens = windowTokens - reserveFor(windowTokens);
+  const compressedCount = currentAllocations.filter((allocation) => allocation.compressed).length;
   const promptSummary = currentAllocations
     .map((allocation) => {
       const mode = allocation.compressed ? "compacted" : "included";
@@ -789,6 +765,10 @@ export function ContextWindows() {
 
   const reset = useCallback(() => {
     startTimeRef.current = performance.now();
+  }, []);
+
+  const togglePause = useCallback(() => {
+    setPaused((value) => !value);
   }, []);
 
   useEffect(() => {
@@ -869,16 +849,6 @@ export function ContextWindows() {
       const sourceRects = drawSourceLane(ctx, palette, margin, sourceY, contentW, now);
       const targetRects = getWindowRects(margin, windowY, contentW, currentWindow, allocations);
       drawBudgetBar(ctx, palette, margin, budgetY, contentW, currentWindow, allocations);
-      drawStats(
-        ctx,
-        palette,
-        margin,
-        budgetY + 72,
-        contentW,
-        currentStrategy,
-        currentWindow,
-        allocations,
-      );
       drawWindowLane(
         ctx,
         palette,
@@ -938,7 +908,8 @@ export function ContextWindows() {
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full"
+        className={LAB_CANVAS_CLASS}
+        style={{ zIndex: 0 }}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
         role="img"
@@ -965,54 +936,41 @@ export function ContextWindows() {
         Strategy {strategy}. Window {formatTokens(windowTokens)}.{" "}
         {paused ? "Animation paused." : "Animation running."}
       </p>
-      <div
-        className={cn(controlBar, "bottom-28 max-w-[calc(100vw-2rem)] flex-wrap justify-center")}
-        role="toolbar"
-        aria-label="Context window visualization controls"
+
+      <LabReadout corner="right">
+        <Gauge label="usable" value={formatTokens(usableTokens)} />
+        <Gauge label="placed" value={formatTokens(placedTokens)} primary />
+        <Gauge label="dropped" value={formatTokens(droppedTokens)} />
+        <Gauge label="compressed" value={compressedCount} />
+      </LabReadout>
+
+      <LabChrome
+        identity={{ name: "context windows", scent: "token budget · hover the prompt" }}
+        info={info}
       >
-        <div className="flex items-center gap-2" role="group" aria-label="Context window size">
-          <span className={controlLabel}>window</span>
-          {WINDOW_OPTIONS.map((option) => (
-            <button
-              key={option.tokens}
-              type="button"
-              onClick={() => setWindowTokens(option.tokens)}
-              className={`${btnBase} ${windowTokens === option.tokens ? btnActive : btnInactive}`}
-              aria-pressed={windowTokens === option.tokens}
-              aria-label={`Use ${option.label} context window`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-        <div className={controlDivider} aria-hidden="true" />
-        <div className="flex items-center gap-2" role="group" aria-label="Prompt packing strategy">
-          <span className={controlLabel}>pack</span>
-          {STRATEGIES.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setStrategy(option.value)}
-              className={`${btnBase} ${strategy === option.value ? btnActive : btnInactive}`}
-              aria-pressed={strategy === option.value}
-              aria-label={`Use ${option.label} packing`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-        <div className={controlDivider} aria-hidden="true" />
-        <button
-          type="button"
-          onClick={() => setPaused((value) => !value)}
-          className={`${btnBase} ${paused ? btnActive : btnInactive}`}
-          aria-pressed={paused}
-          aria-keyshortcuts="Space"
-          aria-label={paused ? "Resume animation" : "Pause animation"}
-        >
-          {paused ? "play" : "pause"}
-        </button>
-      </div>
+        <ControlGroup label="window">
+          <Segmented
+            label="size"
+            value={windowTokens}
+            onChange={setWindowTokens}
+            options={WINDOW_OPTIONS.map((option) => ({
+              value: option.tokens,
+              label: option.label,
+            }))}
+          />
+        </ControlGroup>
+        <ControlGroup label="pack">
+          <Segmented
+            label="strategy"
+            value={strategy}
+            onChange={setStrategy}
+            options={STRATEGIES}
+          />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={!paused} onToggle={togglePause} onReset={reset} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

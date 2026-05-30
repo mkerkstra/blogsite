@@ -1,7 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSelect,
+  LabSlider,
+  Toggle,
+} from "@/features/lab/components/chrome/controls";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 
 /* ────────────────────────────────────────────
    L-system presets
@@ -209,7 +217,7 @@ function lerpColor(
    Component
    ──────────────────────────────────────────── */
 
-export function LSystem() {
+export function LSystem({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [activePreset, setActivePreset] = useState<PresetId>("tree");
@@ -401,89 +409,51 @@ export function LSystem() {
     generate();
   }, [generate]);
 
-  /* ── Styles ── */
-  const btnBase = "px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors";
-  const btnInactive = "text-foreground/40 hover:text-foreground/70";
-  const btnActive = "text-foreground/90";
-
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0 }}
         aria-hidden="true"
       />
 
-      {/* Controls overlay */}
-      <div
-        className="fixed bottom-16 left-1/2 z-10 -translate-x-1/2"
-        style={{ touchAction: "none" }}
+      <LabChrome
+        identity={{ name: "l-system", scent: "fractal rewriting · pick a species" }}
+        info={info}
       >
-        <div className="flex flex-wrap items-center justify-center gap-2 rounded bg-background/80 px-4 py-2.5 backdrop-blur-sm">
-          {/* Preset buttons */}
-          {PRESET_IDS.map((id) => (
-            <button
-              key={id}
-              onClick={() => handlePresetChange(id)}
-              className={`${btnBase} ${activePreset === id ? btnActive : btnInactive}`}
-            >
-              {PRESETS[id].label}
-            </button>
-          ))}
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          {/* Iterations selector */}
-          <label className="flex items-center gap-1.5">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-              ITER
-            </span>
-            <select
-              value={iterations}
-              onChange={(e) => setIterations(Number(e.target.value))}
-              className="rounded bg-foreground/5 px-1.5 py-0.5 font-mono text-[10px] text-foreground/60 outline-none"
-            >
-              {getIterOptions(activePreset).map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          {/* Angle slider */}
-          <label className="flex items-center gap-2">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-              ANGLE
-            </span>
-            <input
-              type="range"
-              min={5}
-              max={90}
-              step={0.5}
-              value={angleDeg}
-              onChange={(e) => setAngleDeg(Number(e.target.value))}
-              className="h-1 w-16 appearance-none rounded bg-foreground/10 accent-foreground/40"
-            />
-            <span className="w-8 text-right font-mono text-[9px] tabular-nums text-foreground/30">
-              {angleDeg.toFixed(1)}
-            </span>
-          </label>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          {/* Animate toggle */}
-          <button
-            onClick={() => setAnimate((prev) => !prev)}
-            className={`${btnBase} ${animate ? btnActive : btnInactive}`}
-          >
-            ANIMATE
-          </button>
-        </div>
-      </div>
+        <ControlGroup label="species">
+          <LabSelect
+            label="preset"
+            value={activePreset}
+            onChange={handlePresetChange}
+            options={PRESET_IDS.map((id) => ({ value: id, label: PRESETS[id].label }))}
+          />
+        </ControlGroup>
+        <ControlGroup label="shape">
+          <LabSelect
+            label="iter"
+            value={String(iterations)}
+            onChange={(v) => setIterations(Number(v))}
+            options={getIterOptions(activePreset).map((n) => ({
+              value: String(n),
+              label: String(n),
+            }))}
+          />
+          <LabSlider
+            label="angle"
+            min={5}
+            max={90}
+            step={0.5}
+            value={angleDeg}
+            onChange={setAngleDeg}
+            format={(v) => v.toFixed(1)}
+          />
+        </ControlGroup>
+        <ControlGroup label="draw" sticky>
+          <Toggle label="animate" pressed={animate} onChange={setAnimate} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

@@ -1,9 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
-import { btnActive, btnBase, btnInactive } from "@/features/lab/lib/control-styles";
+import { ControlGroup, Segmented } from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
 
 type Mode = "tutorial" | "how-to" | "reference" | "explanation";
 
@@ -227,6 +231,36 @@ function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
 }
 
+interface CompilerMetrics {
+  coherence: number;
+  vocabulary: number;
+  example: number;
+  load: number;
+}
+
+/** Derive the live "document compiler" readout from the current mode + visual. */
+function computeMetrics(mode: Mode, functionalVisual: boolean): CompilerMetrics {
+  const activePrinciples = PRINCIPLES.filter((principle) => principle.scores[mode] >= 0.62);
+  const activeMaterial = MODE_MATERIAL.filter((principle) => principle.scores[mode] >= 0.62);
+  const visualBonus = functionalVisual ? 0.1 : -0.1;
+  const coherence = activePrinciples.length
+    ? activePrinciples.reduce((sum, principle) => sum + principle.scores[mode], 0) /
+      activePrinciples.length
+    : 0;
+  const vocabulary = activePrinciples.some((principle) => principle.id === "vocabulary")
+    ? 0.94
+    : 0.36;
+  const example = activePrinciples.some((principle) => principle.id === "recap-example")
+    ? 0.9
+    : 0.28;
+  const load = clamp(
+    0.5 + visualBonus - MODE_MATERIAL.length * 0.015 + activeMaterial.length * 0.02,
+    0.08,
+    0.96,
+  );
+  return { coherence, vocabulary, example, load };
+}
+
 function drawRoundRect(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -280,28 +314,6 @@ function drawLabel(
   ctx.textBaseline = "alphabetic";
   ctx.fillStyle = colors.muted;
   ctx.fillText(text.toUpperCase(), x, y);
-}
-
-function drawMetric(
-  ctx: CanvasRenderingContext2D,
-  label: string,
-  value: number,
-  x: number,
-  y: number,
-  width: number,
-  colors: Colors,
-) {
-  ctx.font = "9px 'JetBrains Mono', monospace";
-  ctx.fillStyle = colors.muted;
-  ctx.fillText(label.toUpperCase(), x, y);
-
-  drawRoundRect(ctx, x, y + 8, width, 5, 3);
-  ctx.fillStyle = colors.faint;
-  ctx.fill();
-
-  drawRoundRect(ctx, x, y + 8, width * clamp(value, 0, 1), 5, 3);
-  ctx.fillStyle = colors.accent;
-  ctx.fill();
 }
 
 function drawPrincipleCard(
@@ -789,22 +801,6 @@ function drawScene(
   const theme = getTheme();
   const colors = getColors(theme);
   const activePrinciples = PRINCIPLES.filter((principle) => principle.scores[state.mode] >= 0.62);
-  const activeMaterial = MODE_MATERIAL.filter((principle) => principle.scores[state.mode] >= 0.62);
-  const visualBonus = state.functionalVisual ? 0.1 : -0.1;
-  const coherence =
-    activePrinciples.reduce((sum, principle) => sum + principle.scores[state.mode], 0) /
-    activePrinciples.length;
-  const vocabulary = activePrinciples.some((principle) => principle.id === "vocabulary")
-    ? 0.94
-    : 0.36;
-  const example = activePrinciples.some((principle) => principle.id === "recap-example")
-    ? 0.9
-    : 0.28;
-  const load = clamp(
-    0.5 + visualBonus - MODE_MATERIAL.length * 0.015 + activeMaterial.length * 0.02,
-    0.08,
-    0.96,
-  );
 
   ctx.fillStyle = colors.bg;
   ctx.fillRect(0, 0, width, height);
@@ -901,26 +897,9 @@ function drawScene(
   MODE_MATERIAL.forEach((principle, index) => {
     drawModeMaterial(ctx, principle, materialX, materialY + index * 44, gateW, state.mode, colors);
   });
-
-  const metricX = leftX;
-  const metricY = top + PRINCIPLES.length * (cardH + gap) + 22;
-  const metricW = gateW;
-  drawMetric(ctx, "coherence", coherence, metricX, metricY, metricW, colors);
-  drawMetric(ctx, "vocabulary", vocabulary, metricX, metricY + 27, metricW, colors);
-  drawMetric(ctx, "example", example, metricX, metricY + 54, metricW, colors);
-  drawMetric(ctx, "reader load", load, metricX, metricY + 81, metricW, colors);
-
-  ctx.font = "9px 'JetBrains Mono', monospace";
-  ctx.textAlign = "left";
-  ctx.fillStyle = colors.muted;
-  ctx.fillText(
-    `MODE ${state.mode.toUpperCase()}  -  ${state.functionalVisual ? "FUNCTIONAL VISUAL" : "DECORATIVE VISUAL"}`,
-    16,
-    height - 96,
-  );
 }
 
-export function DocumentationPrinciples() {
+export function DocumentationPrinciples({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const simRef = useRef<SimulationState>({
     mode: "explanation",
@@ -931,6 +910,7 @@ export function DocumentationPrinciples() {
   const [mode, setMode] = useState<Mode>("explanation");
   const [functionalVisual, setFunctionalVisual] = useState(true);
   const currentExample = MODE_EXAMPLES[mode];
+  const metrics = computeMetrics(mode, functionalVisual);
 
   const setModeState = useCallback((next: Mode) => {
     simRef.current.mode = next;
@@ -1030,7 +1010,7 @@ export function DocumentationPrinciples() {
       </section>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none" }}
         aria-hidden="true"
         onPointerMove={(event) => {
@@ -1045,36 +1025,44 @@ export function DocumentationPrinciples() {
           simRef.current.pointer.active = false;
         }}
       />
-      <div
-        className="fixed right-5 top-20 z-10 flex max-w-[calc(100vw-2rem)] flex-wrap items-center justify-end gap-3 rounded bg-background/80 px-4 py-2.5 backdrop-blur-sm md:right-8"
-        role="group"
-        aria-label="Documentation lab controls"
+
+      <LabReadout corner="right">
+        <Gauge label="coherence" value={metrics.coherence.toFixed(2)} primary />
+        <Gauge label="vocabulary" value={metrics.vocabulary.toFixed(2)} />
+        <Gauge label="example" value={metrics.example.toFixed(2)} />
+        <Gauge label="reader load" value={metrics.load.toFixed(2)} />
+      </LabReadout>
+
+      <LabChrome
+        identity={{
+          name: "documentation principles",
+          scent: "diátaxis compiler · pick a mode, toggle the visual",
+        }}
+        info={info}
       >
-        <div role="group" aria-label="Document mode" className="flex items-center gap-3">
-          {MODES.map((entry) => (
-            <button
-              key={entry.id}
-              type="button"
-              onClick={() => setModeState(entry.id)}
-              aria-pressed={mode === entry.id}
-              aria-label={`Show ${MODE_LABELS[entry.id]} mode`}
-              className={`${btnBase} ${mode === entry.id ? btnActive : btnInactive}`}
-            >
-              {entry.label}
-            </button>
-          ))}
-        </div>
-        <span className="h-4 w-px bg-foreground/10" />
-        <button
-          type="button"
-          onClick={toggleVisual}
-          aria-pressed={functionalVisual}
-          aria-label={`${functionalVisual ? "Functional" : "Decorative"} visual`}
-          className={`${btnBase} ${btnActive}`}
-        >
-          {functionalVisual ? "functional" : "decorative"}
-        </button>
-      </div>
+        <ControlGroup label="document">
+          <Segmented
+            label="mode"
+            value={mode}
+            onChange={setModeState}
+            options={MODES.map((entry) => ({ value: entry.id, label: entry.label }))}
+          />
+        </ControlGroup>
+        <ControlGroup label="visual">
+          <Segmented
+            label="diagram"
+            value={functionalVisual ? "functional" : "decorative"}
+            onChange={(next) => {
+              const wantFunctional = next === "functional";
+              if (wantFunctional !== functionalVisual) toggleVisual();
+            }}
+            options={[
+              { value: "functional", label: "functional" },
+              { value: "decorative", label: "decorative" },
+            ]}
+          />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

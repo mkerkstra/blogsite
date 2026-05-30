@@ -1,7 +1,18 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { getTheme } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSlider,
+  Tool,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
+import { Dices } from "lucide-react";
 
 /* ────────────────────────────────────────────
    LLM Token Sampling — Canvas2D
@@ -20,36 +31,36 @@ import { getTheme } from "@/features/lab/lib/env";
    ──────────────────────────────────────────── */
 
 const VOCAB = [
-  "\u2581the",
-  "\u2581a",
-  "\u2581model",
-  "\u2581is",
-  "\u2581not",
-  "\u2581very",
-  "\u2581good",
-  "\u2581at",
-  "\u2581this",
-  "\u2581task",
-  "\u2581but",
-  "\u2581it",
-  "\u2581can",
-  "\u2581still",
-  "\u2581learn",
-  "\u2581from",
-  "\u2581data",
-  "\u2581and",
-  "\u2581improve",
-  "\u2581over",
-  "\u2581time",
+  "▁the",
+  "▁a",
+  "▁model",
+  "▁is",
+  "▁not",
+  "▁very",
+  "▁good",
+  "▁at",
+  "▁this",
+  "▁task",
+  "▁but",
+  "▁it",
+  "▁can",
+  "▁still",
+  "▁learn",
+  "▁from",
+  "▁data",
+  "▁and",
+  "▁improve",
+  "▁over",
+  "▁time",
   ".",
   ",",
-  "\u2581The",
-  "\u2581quick",
-  "\u2581brown",
-  "\u2581fox",
-  "\u2581with",
-  "\u2581each",
-  "\u2581new",
+  "▁The",
+  "▁quick",
+  "▁brown",
+  "▁fox",
+  "▁with",
+  "▁each",
+  "▁new",
 ];
 
 const V = VOCAB.length;
@@ -105,12 +116,6 @@ interface Palette {
   tokenBg: string;
   tokenBgDim: string;
   tokenText: string;
-  sliderTrack: string;
-  sliderFill: string;
-  sliderThumb: string;
-  sliderLabel: string;
-  statLabel: string;
-  statValue: string;
   probLabel: string;
 }
 
@@ -129,12 +134,6 @@ const DARK: Palette = {
   tokenBg: "rgba(212,255,0,0.15)",
   tokenBgDim: "rgba(224,226,220,0.06)",
   tokenText: "rgba(224,226,220,0.7)",
-  sliderTrack: "rgba(224,226,220,0.08)",
-  sliderFill: "rgba(212,255,0,0.2)",
-  sliderThumb: "rgba(212,255,0,0.7)",
-  sliderLabel: "rgba(224,226,220,0.4)",
-  statLabel: "rgba(224,226,220,0.3)",
-  statValue: "rgba(224,226,220,0.6)",
   probLabel: "rgba(212,255,0,0.6)",
 };
 
@@ -153,12 +152,6 @@ const LIGHT: Palette = {
   tokenBg: "rgba(42,138,14,0.1)",
   tokenBgDim: "rgba(10,10,10,0.04)",
   tokenText: "rgba(10,10,10,0.6)",
-  sliderTrack: "rgba(10,10,10,0.06)",
-  sliderFill: "rgba(42,138,14,0.15)",
-  sliderThumb: "rgba(42,138,14,0.6)",
-  sliderLabel: "rgba(10,10,10,0.35)",
-  statLabel: "rgba(10,10,10,0.25)",
-  statValue: "rgba(10,10,10,0.5)",
   probLabel: "rgba(42,138,14,0.5)",
 };
 
@@ -302,17 +295,6 @@ function lerp(a: number, b: number, t: number): number {
    Types
    ──────────────────────────────────────────── */
 
-interface SliderSpec {
-  label: string;
-  min: number;
-  max: number;
-  step: number;
-  value: number;
-  lowLabel: string;
-  highLabel: string;
-  format: (v: number) => string;
-}
-
 interface GeneratedToken {
   vocabIdx: number;
   prob: number;
@@ -339,22 +321,11 @@ interface FlyingToken {
   duration: number;
 }
 
-interface SliderRect {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  min: number;
-  max: number;
-  step: number;
-  key: string;
-}
-
 /* ────────────────────────────────────────────
    Component
    ──────────────────────────────────────────── */
 
-export function TokenSampling() {
+export function TokenSampling({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const stateRef = useRef({
@@ -395,25 +366,28 @@ export function TokenSampling() {
     // Flying token
     flying: null as FlyingToken | null,
 
-    // Slider interaction
-    activeSlider: -1,
-    sliderRects: [] as SliderRect[],
-
-    // Sample button
-    sampleBtnRect: { x: 0, y: 0, w: 0, h: 0 },
-    sampleBtnHover: false,
-
     // Canvas
     width: 0,
     height: 0,
     dpr: 1,
 
-    // Mouse
-    mouseX: 0,
-    mouseY: 0,
-
     // Flags
     needsRecalc: true,
+
+    // One-shot sample request from the chrome control
+    sampleRequested: false,
+  });
+
+  // React mirrors of the sim state — the chrome controls read/write these.
+  const [temperature, setTemperature] = useState(1.0);
+  const [topK, setTopK] = useState(0);
+  const [topP, setTopP] = useState(1.0);
+  const [autoMode, setAutoMode] = useState(true);
+  // Live telemetry, lifted from the sim for the readout HUD.
+  const [telemetry, setTelemetry] = useState({
+    entropy: 0,
+    perplexity: 1,
+    effVocab: V,
   });
 
   useEffect(() => {
@@ -544,19 +518,22 @@ export function TokenSampling() {
     /* ── Layout helpers ─────────────────────── */
 
     function getSequenceArea() {
-      const navH = 52;
-      const y = navH + Math.max(12, S.height * 0.02);
+      // Re-anchored below the navbar band AND the LabReadout HUD (top-right),
+      // so the generated-token strip never sits behind the live telemetry.
+      const topInset = 56;
+      const hudClearance = 52;
+      const y = topInset + hudClearance + Math.max(0, S.height * 0.01);
       return { x: 24, y, w: S.width - 48, h: Math.min(48, S.height * 0.065) };
     }
 
     function getChartArea() {
       const seq = getSequenceArea();
-      const sliderW = Math.min(210, Math.max(160, S.width * 0.18));
+      const sliderW = 0;
       const statsH = Math.min(55, S.height * 0.075);
       const topY = seq.y + seq.h + 16;
       const bottomY = S.height - statsH - 12;
       const chartH = bottomY - topY;
-      const chartW = S.width - sliderW - 70;
+      const chartW = S.width - sliderW - 48;
       const labelH = 52;
       const maxBarH = chartH - labelH - 16;
 
@@ -576,18 +553,6 @@ export function TokenSampling() {
       };
     }
 
-    function getSliderArea() {
-      const sliderW = Math.min(210, Math.max(160, S.width * 0.18));
-      const seq = getSequenceArea();
-      const topY = seq.y + seq.h + 36;
-      return { x: S.width - sliderW - 24, y: topY, w: sliderW };
-    }
-
-    function getStatsArea() {
-      const statsH = Math.min(55, S.height * 0.075);
-      return { x: 24, y: S.height - statsH - 12, w: S.width - 48, h: statsH };
-    }
-
     /* ── Draw ───────────────────────────────── */
 
     function draw(now: number) {
@@ -599,6 +564,12 @@ export function TokenSampling() {
       }
 
       if (S.needsRecalc) recalcDistribution();
+
+      // One-shot sample request from the chrome control
+      if (S.sampleRequested) {
+        S.sampleRequested = false;
+        if (!S.dice.active && !S.flying) doSample();
+      }
 
       // Smooth bar interpolation
       const t = 0.13;
@@ -651,8 +622,6 @@ export function TokenSampling() {
 
       drawSequence(ctx, pal);
       drawChart(ctx, pal, now);
-      drawSliders(ctx, pal);
-      drawStats(ctx, pal);
       if (S.flying) drawFlyingToken(ctx, pal, now);
 
       ctx.restore();
@@ -672,7 +641,7 @@ export function TokenSampling() {
 
       for (let i = 0; i < tokens.length; i++) {
         const tok = tokens[i];
-        const text = VOCAB[tok.vocabIdx].replace("\u2581", "");
+        const text = VOCAB[tok.vocabIdx].replace("▁", "");
         const tw = Math.min(tokenW, c.measureText(text).width + 18);
         const x = area.x + i * (tokenW + tokenGap);
         const y = area.y + (area.h - tokenH) / 2;
@@ -787,7 +756,7 @@ export function TokenSampling() {
         }
 
         // Token label (rotated 45 deg)
-        const label = VOCAB[vi].replace("\u2581", "");
+        const label = VOCAB[vi].replace("▁", "");
         c.save();
         c.translate(barX + barW / 2, labelY);
         c.rotate(-Math.PI / 4);
@@ -855,170 +824,6 @@ export function TokenSampling() {
       void now; // used only for potential future animation
     }
 
-    /* ── Draw: sliders ──────────────────────── */
-
-    function drawSliders(c: CanvasRenderingContext2D, pal: Palette) {
-      const area = getSliderArea();
-
-      const sliders: SliderSpec[] = [
-        {
-          label: "TEMPERATURE",
-          min: 0,
-          max: 2,
-          step: 0.05,
-          value: S.temperature,
-          lowLabel: "deterministic",
-          highLabel: "creative",
-          format: (v) => v.toFixed(2),
-        },
-        {
-          label: "TOP-K",
-          min: 0,
-          max: 30,
-          step: 1,
-          value: S.topK,
-          lowLabel: "all",
-          highLabel: "30",
-          format: (v) => (v === 0 ? "off" : String(Math.round(v))),
-        },
-        {
-          label: "TOP-P",
-          min: 0.05,
-          max: 1,
-          step: 0.05,
-          value: S.topP,
-          lowLabel: "narrow",
-          highLabel: "all",
-          format: (v) => v.toFixed(2),
-        },
-      ];
-
-      const spacing = 62;
-      S.sliderRects = [];
-
-      for (let i = 0; i < sliders.length; i++) {
-        const sl = sliders[i];
-        const sy = area.y + i * spacing;
-        const trackY = sy + 20;
-        const trackH = 3;
-        const thumbR = 7;
-        const pct = (sl.value - sl.min) / (sl.max - sl.min);
-
-        // Label
-        c.font = "9px monospace";
-        c.fillStyle = pal.sliderLabel;
-        c.textAlign = "left";
-        c.textBaseline = "top";
-        c.fillText(sl.label, area.x, sy);
-
-        // Current value
-        c.textAlign = "right";
-        c.fillStyle = pal.statValue;
-        c.fillText(sl.format(sl.value), area.x + area.w, sy);
-
-        // Track background
-        c.fillStyle = pal.sliderTrack;
-        c.beginPath();
-        c.roundRect(area.x, trackY, area.w, trackH, 1.5);
-        c.fill();
-
-        // Filled portion
-        c.fillStyle = pal.sliderFill;
-        c.beginPath();
-        c.roundRect(area.x, trackY, area.w * pct, trackH, 1.5);
-        c.fill();
-
-        // Thumb
-        const thumbX = area.x + area.w * pct;
-        const thumbY = trackY + trackH / 2;
-        c.beginPath();
-        c.arc(thumbX, thumbY, thumbR, 0, Math.PI * 2);
-        c.fillStyle = pal.sliderThumb;
-        c.fill();
-
-        // Min/max annotations
-        c.font = "7px monospace";
-        c.fillStyle = pal.labelDim;
-        c.textAlign = "left";
-        c.textBaseline = "top";
-        c.fillText(sl.lowLabel, area.x, trackY + trackH + 6);
-        c.textAlign = "right";
-        c.fillText(sl.highLabel, area.x + area.w, trackY + trackH + 6);
-
-        // Hit rect (generous padding)
-        S.sliderRects.push({
-          x: area.x - 10,
-          y: trackY - 14,
-          w: area.w + 20,
-          h: 32,
-          min: sl.min,
-          max: sl.max,
-          step: sl.step,
-          key: ["temperature", "topK", "topP"][i],
-        });
-      }
-
-      // Sample button
-      const btnY = area.y + sliders.length * spacing + 12;
-      const btnW = area.w;
-      const btnH = 28;
-      S.sampleBtnRect = { x: area.x, y: btnY, w: btnW, h: btnH };
-
-      const hover = S.sampleBtnHover;
-      c.strokeStyle = hover ? pal.sliderThumb : pal.axis;
-      c.lineWidth = 1;
-      c.beginPath();
-      c.roundRect(area.x, btnY, btnW, btnH, 3);
-      c.stroke();
-
-      c.font = "9px monospace";
-      c.fillStyle = hover ? pal.sliderThumb : pal.sliderLabel;
-      c.textAlign = "center";
-      c.textBaseline = "middle";
-      c.fillText(S.autoMode ? "AUTO-SAMPLING" : "SAMPLE", area.x + btnW / 2, btnY + btnH / 2);
-
-      if (S.autoMode) {
-        const pulse = (Math.sin(performance.now() / 400) + 1) / 2;
-        c.beginPath();
-        c.arc(area.x + btnW / 2 - 50, btnY + btnH / 2, 3, 0, Math.PI * 2);
-        c.fillStyle = pal.sliderThumb;
-        c.globalAlpha = 0.4 + pulse * 0.6;
-        c.fill();
-        c.globalAlpha = 1;
-      }
-    }
-
-    /* ── Draw: stats ────────────────────────── */
-
-    function drawStats(c: CanvasRenderingContext2D, pal: Palette) {
-      const area = getStatsArea();
-      const h = computeEntropy(S.displayProbs);
-      const perplexity = Math.pow(2, h);
-      const eff = effectiveVocabSize(S.targetProbs);
-
-      const stats = [
-        { label: "TEMPERATURE", value: S.temperature.toFixed(2) },
-        { label: "EFF. VOCAB", value: String(eff) },
-        { label: "ENTROPY", value: h.toFixed(2) + " bits" },
-        { label: "PERPLEXITY", value: perplexity.toFixed(1) },
-      ];
-
-      const colW = Math.min(150, area.w / stats.length);
-
-      for (let i = 0; i < stats.length; i++) {
-        const x = area.x + i * colW;
-        c.font = "7px monospace";
-        c.fillStyle = pal.statLabel;
-        c.textAlign = "left";
-        c.textBaseline = "top";
-        c.fillText(stats[i].label, x, area.y);
-
-        c.font = "11px monospace";
-        c.fillStyle = pal.statValue;
-        c.fillText(stats[i].value, x, area.y + 13);
-      }
-    }
-
     /* ── Draw: flying token ─────────────────── */
 
     function drawFlyingToken(c: CanvasRenderingContext2D, pal: Palette, now: number) {
@@ -1030,7 +835,7 @@ export function TokenSampling() {
       const y = lerp(S.flying.startY, S.flying.endY, eased);
       const arcY = y - Math.sin(eased * Math.PI) * 50;
 
-      const text = VOCAB[S.flying.vocabIdx].replace("\u2581", "");
+      const text = VOCAB[S.flying.vocabIdx].replace("▁", "");
       c.font = "10px monospace";
       const tw = c.measureText(text).width + 16;
       const tokenH = 24;
@@ -1051,174 +856,155 @@ export function TokenSampling() {
       c.globalAlpha = 1;
     }
 
-    /* ── Interaction helpers ─────────────────── */
-
-    function getCanvasXY(e: MouseEvent | Touch): [number, number] {
-      const rect = canvas.getBoundingClientRect();
-      return [e.clientX - rect.left, e.clientY - rect.top];
-    }
-
-    function hitTestSliders(mx: number, my: number): number {
-      for (let i = 0; i < S.sliderRects.length; i++) {
-        const r = S.sliderRects[i];
-        if (mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h) return i;
-      }
-      return -1;
-    }
-
-    function hitTestSampleBtn(mx: number, my: number): boolean {
-      const r = S.sampleBtnRect;
-      return mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h;
-    }
-
-    function updateSliderValue(idx: number, mx: number) {
-      const r = S.sliderRects[idx];
-      const trackX = r.x + 10;
-      const trackW = r.w - 20;
-      const pct = Math.max(0, Math.min(1, (mx - trackX) / trackW));
-      let val = r.min + pct * (r.max - r.min);
-      val = Math.round(val / r.step) * r.step;
-      val = Math.max(r.min, Math.min(r.max, val));
-
-      if (r.key === "temperature") S.temperature = val;
-      else if (r.key === "topK") S.topK = Math.round(val);
-      else if (r.key === "topP") S.topP = val;
-
-      S.needsRecalc = true;
-    }
-
-    /* ── Pointer events ─────────────────────── */
-
-    function onPointerDown(e: PointerEvent) {
-      const [mx, my] = getCanvasXY(e);
-      S.mouseX = mx;
-      S.mouseY = my;
-
-      const si = hitTestSliders(mx, my);
-      if (si >= 0) {
-        S.activeSlider = si;
-        updateSliderValue(si, mx);
-        canvas.setPointerCapture(e.pointerId);
-        e.preventDefault();
-        return;
-      }
-
-      if (hitTestSampleBtn(mx, my) && !S.dice.active && !S.flying) {
-        doSample();
-        e.preventDefault();
-      }
-    }
-
-    function onPointerMove(e: PointerEvent) {
-      const [mx, my] = getCanvasXY(e);
-      S.mouseX = mx;
-      S.mouseY = my;
-
-      if (S.activeSlider >= 0) {
-        updateSliderValue(S.activeSlider, mx);
-        return;
-      }
-
-      S.sampleBtnHover = hitTestSampleBtn(mx, my);
-      const overInteractive = hitTestSliders(mx, my) >= 0 || S.sampleBtnHover;
-      canvas.style.cursor = overInteractive ? "pointer" : "default";
-    }
-
-    function onPointerUp(e: PointerEvent) {
-      S.activeSlider = -1;
-      canvas.releasePointerCapture(e.pointerId);
-    }
-
-    /* ── Touch events (fallback) ────────────── */
-
-    function onTouchStart(e: TouchEvent) {
-      if (e.touches.length !== 1) return;
-      const [mx, my] = getCanvasXY(e.touches[0]);
-      S.mouseX = mx;
-      S.mouseY = my;
-
-      const si = hitTestSliders(mx, my);
-      if (si >= 0) {
-        S.activeSlider = si;
-        updateSliderValue(si, mx);
-        e.preventDefault();
-        return;
-      }
-
-      if (hitTestSampleBtn(mx, my) && !S.dice.active && !S.flying) {
-        doSample();
-        e.preventDefault();
-      }
-    }
-
-    function onTouchMove(e: TouchEvent) {
-      if (e.touches.length !== 1) return;
-      const [mx] = getCanvasXY(e.touches[0]);
-      if (S.activeSlider >= 0) {
-        updateSliderValue(S.activeSlider, mx);
-        e.preventDefault();
-      }
-    }
-
-    function onTouchEnd() {
-      S.activeSlider = -1;
-    }
-
-    /* ── Keyboard ───────────────────────────── */
-
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-
-      if (e.key === " ") {
-        e.preventDefault();
-        S.autoMode = !S.autoMode;
-        if (S.autoMode) S.lastSampleTime = performance.now() - 1200;
-      }
-
-      if ((e.key === "r" || e.key === "R") && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
-        S.generatedTokens = [];
-        S.lastTokenIdx = null;
-        S.rawLogits = generateLogits(null);
-        S.needsRecalc = true;
-        S.dice.active = false;
-        S.flying = null;
-        S.autoMode = false;
-      }
-    }
-
-    /* ── Wire up ────────────────────────────── */
-
-    canvas.addEventListener("pointerdown", onPointerDown);
-    canvas.addEventListener("pointermove", onPointerMove);
-    canvas.addEventListener("pointerup", onPointerUp);
-    canvas.addEventListener("pointercancel", onPointerUp);
-    canvas.addEventListener("touchstart", onTouchStart, { passive: false });
-    canvas.addEventListener("touchmove", onTouchMove, { passive: false });
-    canvas.addEventListener("touchend", onTouchEnd);
-    window.addEventListener("keydown", onKeyDown);
-
     rafId = requestAnimationFrame(draw);
 
     return () => {
       cancelAnimationFrame(rafId);
       ro.disconnect();
-      canvas.removeEventListener("pointerdown", onPointerDown);
-      canvas.removeEventListener("pointermove", onPointerMove);
-      canvas.removeEventListener("pointerup", onPointerUp);
-      canvas.removeEventListener("pointercancel", onPointerUp);
-      canvas.removeEventListener("touchstart", onTouchStart);
-      canvas.removeEventListener("touchmove", onTouchMove);
-      canvas.removeEventListener("touchend", onTouchEnd);
-      window.removeEventListener("keydown", onKeyDown);
     };
   }, []);
 
+  /* ── Lift sim telemetry to React state for the readout HUD ── */
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const S = stateRef.current;
+      const h = computeEntropy(S.displayProbs);
+      setTelemetry({
+        entropy: h,
+        perplexity: Math.pow(2, h),
+        effVocab: effectiveVocabSize(S.targetProbs),
+      });
+    }, 200);
+    return () => window.clearInterval(id);
+  }, []);
+
+  /* ── Control handlers ── */
+
+  const handleTemperature = useCallback((v: number) => {
+    stateRef.current.temperature = v;
+    stateRef.current.needsRecalc = true;
+    setTemperature(v);
+  }, []);
+
+  const handleTopK = useCallback((v: number) => {
+    const k = Math.round(v);
+    stateRef.current.topK = k;
+    stateRef.current.needsRecalc = true;
+    setTopK(k);
+  }, []);
+
+  const handleTopP = useCallback((v: number) => {
+    stateRef.current.topP = v;
+    stateRef.current.needsRecalc = true;
+    setTopP(v);
+  }, []);
+
+  const toggleAuto = useCallback(() => {
+    const next = !stateRef.current.autoMode;
+    stateRef.current.autoMode = next;
+    if (next) stateRef.current.lastSampleTime = performance.now() - 1200;
+    setAutoMode(next);
+  }, []);
+
+  const reset = useCallback(() => {
+    const S = stateRef.current;
+    S.generatedTokens = [];
+    S.lastTokenIdx = null;
+    S.rawLogits = generateLogits(null);
+    S.needsRecalc = true;
+    S.dice.active = false;
+    S.flying = null;
+    S.autoMode = false;
+    setAutoMode(false);
+  }, []);
+
+  const sampleOnce = useCallback(() => {
+    stateRef.current.sampleRequested = true;
+  }, []);
+
+  /* ── Keyboard: space = toggle auto, r = reset ──
+     (f/fullscreen + ?/how-it-works live in LabChrome) */
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
+      if (e.key === " " || e.code === "Space") {
+        e.preventDefault();
+        toggleAuto();
+      } else if ((e.key === "r" || e.key === "R") && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault();
+        reset();
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [toggleAuto, reset]);
+
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 h-screen w-screen"
-      style={{ touchAction: "none" }}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className={LAB_CANVAS_CLASS}
+        style={{ zIndex: 0, touchAction: "none" }}
+        aria-hidden="true"
+      />
+
+      <LabReadout corner="right">
+        <Gauge label="temperature" value={temperature.toFixed(2)} />
+        <Gauge label="eff. vocab" value={telemetry.effVocab} />
+        <Gauge label="entropy" value={telemetry.entropy.toFixed(2)} unit="bits" primary />
+        <Gauge label="perplexity" value={telemetry.perplexity.toFixed(1)} />
+      </LabReadout>
+
+      <LabChrome
+        identity={{ name: "token sampling", scent: "temperature · top-k · top-p" }}
+        info={info}
+      >
+        <ControlGroup label="shape">
+          <LabSlider
+            label="temp"
+            min={0}
+            max={2}
+            step={0.05}
+            value={temperature}
+            onChange={handleTemperature}
+            format={(v) => v.toFixed(2)}
+          />
+          <LabSlider
+            label="top-k"
+            min={0}
+            max={30}
+            step={1}
+            value={topK}
+            onChange={handleTopK}
+            format={(v) => (v === 0 ? "off" : String(Math.round(v)))}
+          />
+          <LabSlider
+            label="top-p"
+            min={0.05}
+            max={1}
+            step={0.05}
+            value={topP}
+            onChange={handleTopP}
+            format={(v) => v.toFixed(2)}
+          />
+        </ControlGroup>
+        <ControlGroup label="sample">
+          <Tool
+            label="Sample one token"
+            title="Sample one token"
+            onClick={sampleOnce}
+            icon={<Dices className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={autoMode} onToggle={toggleAuto} onReset={reset} />
+        </ControlGroup>
+      </LabChrome>
+    </>
   );
 }

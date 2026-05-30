@@ -1,7 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { getTheme } from "@/features/lab/lib/env";
+import { labBounds } from "@/features/lab/lib/layout";
+import { LAB_CANVAS_CLASS, useLabCanvas } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSelect,
+  LabSlider,
+  Segmented,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { BarGauge, FormulaGauge, Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ────────────────────────────────────────────
    Mixture of Experts Routing — Canvas2D
@@ -65,7 +77,6 @@ const TOKENS: Record<InputType, string[]> = {
 }
 
 type InputType = "code" | "prose" | "math" | "mixed";
-const INPUT_TYPES: InputType[] = ["code", "prose", "math", "mixed"];
 
 /* ────────────────────────────────────────────
    Routing affinity matrices
@@ -325,7 +336,11 @@ interface LayoutMetrics {
    ──────────────────────────────────────────── */
 
 function computeLayout(w: number, h: number, dpr: number, numExperts: number): LayoutMetrics {
-  const navH = 52 * dpr;
+  // Safe content rect — keeps every label/column clear of the navbar band and
+  // the bottom control strip. The viz is re-centered within these bounds so it
+  // is neither top-heavy (old navH anchor) nor bottom-heavy (old stats band,
+  // now lifted to the readout HUD).
+  const bounds = labBounds(w, h, dpr);
   const margin = 60 * dpr;
   const tokenStartX = margin;
   const routerX = w * 0.22;
@@ -335,10 +350,20 @@ function computeLayout(w: number, h: number, dpr: number, numExperts: number): L
   const outputX = w * 0.9;
   const expertSpacing = numExperts > 1 ? (expertEndX - expertStartX) / (numExperts - 1) : 0;
   const expertW = Math.max(4 * dpr, Math.min(16 * dpr, expertSpacing * 0.5));
-  const expertTop = navH + 24 * dpr;
-  const expertBottom = h * 0.72;
-  const heatmapY = h * 0.78;
+
+  // Reserve a band for the expert columns + their E# labels (top) and load
+  // counters (bottom), then the utilization heatmap below it. Lay the whole
+  // stack out centered inside the safe bounds.
+  const labelHead = 28 * dpr; // ROUTER / E# labels above the columns
   const heatmapH = 24 * dpr;
+  const heatmapGap = 36 * dpr; // load counters + breathing room above heatmap
+  const heatmapLabelH = 20 * dpr;
+  const stackH = bounds.height;
+  const columnH = Math.max(120 * dpr, stackH - labelHead - heatmapGap - heatmapH - heatmapLabelH);
+
+  const expertTop = bounds.y + labelHead;
+  const expertBottom = expertTop + columnH;
+  const heatmapY = expertBottom + heatmapGap;
 
   return {
     w,
@@ -489,8 +514,12 @@ function drawRadialScores(
    Component
    ──────────────────────────────────────────── */
 
-export function MoeRouting() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export function MoeRouting({ info }: { info?: ReactNode }) {
+  const { canvasRef, sizeRef } = useLabCanvas({
+    onResize: ({ width, height, dpr }) => {
+      simRef.current.layout = computeLayout(width, height, dpr, simRef.current.numExperts);
+    },
+  });
 
   const simRef = useRef<SimState>({
     numExperts: 8,
@@ -511,6 +540,14 @@ export function MoeRouting() {
   const [numExperts, setNumExperts] = useState(8);
   const [topK, setTopK] = useState(2);
   const [inputType, setInputType] = useState<InputType>("mixed");
+  const [paused, setPaused] = useState(false);
+  // Live telemetry, lifted from the sim for the readout HUD.
+  const [metrics, setMetrics] = useState({
+    activeParams: 0,
+    totalParams: 47,
+    loadBalance: 1,
+    tokens: 0,
+  });
 
   /* ── Initializer ── */
 
@@ -530,11 +567,9 @@ export function MoeRouting() {
   const reset = useCallback(() => {
     const s = simRef.current;
     s.affinityMatrix = buildAffinityMatrix(s.numExperts);
-    const canvas = canvasRef.current;
-    if (canvas) {
-      initSim(canvas.width, canvas.height, window.devicePixelRatio || 1);
-    }
-  }, [initSim]);
+    const { width, height, dpr } = sizeRef.current;
+    initSim(width, height, dpr);
+  }, [initSim, sizeRef]);
 
   /* ── Animation loop ── */
 
@@ -548,23 +583,10 @@ export function MoeRouting() {
 
     const s = simRef.current;
 
-    /* Size canvas */
-    const rect = canvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.round(rect.width * dpr);
-    canvas.height = Math.round(rect.height * dpr);
-    s.layout = computeLayout(canvas.width, canvas.height, dpr, s.numExperts);
-
-    /* Resize observer */
-    const observer = new ResizeObserver(([entry]) => {
-      const dp = window.devicePixelRatio || 1;
-      const newW = Math.round(entry.contentRect.width * dp);
-      const newH = Math.round(entry.contentRect.height * dp);
-      canvas.width = newW;
-      canvas.height = newH;
-      s.layout = computeLayout(newW, newH, dp, s.numExperts);
-    });
-    observer.observe(canvas);
+    /* Layout (canvas already sized full-bleed by useLabCanvas; resizes keep
+       s.layout current via the hook's onResize callback). */
+    const { width, height, dpr } = sizeRef.current;
+    s.layout = computeLayout(width, height, dpr, s.numExperts);
 
     /* Animation state */
     let raf = 0;
@@ -1070,55 +1092,36 @@ export function MoeRouting() {
         }
       }
 
-      /* ── Stats (bottom center) ── */
-      {
-        const statsY = h - 30 * dpr;
-        ctx.save();
-        ctx.font = `${8 * dpr}px monospace`;
-        ctx.fillStyle = colors.textDim;
-        ctx.textAlign = "center";
-
-        // Active params: simulate MoE sizing
-        const totalParams = s.numExperts <= 8 ? 47 : 235;
-        const activeParams =
-          s.numExperts <= 8
-            ? Math.round(totalParams * (s.topK / s.numExperts) + 6)
-            : Math.round(totalParams * (s.topK / s.numExperts) + 22);
-
-        const loadBalance = computeLoadBalance(s.expertLoads, s.numExperts, s.totalTokens);
-        const loadStr = s.totalTokens > 0 ? loadBalance.toFixed(2) : "---";
-
-        const statsText = `active params: ${activeParams}B / ${totalParams}B    load balance: ${loadStr}    tokens: ${s.totalTokens}`;
-        ctx.fillText(statsText, w / 2, statsY);
-
-        ctx.restore();
-      }
+      // Stats (active params, load balance, tokens) now live in the top
+      // LabReadout HUD — lifted to React state via a throttled sync below.
     }
 
     raf = requestAnimationFrame(frame);
 
     return () => {
       cancelAnimationFrame(raf);
-      observer.disconnect();
     };
-  }, [initSim]);
+  }, [initSim, sizeRef]);
 
-  /* ── Load balance metric ── */
+  /* ── Transport ── */
 
-  /* ── Keyboard handlers ── */
+  const togglePause = useCallback(() => {
+    const next = !simRef.current.paused;
+    simRef.current.paused = next;
+    setPaused(next);
+  }, []);
+
+  /* ── Keyboard: space = pause, r = reset ── (f/fullscreen + ?/how-it-works live in LabChrome) */
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
 
-      if (e.key === " ") {
+      if (e.key === " " || e.code === "Space") {
         e.preventDefault();
-        simRef.current.paused = !simRef.current.paused;
-      }
-
-      if (e.key === "r" || e.key === "R") {
-        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        togglePause();
+      } else if ((e.key === "r" || e.key === "R") && !e.metaKey && !e.ctrlKey && !e.altKey) {
         e.preventDefault();
         reset();
       }
@@ -1126,27 +1129,50 @@ export function MoeRouting() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [reset]);
+  }, [togglePause, reset]);
+
+  /* ── Lift sim telemetry to React state for the readout HUD ── */
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const s = simRef.current;
+      const totalParams = s.numExperts <= 8 ? 47 : 235;
+      const activeParams = computeActiveParams(s.numExperts, s.topK);
+      const loadBalance = computeLoadBalance(s.expertLoads, s.numExperts, s.totalTokens);
+      setMetrics({
+        activeParams,
+        totalParams,
+        loadBalance: s.totalTokens > 0 ? loadBalance : 1,
+        tokens: s.totalTokens,
+      });
+    }, 200);
+    return () => window.clearInterval(id);
+  }, []);
 
   /* ── Control handlers ── */
 
-  const handleExpertToggle = useCallback(() => {
-    const s = simRef.current;
-    const next = s.numExperts === 8 ? 16 : 8;
-    s.numExperts = next;
-    s.affinityMatrix = buildAffinityMatrix(next);
-    s.expertLoads = Array.from({ length: next }, () => 0);
-    s.totalTokens = 0;
-    s.tokenIndex = 0;
-    s.activeToken = null;
-    s.persistentPaths = [];
-    setNumExperts(next);
+  const handleExperts = useCallback(
+    (next: number) => {
+      const s = simRef.current;
+      if (s.numExperts === next) return;
+      s.numExperts = next;
+      s.affinityMatrix = buildAffinityMatrix(next);
+      s.expertLoads = Array.from({ length: next }, () => 0);
+      s.totalTokens = 0;
+      s.tokenIndex = 0;
+      s.activeToken = null;
+      s.persistentPaths = [];
+      // top-K can't exceed the new expert count.
+      const clampedK = Math.min(s.topK, next, 4);
+      s.topK = clampedK;
+      setTopK(clampedK);
+      setNumExperts(next);
 
-    const canvas = canvasRef.current;
-    if (canvas) {
-      s.layout = computeLayout(canvas.width, canvas.height, window.devicePixelRatio || 1, next);
-    }
-  }, []);
+      const { width, height, dpr } = sizeRef.current;
+      s.layout = computeLayout(width, height, dpr, next);
+    },
+    [sizeRef],
+  );
 
   const handleTopK = useCallback((val: number) => {
     const s = simRef.current;
@@ -1155,62 +1181,90 @@ export function MoeRouting() {
     setTopK(clamped);
   }, []);
 
-  const handleInputType = useCallback(() => {
+  const handleInputType = useCallback((next: InputType) => {
     const s = simRef.current;
-    const idx = INPUT_TYPES.indexOf(s.inputType);
-    const next = INPUT_TYPES[(idx + 1) % INPUT_TYPES.length];
     s.inputType = next;
     s.tokenIndex = 0;
     setInputType(next);
   }, []);
 
-  /* ── Styles ── */
-
-  const btnBase = "px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors";
-  const btnInactive = "text-foreground/30 hover:text-foreground/50";
-
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0 }}
         aria-hidden="true"
       />
 
-      {/* Controls overlay — top right */}
-      <div className="fixed right-5 top-16 z-10 md:right-8 md:top-16">
-        <div className="flex flex-wrap items-center gap-2 rounded bg-background/80 px-3 py-2 backdrop-blur-sm">
-          <button onClick={handleExpertToggle} className={`${btnBase} ${btnInactive}`}>
-            experts: {numExperts}
-          </button>
+      <LabReadout corner="left">
+        <FormulaGauge
+          label="active params"
+          expr={`${metrics.activeParams}B`}
+          value={`${metrics.totalParams}B`}
+        />
+        <Gauge label="load balance" value={metrics.loadBalance.toFixed(2)} primary />
+        <BarGauge
+          label="top-k"
+          value={`${topK}/${numExperts}`}
+          segments={numExperts}
+          active={topK}
+        />
+        <Gauge label="tokens" value={metrics.tokens} />
+      </LabReadout>
 
-          <span className="h-4 w-px bg-foreground/10" />
-
-          <label className="flex items-center gap-1.5">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-              top-k
-            </span>
-            <input
-              type="range"
-              min={1}
-              max={Math.min(4, numExperts)}
-              value={topK}
-              onChange={(e) => handleTopK(Number(e.target.value))}
-              className="h-1 w-12 appearance-none rounded bg-foreground/10 accent-foreground/40"
-            />
-            <span className="w-3 font-mono text-[9px] text-foreground/30">{topK}</span>
-          </label>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          <button onClick={handleInputType} className={`${btnBase} ${btnInactive}`}>
-            input: {inputType}
-          </button>
-        </div>
-      </div>
+      <LabChrome
+        identity={{ name: "mixture of experts", scent: "sparse routing · top-k" }}
+        info={info}
+      >
+        <ControlGroup label="model">
+          <Segmented
+            label="experts"
+            value={numExperts}
+            onChange={handleExperts}
+            options={[
+              { value: 8, label: "8" },
+              { value: 16, label: "16" },
+            ]}
+          />
+          <LabSlider
+            label="top-k"
+            min={1}
+            max={Math.min(4, numExperts)}
+            value={topK}
+            onChange={handleTopK}
+          />
+        </ControlGroup>
+        <ControlGroup label="input">
+          <LabSelect
+            label="tokens"
+            value={inputType}
+            onChange={handleInputType}
+            options={[
+              { value: "code", label: "code" },
+              { value: "prose", label: "prose" },
+              { value: "math", label: "math" },
+              { value: "mixed", label: "mixed" },
+            ]}
+          />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={!paused} onToggle={togglePause} onReset={reset} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
+}
+
+/* ────────────────────────────────────────────
+   Active-parameter sizing (illustrative MoE budget)
+   ──────────────────────────────────────────── */
+
+function computeActiveParams(numExperts: number, topK: number): number {
+  const totalParams = numExperts <= 8 ? 47 : 235;
+  return numExperts <= 8
+    ? Math.round(totalParams * (topK / numExperts) + 6)
+    : Math.round(totalParams * (topK / numExperts) + 22);
 }
 
 /* ────────────────────────────────────────────

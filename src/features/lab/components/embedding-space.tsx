@@ -1,16 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import {
   ANALOGIES,
   CLUSTER_LABELS,
   EMBEDDING_DIM,
-  EMBEDDING_MODEL,
   VOCAB_SIZE,
   WORDS,
 } from "@/features/lab/data/embedding-data";
 import { getTheme } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS, useLabCanvas } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSelect,
+  Toggle,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ────────────────────────────────────────────
    Embedding Space — Canvas2D
@@ -46,6 +55,12 @@ function clusterColor(ci: number, isDark: boolean, opacity: number): string {
 /** One representative word per cluster for the auto-demo cycle. */
 const CLUSTER_REP_WORDS = ["cat", "run", "happy", "red", "big", "bread", "paris", "france"];
 
+/** Options for the query LabSelect — "none" plus every word in the vocabulary. */
+const QUERY_OPTIONS: readonly { value: string; label: string }[] = [
+  { value: "", label: "none" },
+  ...WORDS.map((w) => ({ value: w.word, label: w.word })),
+];
+
 /* ── Sim state ── */
 
 interface WordState {
@@ -67,6 +82,9 @@ const LABEL_REST_X = 8;
 const LABEL_REST_Y = 0;
 const LABEL_FONT_PX = 10;
 const LABEL_LINE_H = 11;
+
+/** Horizontal breathing room (CSS px) — labBounds has no horizontal inset. */
+const PAD_X = 60;
 
 interface SimState {
   words: WordState[];
@@ -144,41 +162,70 @@ function lightColors(): ThemeColors {
 
 /* ── Component ── */
 
-export function EmbeddingSpace() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export function EmbeddingSpace({ info }: { info?: ReactNode }) {
+  // Full-bleed canvas + DPR sizing + ResizeObserver, owned by the hook. The
+  // render loop reads the live size/bounds off sizeRef each frame.
+  const { canvasRef, sizeRef } = useLabCanvas({
+    onResize: () => recomputeTargetsRef.current?.(),
+  });
   const simRef = useRef<SimState | null>(null);
   const rafRef = useRef(0);
+  const recomputeTargetsRef = useRef<(() => void) | null>(null);
 
   const [paused, setPaused] = useState(false);
   const [showClusters, setShowClusters] = useState(true);
   const [showAnalogies, setShowAnalogies] = useState(true);
   const [queryText, setQueryText] = useState("");
+  // Live focus telemetry, lifted from the sim for the readout HUD.
+  const [readout, setReadout] = useState<{ word: string; score: number }>({ word: "—", score: 0 });
 
   const showClustersRef = useRef(true);
   const showAnalogiesRef = useRef(true);
   const resetRef = useRef(0);
 
-  const initSim = useCallback((W: number, H: number): SimState => {
-    const padX = 60;
-    const padTop = 110;
-    const padBot = 110;
-    const usableW = W - padX * 2;
-    const usableH = H - padTop - padBot;
+  // ── Layout: a safe content rect in CSS px, centered within labBounds ──
+  // (labBounds is device-px; we draw post-setTransform in CSS px, so divide.)
+  const layoutFor = useCallback(
+    (W: number, H: number, dpr: number) => {
+      const bounds = sizeRef.current.bounds;
+      const top = bounds.y / dpr;
+      const bottom = bounds.bottom / dpr;
+      const usableW = Math.max(1, W - PAD_X * 2);
+      const usableH = Math.max(1, bottom - top);
+      return { padX: PAD_X, top, usableW, usableH };
+    },
+    [sizeRef],
+  );
+
+  // ── Animation loop ──
+  useEffect(() => {
+    const maybeCanvas = canvasRef.current;
+    if (!maybeCanvas) return;
+    const canvas = maybeCanvas;
+    const maybeCtx = canvas.getContext("2d");
+    if (!maybeCtx) return;
+    const ctx = maybeCtx;
+
+    // Seed words into the safe rect (canvas already sized by useLabCanvas).
+    const { dpr } = sizeRef.current;
+    const W0 = sizeRef.current.width / dpr;
+    const H0 = sizeRef.current.height / dpr;
+    const L0 = layoutFor(W0, H0, dpr);
 
     const words: WordState[] = WORDS.map((w) => ({
-      x: padX + Math.random() * usableW,
-      y: padTop + Math.random() * usableH,
+      x: L0.padX + Math.random() * L0.usableW,
+      y: L0.top + Math.random() * L0.usableH,
       vx: 0,
       vy: 0,
-      targetX: padX + w.baseX * usableW,
-      targetY: padTop + w.baseY * usableH,
+      targetX: L0.padX + w.baseX * L0.usableW,
+      targetY: L0.top + w.baseY * L0.usableH,
       lx: LABEL_REST_X,
       ly: LABEL_REST_Y,
       lvx: 0,
       lvy: 0,
     }));
 
-    return {
+    const sim: SimState = {
       words,
       paused: false,
       hoverIndex: -1,
@@ -193,27 +240,6 @@ export function EmbeddingSpace() {
       queryText: "",
       queryFocusIdx: -1,
     };
-  }, []);
-
-  useEffect(() => {
-    const maybeCanvas = canvasRef.current;
-    if (!maybeCanvas) return;
-    const canvas = maybeCanvas;
-    const maybeCtx = canvas.getContext("2d");
-    if (!maybeCtx) return;
-    const ctx = maybeCtx;
-
-    const setSize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    setSize();
-
-    const rect = canvas.getBoundingClientRect();
-    const sim = initSim(rect.width, rect.height);
     simRef.current = sim;
 
     // Measure each label once. Redo after web fonts load so widths are
@@ -232,27 +258,22 @@ export function EmbeddingSpace() {
       document.fonts.ready.then(measureLabels).catch(() => {});
     }
 
-    const recomputeTargets = (W: number, H: number) => {
-      const padX = 60;
-      const padTop = 110;
-      const padBot = 110;
-      const usableW = W - padX * 2;
-      const usableH = H - padTop - padBot;
+    // Re-spread the spring targets when the canvas resizes (dragged words keep
+    // their pinned target so they don't snap back).
+    const recomputeTargets = () => {
+      const d = sizeRef.current.dpr;
+      const w = sizeRef.current.width / d;
+      const h = sizeRef.current.height / d;
+      const L = layoutFor(w, h, d);
       for (let i = 0; i < WORDS.length; i++) {
-        const w = WORDS[i];
+        const wd = WORDS[i];
         const ws = sim.words[i];
-        if (!w || !ws) continue;
-        ws.targetX = padX + w.baseX * usableW;
-        ws.targetY = padTop + w.baseY * usableH;
+        if (!wd || !ws || i === sim.dragIndex) continue;
+        ws.targetX = L.padX + wd.baseX * L.usableW;
+        ws.targetY = L.top + wd.baseY * L.usableH;
       }
     };
-
-    const observer = new ResizeObserver(() => {
-      setSize();
-      const r = canvas.getBoundingClientRect();
-      recomputeTargets(r.width, r.height);
-    });
-    observer.observe(canvas);
+    recomputeTargetsRef.current = recomputeTargets;
 
     /* ── Pointer events ── */
     const onPointerMove = (e: PointerEvent) => {
@@ -319,23 +340,6 @@ export function EmbeddingSpace() {
     canvas.addEventListener("pointerup", onPointerUp);
     canvas.addEventListener("pointerleave", onPointerLeave);
 
-    /* ── Keyboard ── */
-    const onKeyDown = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-
-      if (e.code === "Space") {
-        e.preventDefault();
-        sim.paused = !sim.paused;
-        setPaused(sim.paused);
-      }
-      if (e.key === "r" || e.key === "R") {
-        e.preventDefault();
-        resetRef.current++;
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-
     /* ── Render loop ── */
     let lastTime = performance.now();
     let lastResetCount = 0;
@@ -346,26 +350,26 @@ export function EmbeddingSpace() {
       const dt = Math.min(32, now - lastTime) / 1000;
       lastTime = now;
 
-      const r = canvas.getBoundingClientRect();
-      const W = r.width;
-      const H = r.height;
+      const dpr = sizeRef.current.dpr;
+      const W = sizeRef.current.width / dpr;
+      const H = sizeRef.current.height / dpr;
       if (W === 0 || H === 0) return;
+
+      // Draw in CSS px regardless of DPR.
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const L = layoutFor(W, H, dpr);
 
       if (resetRef.current !== lastResetCount) {
         lastResetCount = resetRef.current;
-        const padX = 60;
-        const padTop = 110;
-        const padBot = 110;
-        const usableW = W - padX * 2;
-        const usableH = H - padTop - padBot;
         for (let i = 0; i < WORDS.length; i++) {
           const w = WORDS[i];
           const ws = sim.words[i];
           if (!w || !ws) continue;
-          ws.targetX = padX + w.baseX * usableW;
-          ws.targetY = padTop + w.baseY * usableH;
-          ws.x = padX + Math.random() * usableW;
-          ws.y = padTop + Math.random() * usableH;
+          ws.targetX = L.padX + w.baseX * L.usableW;
+          ws.targetY = L.top + w.baseY * L.usableH;
+          ws.x = L.padX + Math.random() * L.usableW;
+          ws.y = L.top + Math.random() * L.usableH;
           ws.vx = 0;
           ws.vy = 0;
           ws.lx = LABEL_REST_X;
@@ -502,7 +506,7 @@ export function EmbeddingSpace() {
         }
       }
 
-      /* ── Background grid ── */
+      /* ── Background grid (full-bleed) ── */
       ctx.strokeStyle = c.grid;
       ctx.lineWidth = 1;
       const gridSpacing = 60;
@@ -652,60 +656,82 @@ export function EmbeddingSpace() {
         ctx.textBaseline = "middle";
         ctx.fillText(wd.word, labelX, labelY);
       }
-
-      /* ── Title block (top-left) ── */
-      ctx.textAlign = "left";
-      ctx.textBaseline = "top";
-      ctx.font = "10px 'JetBrains Mono', monospace";
-      ctx.fillStyle = c.textDim;
-      ctx.fillText("EMBEDDING SPACE", 20, 58);
-      ctx.font = "9px 'JetBrains Mono', monospace";
-      ctx.fillText(
-        `${EMBEDDING_MODEL.split("/").pop()} · ${EMBEDDING_DIM}D \u2192 2D (UMAP)`,
-        20,
-        73,
-      );
-      ctx.fillText(`${VOCAB_SIZE} words · ${CLUSTER_LABELS.length} clusters`, 20, 86);
-
-      /* ── Scale / cost panel (bottom-right) ── */
-      const bytesPerVec = EMBEDDING_DIM * 4;
-      const kbPerVec = (bytesPerVec / 1024).toFixed(2);
-      const gbPerMillion = ((bytesPerVec * 1_000_000) / 1024 ** 3).toFixed(2);
-
-      ctx.textAlign = "right";
-      ctx.textBaseline = "bottom";
-      ctx.font = "9px 'JetBrains Mono', monospace";
-      const panelX = W - 20;
-      const lineH = 13;
-      const lines = [
-        `cos(a,b) = a\u00B7b / \u2016a\u2016\u2016b\u2016`,
-        `float32 \u00D7 ${EMBEDDING_DIM} = ${kbPerVec} KB/vec`,
-        `1M vectors \u2248 ${gbPerMillion} GB (+HNSW)`,
-        `SELECT ... ORDER BY emb <=> $1 LIMIT 5`,
-      ];
-      for (let i = 0; i < lines.length; i++) {
-        ctx.fillStyle = i === 0 ? c.text : c.textDim;
-        ctx.fillText(lines[i], panelX, H - 20 - (lines.length - 1 - i) * lineH);
-      }
     }
 
     rafRef.current = requestAnimationFrame(render);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
-      observer.disconnect();
+      recomputeTargetsRef.current = null;
       canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerdown", onPointerDown);
       canvas.removeEventListener("pointerup", onPointerUp);
       canvas.removeEventListener("pointerleave", onPointerLeave);
-      window.removeEventListener("keydown", onKeyDown);
     };
-  }, [initSim]);
+  }, [canvasRef, sizeRef, layoutFor]);
 
-  /* ── Sync React state → refs ── */
+  // ── Transport callbacks shared by the keyboard handler and the Transport ──
+  const togglePause = useCallback(() => {
+    const next = !(simRef.current?.paused ?? false);
+    if (simRef.current) simRef.current.paused = next;
+    setPaused(next);
+  }, []);
+
+  const reset = useCallback(() => {
+    resetRef.current++;
+  }, []);
+
+  // ── Keyboard: space = pause, r = reset ── (f/fullscreen + ?/how-it-works live in LabChrome)
   useEffect(() => {
-    const s = simRef.current;
-    if (s) s.paused = paused;
+    const onKeyDown = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.key === " " || e.code === "Space") {
+        e.preventDefault();
+        togglePause();
+      } else if (e.key === "r" || e.key === "R") {
+        e.preventDefault();
+        reset();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [togglePause, reset]);
+
+  // ── Lift live focus telemetry to React state for the readout HUD ──
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const s = simRef.current;
+      if (!s) return;
+
+      // Focus precedence mirrors the render loop: hover > query > demo.
+      let idx = s.hoverIndex >= 0 ? s.hoverIndex : s.queryFocusIdx;
+      if (idx < 0 && s.demoMode === "neighbors") {
+        const rep = CLUSTER_REP_WORDS[s.demoIndex % CLUSTER_REP_WORDS.length];
+        if (rep) idx = findWordIdx(rep);
+      }
+
+      if (idx < 0) {
+        // Analogy demo (or nothing): surface the analogy's top match.
+        const analogy =
+          s.demoMode === "analogy" ? ANALOGIES[s.demoIndex % ANALOGIES.length] : undefined;
+        const top = analogy?.top[0];
+        const w = top ? (WORDS[top.idx]?.word ?? "—") : "—";
+        setReadout({ word: w, score: top?.score ?? 0 });
+        return;
+      }
+
+      const top = WORDS[idx]?.neighbors[0];
+      setReadout({ word: WORDS[idx]?.word ?? "—", score: top?.score ?? 0 });
+    }, 200);
+    return () => window.clearInterval(id);
+  }, []);
+
+  // ── Sync React state → refs ──
+  useEffect(() => {
+    if (simRef.current) simRef.current.paused = paused;
   }, [paused]);
   useEffect(() => {
     showClustersRef.current = showClusters;
@@ -721,83 +747,39 @@ export function EmbeddingSpace() {
     s.queryFocusIdx = q ? findWordIdx(q) : -1;
   }, [queryText]);
 
-  const btnBase =
-    "px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.15em] transition-colors cursor-pointer";
-
-  const queryResolved =
-    queryText.trim() && findWordIdx(queryText.trim().toLowerCase()) < 0 ? "not in vocab" : null;
-
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none" }}
         aria-hidden="true"
       />
 
-      <div className="fixed right-5 top-16 z-10 flex items-center gap-2 md:right-8">
-        <div className="relative">
-          <input
-            type="text"
+      <LabReadout corner="right">
+        <Gauge label="top cosine" value={readout.score.toFixed(2)} primary />
+        <Gauge label="focus" value={readout.word} />
+        <Gauge label="dim" value={EMBEDDING_DIM} unit="D" />
+        <Gauge label="vocab" value={VOCAB_SIZE} />
+      </LabReadout>
+
+      <LabChrome identity={{ name: "embedding space", scent: "hover · drag · query" }} info={info}>
+        <ControlGroup label="query">
+          <LabSelect
+            label="word"
             value={queryText}
-            onChange={(e) => setQueryText(e.target.value)}
-            placeholder="query…"
-            aria-label="semantic search query"
-            spellCheck={false}
-            autoCorrect="off"
-            autoCapitalize="off"
-            className="w-28 border border-foreground/15 bg-transparent px-2 py-1.5 font-mono text-[10px] lowercase tracking-[0.1em] text-foreground/70 placeholder:text-foreground/25 focus:border-accent focus:outline-none"
+            onChange={setQueryText}
+            options={QUERY_OPTIONS}
           />
-          {queryResolved ? (
-            <span className="pointer-events-none absolute -bottom-4 right-0 font-mono text-[8px] uppercase tracking-[0.15em] text-foreground/35">
-              {queryResolved}
-            </span>
-          ) : null}
-        </div>
-
-        <span className="h-4 w-px bg-foreground/10" />
-
-        <button
-          onClick={() => setShowClusters(!showClusters)}
-          className={`${btnBase} ${showClusters ? "text-foreground/60 hover:text-foreground/80" : "text-foreground/25 hover:text-foreground/40"}`}
-        >
-          clusters
-        </button>
-
-        <span className="h-4 w-px bg-foreground/10" />
-
-        <button
-          onClick={() => setShowAnalogies(!showAnalogies)}
-          className={`${btnBase} ${showAnalogies ? "text-foreground/60 hover:text-foreground/80" : "text-foreground/25 hover:text-foreground/40"}`}
-        >
-          analogies
-        </button>
-
-        <span className="h-4 w-px bg-foreground/10" />
-
-        <button
-          onClick={() => {
-            const s = simRef.current;
-            if (s) {
-              s.paused = !s.paused;
-              setPaused(s.paused);
-            }
-          }}
-          className={`${btnBase} text-foreground/30 hover:text-foreground/50`}
-        >
-          {paused ? "play" : "pause"}
-        </button>
-
-        <button
-          onClick={() => {
-            resetRef.current++;
-          }}
-          className={`${btnBase} text-foreground/30 hover:text-foreground/50`}
-        >
-          reset
-        </button>
-      </div>
+        </ControlGroup>
+        <ControlGroup label="layers">
+          <Toggle label="clusters" pressed={showClusters} onChange={setShowClusters} />
+          <Toggle label="analogies" pressed={showAnalogies} onChange={setShowAnalogies} />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={!paused} onToggle={togglePause} onReset={reset} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }
@@ -888,11 +870,7 @@ function drawAnalogy(
   ctx.font = "11px 'JetBrains Mono', monospace";
   ctx.fillStyle = c.textBright;
   ctx.textAlign = "center";
-  ctx.fillText(
-    `${analogy.a} \u2212 ${analogy.b} + ${analogy.c} \u2248 ${predictedWord}`,
-    labelX,
-    labelY,
-  );
+  ctx.fillText(`${analogy.a} − ${analogy.b} + ${analogy.c} ≈ ${predictedWord}`, labelX, labelY);
   ctx.font = "9px 'JetBrains Mono', monospace";
   ctx.fillStyle = c.text;
   ctx.fillText(`top match cos=${score}`, labelX, labelY + 14);

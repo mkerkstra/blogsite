@@ -1,7 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { getTheme } from "@/features/lab/lib/env";
+import { labBounds } from "@/features/lab/lib/layout";
+import { LAB_CANVAS_CLASS, useLabCanvas } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSlider,
+  Toggle,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge, ProgressGauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ────────────────────────────────────────────
    Token vocabulary (common BPE subwords)
@@ -211,15 +222,16 @@ function createSim(): SimState {
    Component
    ──────────────────────────────────────────── */
 
-export function KvCache() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export function KvCache({ info }: { info?: ReactNode }) {
+  const { canvasRef, sizeRef } = useLabCanvas();
   const simRef = useRef<SimState>(createSim());
   const rafRef = useRef<number>(0);
 
   const [cached, setCached] = useState(true);
   const [speed, setSpeed] = useState(1);
   const [paused, setPaused] = useState(false);
-  const [tokenCount, setTokenCount] = useState(0);
+  // Live telemetry, lifted from the sim for the readout HUD.
+  const [metrics, setMetrics] = useState({ step: 0, cacheKB: 0, tps: 0, ghostTps: 0 });
 
   /* ── Generate token sequence ── */
   const generateTokens = useCallback((): string[] => {
@@ -235,7 +247,7 @@ export function KvCache() {
     const s = simRef.current;
     s.tokens = generateTokens();
     s.currentStep = -1;
-    s.stepStartTime = 0;
+    s.stepStartTime = performance.now();
     s.rowProgress.fill(0);
     s.colProgress.fill(0);
     s.recomputeRow = 0;
@@ -247,16 +259,18 @@ export function KvCache() {
     s.done = false;
     s.paused = false;
     setPaused(false);
-    setTokenCount(0);
   }, [generateTokens]);
 
   /* ── Toggle cached mode ── */
-  const toggleCached = useCallback(() => {
-    const s = simRef.current;
-    s.cached = !s.cached;
-    setCached(s.cached);
-    reset();
-  }, [reset]);
+  const toggleCached = useCallback(
+    (next: boolean) => {
+      const s = simRef.current;
+      s.cached = next;
+      setCached(next);
+      reset();
+    },
+    [reset],
+  );
 
   /* ── Toggle pause ── */
   const togglePause = useCallback(() => {
@@ -267,13 +281,6 @@ export function KvCache() {
       s.stepStartTime = performance.now();
     }
     setPaused(s.paused);
-  }, []);
-
-  /* ── Speed change ── */
-  const handleSpeedChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = Number(e.target.value);
-    simRef.current.speed = v;
-    setSpeed(v);
   }, []);
 
   /* ── Main effect: canvas + animation loop ── */
@@ -290,67 +297,30 @@ export function KvCache() {
     s.tokens = generateTokens();
     s.stepStartTime = performance.now();
 
-    // Size canvas
-    const setSize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    setSize();
-
-    const observer = new ResizeObserver(() => setSize());
-    observer.observe(canvas);
-
-    // Keyboard
-    const onKeyDown = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-
-      if (e.code === "Space") {
-        e.preventDefault();
-        s.paused = !s.paused;
-        if (!s.paused) s.stepStartTime = performance.now();
-        setPaused(s.paused);
-      }
-      if (e.key === "r" || e.key === "R") {
-        e.preventDefault();
-        s.tokens = generateTokens();
-        s.currentStep = -1;
-        s.stepStartTime = performance.now();
-        s.rowProgress.fill(0);
-        s.colProgress.fill(0);
-        s.recomputeRow = 0;
-        s.recomputeProgress = 0;
-        s.arrowProgress = 0;
-        s.tokenOpacity.fill(0);
-        s.cachedOps = 0;
-        s.uncachedOps = 0;
-        s.done = false;
-        s.paused = false;
-        setPaused(false);
-        setTokenCount(0);
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-
     /* ── Render loop ── */
     function render(now: number) {
       rafRef.current = requestAnimationFrame(render);
 
-      const rect = canvas.getBoundingClientRect();
-      const W = rect.width;
-      const H = rect.height;
+      const size = sizeRef.current;
+      const dpr = size.dpr || 1;
+      const W = size.width / dpr;
+      const H = size.height / dpr;
 
       if (W === 0 || H === 0) return;
+
+      // Draw in CSS-pixel space; the hook keeps the backing store at device px.
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       const isDark = getTheme() === "dark";
       const colors = isDark ? darkColors() : lightColors();
 
-      // Clear
+      // Clear (full-bleed background)
       ctx.fillStyle = colors.bg;
       ctx.fillRect(0, 0, W, H);
+
+      // Safe content rect (CSS px) — keep meaningful content below the readout
+      // HUD band at top and above the control strip at bottom.
+      const bounds = labBounds(W, H, 1);
 
       // Layout calculations
       const tokenAreaWidth = Math.min(280, W * 0.2);
@@ -359,17 +329,19 @@ export function KvCache() {
       const matrixLeft = tokenAreaWidth + 30;
       const barLeft = W - barAreaWidth - 20;
 
-      const topMargin = 80;
-      const bottomMargin = 100;
-      const matrixTop = topMargin;
-      const matrixHeight = H - topMargin - bottomMargin;
+      // Reserve a band at the top of the content rect for the section labels so
+      // they clear the readout HUD (which floats at top-right); the matrix
+      // re-centers in the remaining height instead of hugging the old navbar.
+      const labelBand = 64;
+      const matrixTop = bounds.y + labelBand;
+      const matrixHeight = bounds.bottom - matrixTop;
 
       const cellW = Math.max(4, Math.min(24, (matrixAreaWidth - 20) / NUM_HEADS));
       const cellH = Math.max(3, Math.min(14, (matrixHeight - 20) / MAX_TOKENS));
       const matrixW = cellW * NUM_HEADS;
       const matrixH = cellH * MAX_TOKENS;
 
-      // Center matrix horizontally in its area
+      // Center matrix horizontally in its area, vertically in the content rect
       const mxStart = matrixLeft + (matrixAreaWidth - matrixW) / 2;
       const myStart = matrixTop + (matrixHeight - matrixH) / 2;
 
@@ -383,7 +355,6 @@ export function KvCache() {
           if (elapsed > 400) {
             s.currentStep = 0;
             s.stepStartTime = now;
-            setTokenCount(1);
           }
         } else {
           const stepProgress = Math.min(1, elapsed / stepDur);
@@ -467,7 +438,6 @@ export function KvCache() {
             } else {
               s.currentStep = ci + 1;
               s.stepStartTime = now;
-              setTokenCount(ci + 2);
             }
           }
         }
@@ -739,61 +709,13 @@ export function KvCache() {
         ctx.fillText("O(n)", barX2 + barW / 2, barTop + barH + 14);
         ctx.fillStyle = colors.textDim;
         ctx.font = "6px 'JetBrains Mono', monospace";
-        ctx.fillText("(ghost: O(n\u00B2))", barX2 + barW / 2, barTop + barH + 24);
+        ctx.fillText("(ghost: O(n²))", barX2 + barW / 2, barTop + barH + 24);
       } else {
         ctx.fillStyle = colors.recompute;
-        ctx.fillText("O(n\u00B2)", barX2 + barW / 2, barTop + barH + 14);
+        ctx.fillText("O(n²)", barX2 + barW / 2, barTop + barH + 14);
         ctx.fillStyle = colors.textDim;
         ctx.font = "6px 'JetBrains Mono', monospace";
         ctx.fillText("(ghost: O(n))", barX2 + barW / 2, barTop + barH + 24);
-      }
-
-      ctx.restore();
-
-      /* ── Draw: Bottom stats ── */
-      ctx.save();
-      const statsY = H - 36;
-      ctx.font = "9px 'JetBrains Mono', monospace";
-      ctx.textAlign = "center";
-
-      // Token counter
-      ctx.fillStyle = colors.text;
-      ctx.fillText(`TOKENS: ${Math.min(ci + 1, MAX_TOKENS)} / ${MAX_TOKENS}`, W / 2 - 140, statsY);
-
-      // Cache size
-      const cacheKB = ((ci + 1) * NUM_HEADS * 2 * 64) / 1024; // ~2 * d_head bytes per KV pair
-      ctx.fillText(`CACHE: ${cacheKB.toFixed(0)} KB`, W / 2, statsY);
-
-      // Speed comparison
-      if (ci > 2) {
-        const cachedTps = (1000 / s.stepDuration) * s.speed;
-        const uncachedTps = cachedTps / Math.max(1, ci * 0.3 + 1);
-        ctx.fillStyle = s.cached ? colors.cacheNew : colors.recompute;
-        ctx.fillText(
-          `${s.cached ? "CACHED" : "UNCACHED"}: ~${cachedTps.toFixed(1)} tok/s`,
-          W / 2 + 160,
-          statsY,
-        );
-        ctx.fillStyle = colors.textDim;
-        const compareRate = s.cached ? uncachedTps : cachedTps;
-        ctx.fillText(
-          `(${s.cached ? "uncached" : "cached"}: ~${compareRate.toFixed(1)} tok/s)`,
-          W / 2 + 160,
-          statsY + 14,
-        );
-      }
-
-      // Mode indicator
-      ctx.fillStyle = s.cached ? colors.cacheNew : colors.recompute;
-      ctx.font = "10px 'JetBrains Mono', monospace";
-      ctx.textAlign = "left";
-      ctx.fillText(s.cached ? "KV CACHE ENABLED" : "NO CACHE (RECOMPUTE ALL)", 20, H - 36);
-
-      if (s.done) {
-        ctx.fillStyle = colors.textBright;
-        ctx.font = "10px 'JetBrains Mono', monospace";
-        ctx.textAlign = "center";
-        ctx.fillText("GENERATION COMPLETE. PRESS R TO RESET", W / 2, H - 14);
       }
 
       ctx.restore();
@@ -803,10 +725,45 @@ export function KvCache() {
 
     return () => {
       cancelAnimationFrame(rafRef.current);
-      observer.disconnect();
-      window.removeEventListener("keydown", onKeyDown);
     };
-  }, [generateTokens]);
+  }, [canvasRef, sizeRef, generateTokens]);
+
+  /* ── Keyboard: space = pause, r = reset ── (f/fullscreen + ?/how-it-works live in LabChrome) */
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.code === "Space") {
+        e.preventDefault();
+        togglePause();
+      } else if (e.key === "r" || e.key === "R") {
+        e.preventDefault();
+        reset();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [togglePause, reset]);
+
+  /* ── Lift sim telemetry to React state for the readout HUD ── */
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const s = simRef.current;
+      const ci = Math.max(0, s.currentStep);
+      const step = Math.min(s.currentStep + 1, MAX_TOKENS);
+      // ~2 * d_head bytes per KV pair
+      const cacheKB = ((ci + 1) * NUM_HEADS * 2 * 64) / 1024;
+      const cachedTps = (1000 / s.stepDuration) * s.speed;
+      const uncachedTps = cachedTps / Math.max(1, ci * 0.3 + 1);
+      // The "live" throughput depends on the active mode; the ghost is the foil.
+      const tps = s.cached ? cachedTps : uncachedTps;
+      const ghostTps = s.cached ? uncachedTps : cachedTps;
+      setMetrics({ step, cacheKB, tps, ghostTps });
+    }, 200);
+    return () => window.clearInterval(id);
+  }, []);
 
   /* ── Sync React state → sim ── */
   useEffect(() => {
@@ -817,74 +774,49 @@ export function KvCache() {
     simRef.current.speed = speed;
   }, [speed]);
 
-  const btnBase =
-    "px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.15em] transition-colors cursor-pointer";
-
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none" }}
         aria-hidden="true"
       />
 
-      {/* Controls (top-right) */}
-      <div className="fixed right-5 top-16 z-10 flex items-center gap-2 md:right-8 md:top-16">
-        <button
-          onClick={toggleCached}
-          className={`${btnBase} ${
-            cached
-              ? "text-[#2a8a0e]/70 hover:text-[#2a8a0e] dark:text-[#d4ff00]/70 dark:hover:text-[#d4ff00]"
-              : "text-[#c8501e]/70 hover:text-[#c8501e] dark:text-[#ff783c]/70 dark:hover:text-[#ff783c]"
-          }`}
-        >
-          {cached ? "cached" : "no cache"}
-        </button>
+      <LabReadout corner="right">
+        <Gauge
+          label={cached ? "cached" : "uncached"}
+          value={metrics.tps.toFixed(1)}
+          unit="tok/s"
+          primary
+        />
+        <Gauge
+          label={cached ? "uncached" : "cached"}
+          value={metrics.ghostTps.toFixed(1)}
+          unit="tok/s"
+        />
+        <Gauge label="cache" value={metrics.cacheKB.toFixed(0)} unit="KB" />
+        <ProgressGauge label="tokens" value={metrics.step} total={MAX_TOKENS} />
+      </LabReadout>
 
-        <span className="h-4 w-px bg-foreground/10" />
-
-        <label className="flex items-center gap-2">
-          <span className="font-mono text-[8px] uppercase tracking-[0.15em] text-foreground/30">
-            speed
-          </span>
-          <input
-            type="range"
+      <LabChrome identity={{ name: "kv cache", scent: "cache · recompute" }} info={info}>
+        <ControlGroup label="mode">
+          <Toggle label={cached ? "cached" : "no cache"} pressed={cached} onChange={toggleCached} />
+        </ControlGroup>
+        <ControlGroup label="rate">
+          <LabSlider
+            label="speed"
             min={1}
             max={8}
-            step={1}
             value={speed}
-            onChange={handleSpeedChange}
-            className="h-1 w-14 appearance-none rounded bg-foreground/10 accent-foreground/40"
+            onChange={setSpeed}
+            format={(v) => `${v}x`}
           />
-          <span className="w-4 text-right font-mono text-[9px] tabular-nums text-foreground/30">
-            {speed}x
-          </span>
-        </label>
-
-        <span className="h-4 w-px bg-foreground/10" />
-
-        <button
-          onClick={togglePause}
-          className={`${btnBase} text-foreground/40 hover:text-foreground/70`}
-        >
-          {paused ? "play" : "pause"}
-        </button>
-
-        <button
-          onClick={reset}
-          className={`${btnBase} text-foreground/40 hover:text-foreground/70`}
-        >
-          reset
-        </button>
-      </div>
-
-      {/* Token counter badge */}
-      <div className="fixed left-5 top-16 z-10 md:left-8 md:top-16">
-        <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-          step {tokenCount} / {MAX_TOKENS}
-        </span>
-      </div>
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={!paused} onToggle={togglePause} onReset={reset} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

@@ -1,7 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { Dices, Plus } from "lucide-react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSlider,
+  Tool,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ────────────────────────────────────────────
    AVL tree data structures
@@ -248,7 +259,7 @@ const INITIAL_VALUES = [40, 20, 60, 10, 30, 50];
    Component
    ──────────────────────────────────────────── */
 
-export function BinaryTree() {
+export function BinaryTree({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const treeRef = useRef<AVLNode | null>(null);
   const positionsRef = useRef<Map<number, NodePos>>(new Map());
@@ -266,8 +277,7 @@ export function BinaryTree() {
   const imbalanceNodeRef = useRef<number | null>(null);
   const rotationLabelRef = useRef<string | null>(null);
 
-  const [inputValue, setInputValue] = useState("");
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [pendingValue, setPendingValue] = useState(50);
   const [isAuto, setIsAuto] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [nodeCount, setNodeCount] = useState(0);
@@ -309,7 +319,6 @@ export function BinaryTree() {
       if (containsValue(treeRef.current, value)) return;
 
       animatingRef.current = true;
-      setIsAnimating(true);
       const w = canvas.width / (window.devicePixelRatio || 1);
       const reduced = reducedMotionRef.current;
 
@@ -403,7 +412,6 @@ export function BinaryTree() {
 
       setNodeCount(collectValues(treeRef.current).length);
       animatingRef.current = false;
-      setIsAnimating(false);
     },
     [sleep, snapPositions],
   );
@@ -522,7 +530,6 @@ export function BinaryTree() {
       }
     }
     animatingRef.current = false;
-    setIsAnimating(false);
     treeRef.current = null;
     positionsRef.current = new Map();
     renderPosRef.current = new Map();
@@ -732,94 +739,55 @@ export function BinaryTree() {
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none" }}
         aria-hidden="true"
       />
 
-      {/* Controls overlay */}
-      <div
-        className="fixed bottom-16 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2"
-        style={{
-          background: "rgba(128,128,128,0.1)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderRadius: "6px",
-          padding: "8px 12px",
-        }}
+      <LabReadout corner="right">
+        <Gauge label="nodes" value={nodeCount} primary />
+      </LabReadout>
+
+      <LabChrome
+        identity={{ name: "avl tree", scent: "self-balancing bst · insert to grow" }}
+        info={info}
       >
-        <input
-          type="number"
-          min={0}
-          max={999}
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              const v = parseInt(inputValue, 10);
-              if (!Number.isNaN(v)) {
-                handleInsert(v);
-                setInputValue("");
-              }
-            }
-          }}
-          placeholder="value"
-          disabled={isAnimating}
-          className="w-16 rounded border border-foreground/10 bg-transparent px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/70 placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none disabled:opacity-40"
-        />
-        <button
-          onClick={() => {
-            const v = parseInt(inputValue, 10);
-            if (!Number.isNaN(v)) {
-              handleInsert(v);
-              setInputValue("");
-            }
-          }}
-          disabled={isAnimating}
-          className="rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80 disabled:opacity-40"
-        >
-          insert
-        </button>
-        <button
-          onClick={handleRandom}
-          disabled={isAnimating}
-          className="rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80 disabled:opacity-40"
-        >
-          random
-        </button>
-        <button
-          onClick={toggleAuto}
-          className={`rounded border px-2 py-1 font-mono text-[10px] uppercase tracking-wider ${
-            isAuto
-              ? "border-foreground/30 text-foreground/80"
-              : "border-foreground/10 text-foreground/50 hover:text-foreground/80"
-          }`}
-        >
-          {isAuto ? "stop" : "auto"}
-        </button>
-        <button
-          onClick={handleClear}
-          className="rounded border border-foreground/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/50 hover:text-foreground/80"
-        >
-          clear
-        </button>
-        <div className="flex items-center gap-1">
-          <label className="font-mono text-[9px] uppercase tracking-wider text-foreground/30">
-            spd
-          </label>
-          <input
-            type="range"
+        <ControlGroup label="insert">
+          <LabSlider
+            label="value"
+            min={1}
+            max={99}
+            value={pendingValue}
+            onChange={setPendingValue}
+          />
+          <Tool
+            label="Insert value"
+            title="Insert value"
+            icon={<Plus className="h-3.5 w-3.5" aria-hidden="true" />}
+            onClick={() => handleInsert(pendingValue)}
+          />
+          <Tool
+            label="Insert random value"
+            title="Insert random value"
+            icon={<Dices className="h-3.5 w-3.5" aria-hidden="true" />}
+            onClick={handleRandom}
+          />
+        </ControlGroup>
+        <ControlGroup label="speed">
+          <LabSlider
+            label="spd"
             min={0.25}
             max={3}
             step={0.25}
             value={speed}
-            onChange={(e) => setSpeed(parseFloat(e.target.value))}
-            className="h-1 w-14 cursor-pointer accent-foreground/40"
+            onChange={setSpeed}
+            format={(v) => `${v}x`}
           />
-          <span className="w-6 font-mono text-[9px] text-foreground/30">{speed}x</span>
-        </div>
-        <span className="font-mono text-[9px] text-foreground/25">n={nodeCount}</span>
-      </div>
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={isAuto} onToggle={toggleAuto} onReset={handleClear} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

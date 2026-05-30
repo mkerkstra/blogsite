@@ -1,7 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { RotateCcw } from "lucide-react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import { ControlGroup, LabSlider, Toggle, Tool } from "@/features/lab/components/chrome/controls";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 
 /* ────────────────────────────────────────────
    Types
@@ -96,7 +100,7 @@ const TEAR_MULT = 2.5;
 const MOUSE_RADIUS = 80;
 const MOUSE_FORCE = 0.8;
 
-export function Cloth() {
+export function Cloth({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Mutable sim state read by the animation loop
@@ -378,14 +382,12 @@ export function Cloth() {
 
   // ── Control handlers ──
 
-  const handleGravity = useCallback(() => {
-    const next = !simRef.current.gravityOn;
+  const handleGravity = useCallback((next: boolean) => {
     simRef.current.gravityOn = next;
     setGravityOn(next);
   }, []);
 
-  const handleWind = useCallback(() => {
-    const next = !simRef.current.windOn;
+  const handleWind = useCallback((next: boolean) => {
     simRef.current.windOn = next;
     setWindOn(next);
   }, []);
@@ -395,60 +397,35 @@ export function Cloth() {
     setSubsteps(val);
   }, []);
 
-  const btnBase = "px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors";
-  const btnActive = "bg-foreground/10 text-foreground/80";
-  const btnInactive = "text-foreground/30 hover:text-foreground/50";
-
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none", cursor: "crosshair" }}
         aria-hidden="true"
       />
 
-      {/* Controls overlay */}
-      <div
-        className="fixed bottom-16 left-1/2 z-10 -translate-x-1/2"
-        style={{ touchAction: "none" }}
+      <LabChrome
+        identity={{ name: "cloth", scent: "verlet integration · drag to tear" }}
+        info={info}
       >
-        <div className="flex items-center gap-3 rounded bg-background/80 px-4 py-2.5 backdrop-blur-sm">
-          <button onClick={resetCloth} className={`${btnBase} ${btnInactive}`}>
-            RESET
-          </button>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          <button
-            onClick={handleGravity}
-            className={`${btnBase} ${gravityOn ? btnActive : btnInactive}`}
-          >
-            GRAVITY
-          </button>
-
-          <button onClick={handleWind} className={`${btnBase} ${windOn ? btnActive : btnInactive}`}>
-            WIND
-          </button>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          <label className="flex items-center gap-2">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-              SPD
-            </span>
-            <input
-              type="range"
-              min={1}
-              max={15}
-              value={substeps}
-              onChange={(e) => handleSubsteps(Number(e.target.value))}
-              className="h-1 w-16 appearance-none rounded bg-foreground/10 accent-foreground/40"
-            />
-            <span className="w-5 font-mono text-[9px] text-foreground/30">{substeps}</span>
-          </label>
-        </div>
-      </div>
+        <ControlGroup label="forces">
+          <Toggle label="gravity" pressed={gravityOn} onChange={handleGravity} />
+          <Toggle label="wind" pressed={windOn} onChange={handleWind} />
+        </ControlGroup>
+        <ControlGroup label="solver">
+          <LabSlider label="spd" min={1} max={15} value={substeps} onChange={handleSubsteps} />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Tool
+            label="Reset (R)"
+            title="Reset (R)"
+            onClick={resetCloth}
+            icon={<RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

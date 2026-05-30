@@ -1,7 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import { ControlGroup, LabSlider, Transport } from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ── Types ── */
 
@@ -162,10 +167,18 @@ function measureTokenWidth(ctx: CanvasRenderingContext2D, text: string, fontSize
 
 /* ── Component ── */
 
-export function Tokenizer() {
+export function Tokenizer({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [simState, setSimState] = useState<SimState>("running");
   const [speed, setSpeed] = useState(1);
+  // Live telemetry, lifted from the sim for the readout HUD.
+  const [metrics, setMetrics] = useState({
+    vocab: 0,
+    merges: 0,
+    compression: "1.00",
+    tokens: 0,
+    initial: 0,
+  });
 
   const stateRef = useRef<{
     tokens: Token[];
@@ -298,6 +311,27 @@ export function Tokenizer() {
   useEffect(() => {
     stateRef.current.simState = simState;
   }, [simState]);
+
+  /* ── Lift sim telemetry to React state for the readout HUD ── */
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const s = stateRef.current;
+      const vocab = new Set(s.tokenStrings).size;
+      const compression =
+        s.initialTokenCount > 0
+          ? (s.initialTokenCount / Math.max(1, s.tokenStrings.length)).toFixed(2)
+          : "1.00";
+      setMetrics({
+        vocab,
+        merges: s.mergeCount,
+        compression,
+        tokens: s.tokenStrings.length,
+        initial: s.initialTokenCount,
+      });
+    }, 200);
+    return () => window.clearInterval(id);
+  }, []);
 
   /* ── Keyboard handler ── */
 
@@ -567,7 +601,9 @@ export function Tokenizer() {
       g.fillStyle = colors.bg;
       g.fillRect(0, 0, w, h);
 
-      const navbarOffset = 56;
+      // Top content anchor: cleared below the navbar band AND the live readout
+      // HUD (which floats over the top ~115px on the right corner).
+      const navbarOffset = 96;
       const padding = 32;
       const rulesPanelWidth = Math.min(260, w * 0.25);
       const mainAreaWidth = w - rulesPanelWidth - padding * 3;
@@ -702,39 +738,12 @@ export function Tokenizer() {
         g.lineWidth = 1.5;
       }
 
-      /* ── Stats area ── */
+      /* ── Status line (steady stats live in the readout HUD) ── */
 
       const statsY = Math.max(rowY + rowHeight + 30, tokenAreaY + 100);
-      g.font = `9px 'JetBrains Mono', monospace`;
-      g.fillStyle = colors.textDim;
+      g.font = `11px 'JetBrains Mono', monospace`;
       g.textAlign = "left";
       g.textBaseline = "top";
-      g.fillText("STATS", mainAreaLeft, statsY);
-
-      const statsLineHeight = 18;
-      g.font = `11px 'JetBrains Mono', monospace`;
-
-      // Vocabulary size
-      const uniqueTokens = new Set(s.tokenStrings).size;
-      g.fillStyle = colors.textMid;
-      g.fillText(`vocab size: ${uniqueTokens}`, mainAreaLeft, statsY + 16);
-
-      // Merge count
-      g.fillText(`merges: ${s.mergeCount}`, mainAreaLeft, statsY + 16 + statsLineHeight);
-
-      // Compression ratio
-      const ratio =
-        s.initialTokenCount > 0
-          ? (s.initialTokenCount / Math.max(1, s.tokenStrings.length)).toFixed(2)
-          : "1.00";
-      g.fillText(`compression: ${ratio}x`, mainAreaLeft, statsY + 16 + statsLineHeight * 2);
-
-      // Current token count
-      g.fillText(
-        `tokens: ${s.initialTokenCount} \u2192 ${s.tokenStrings.length}`,
-        mainAreaLeft,
-        statsY + 16 + statsLineHeight * 3,
-      );
 
       // Current merge highlight
       if (s.simState === "highlighting" || s.simState === "merging") {
@@ -742,14 +751,14 @@ export function Tokenizer() {
         g.fillText(
           `merging: "${s.highlightPairLeft}" + "${s.highlightPairRight}" (${s.highlightFrequency}x)`,
           mainAreaLeft,
-          statsY + 16 + statsLineHeight * 5,
+          statsY,
         );
       }
 
       // Done message
       if (s.simState === "done") {
         g.fillStyle = colors.accentBright;
-        g.fillText("complete - resetting...", mainAreaLeft, statsY + 16 + statsLineHeight * 5);
+        g.fillText("complete - resetting...", mainAreaLeft, statsY);
       }
 
       /* ── Merge rules panel (right side) ── */
@@ -858,55 +867,43 @@ export function Tokenizer() {
     reset(ctx);
   }, [reset]);
 
+  const playing = simState === "running" || simState === "highlighting";
+
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none" }}
         aria-hidden="true"
       />
 
-      {/* Controls overlay — top-right */}
-      <div
-        className="fixed right-4 top-16 z-20 flex items-center gap-3 rounded bg-background/70 px-3 py-2 backdrop-blur-sm"
-        style={{ zIndex: 20 }}
+      <LabReadout corner="right">
+        <Gauge label="vocab" value={metrics.vocab} />
+        <Gauge label="merges" value={metrics.merges} />
+        <Gauge label="compression" value={`${metrics.compression}x`} primary />
+        <Gauge label="tokens" value={`${metrics.initial}→${metrics.tokens}`} />
+      </LabReadout>
+
+      <LabChrome
+        identity={{ name: "tokenizer (bpe)", scent: "byte-pair encoding · greedy merge" }}
+        info={info}
       >
-        <label className="flex items-center gap-1.5">
-          <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-            spd
-          </span>
-          <input
-            type="range"
+        <ControlGroup label="speed">
+          <LabSlider
+            label="spd"
             min={1}
             max={4}
             step={0.5}
             value={speed}
-            onChange={(e) => setSpeed(Number(e.target.value))}
-            className="h-1 w-12 accent-foreground/40"
+            onChange={setSpeed}
+            format={(v) => `${v}x`}
           />
-          <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-            {speed}x
-          </span>
-        </label>
-
-        <div className="h-4 w-px bg-foreground/10" />
-
-        <button
-          onClick={handlePlayPause}
-          disabled={simState === "done" || simState === "merging" || simState === "cooldown"}
-          className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/50 hover:text-foreground/80 disabled:opacity-30"
-        >
-          {simState === "running" || simState === "highlighting" ? "pause" : "play"}
-        </button>
-
-        <button
-          onClick={handleReset}
-          className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/50 hover:text-foreground/80"
-        >
-          reset
-        </button>
-      </div>
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={playing} onToggle={handlePlayPause} onReset={handleReset} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

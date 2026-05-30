@@ -1,7 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  Segmented,
+  Toggle,
+  Transport,
+} from "@/features/lab/components/chrome/controls";
+import { Gauge } from "@/features/lab/components/chrome/gauges";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
+import { LabReadout } from "@/features/lab/components/chrome/lab-readout";
 
 /* ── Voronoi Tessellation ──────────────────────
    Bowyer-Watson incremental Delaunay triangulation
@@ -312,7 +322,7 @@ interface Pulse {
 
 /* ── Component ── */
 
-export function Voronoi() {
+export function Voronoi({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const simRef = useRef<{
@@ -344,6 +354,8 @@ export function Voronoi() {
   const [showFill, setShowFill] = useState(true);
   const [showCircumcircles, setShowCircumcircles] = useState(false);
   const [paused, setPaused] = useState(false);
+  // Live count of seeds (grows as you click to add), lifted for the readout HUD.
+  const [liveSeeds, setLiveSeeds] = useState(30);
 
   /* ── Initialize seeds ── */
 
@@ -541,7 +553,6 @@ export function Voronoi() {
       const dp = window.devicePixelRatio || 1;
       const w = canvas.width;
       const h = canvas.height;
-      const logH = h / dp;
 
       /* ── Update seed positions ── */
       if (!s.paused) {
@@ -662,13 +673,6 @@ export function Voronoi() {
         ctx.arc(pulse.x / dp, pulse.y / dp, radius, 0, Math.PI * 2);
         ctx.stroke();
       }
-
-      /* ── Bottom-left label ── */
-      ctx.font = "9px 'JetBrains Mono', monospace";
-      ctx.textBaseline = "bottom";
-      ctx.fillStyle = TEXT[theme](0.25);
-      ctx.fillText(`VORONOI  ${s.seeds.length} SEEDS`, 12, logH - 60);
-      ctx.fillText("CLICK TO ADD  |  DRAG TO MOVE  |  SPACE PAUSE  |  R RESET", 12, logH - 48);
     }
 
     raf = requestAnimationFrame(frame);
@@ -684,82 +688,51 @@ export function Voronoi() {
     };
   }, [initSeeds]);
 
-  /* ── Styles ── */
+  /* ── Lift live seed count to React state for the readout HUD ── */
 
-  const btnBase = "px-2 py-1 font-mono text-[9px] uppercase tracking-[0.15em] transition-colors";
-  const btnActive = "bg-foreground/10 text-foreground/80";
-  const btnInactive = "text-foreground/30 hover:text-foreground/50";
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setLiveSeeds(simRef.current.seeds.length);
+    }, 200);
+    return () => window.clearInterval(id);
+  }, []);
 
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none" }}
         aria-hidden="true"
       />
 
-      {/* ── Controls (top-right) ── */}
-      <div className="fixed right-4 top-16 z-10" style={{ touchAction: "none" }}>
-        <div className="flex flex-col gap-2 rounded bg-background/80 px-3 py-2.5 backdrop-blur-sm">
-          {/* ── Seed count ── */}
-          <div className="flex flex-col gap-1">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-              Seeds
-            </span>
-            <div className="flex gap-1">
-              {[15, 30, 50, 80].map((n) => (
-                <button
-                  key={n}
-                  onClick={() => handleCount(n)}
-                  className={`${btnBase} ${seedCount === n ? btnActive : btnInactive}`}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-          </div>
+      <LabReadout corner="left">
+        <Gauge label="seeds" value={liveSeeds} primary />
+      </LabReadout>
 
-          <span className="h-px w-full bg-foreground/10" />
-
-          {/* ── Toggles ── */}
-          <div className="flex flex-col gap-1">
-            <button
-              onClick={toggleDelaunay}
-              className={`${btnBase} text-left ${showDelaunay ? btnActive : btnInactive}`}
-            >
-              Delaunay
-            </button>
-            <button
-              onClick={toggleFill}
-              className={`${btnBase} text-left ${showFill ? btnActive : btnInactive}`}
-            >
-              Fill
-            </button>
-            <button
-              onClick={toggleCircumcircles}
-              className={`${btnBase} text-left ${showCircumcircles ? btnActive : btnInactive}`}
-            >
-              Circumcircles
-            </button>
-          </div>
-
-          <span className="h-px w-full bg-foreground/10" />
-
-          {/* ── Pause / Reset ── */}
-          <div className="flex gap-1">
-            <button
-              onClick={togglePause}
-              className={`${btnBase} ${paused ? btnActive : btnInactive}`}
-            >
-              {paused ? "Play" : "Pause"}
-            </button>
-            <button onClick={handleReset} className={`${btnBase} ${btnInactive}`}>
-              Reset
-            </button>
-          </div>
-        </div>
-      </div>
+      <LabChrome identity={{ name: "voronoi", scent: "bowyer-watson · click to add" }} info={info}>
+        <ControlGroup label="seeds">
+          <Segmented
+            label="count"
+            value={seedCount}
+            onChange={handleCount}
+            options={[
+              { value: 15, label: "15" },
+              { value: 30, label: "30" },
+              { value: 50, label: "50" },
+              { value: 80, label: "80" },
+            ]}
+          />
+        </ControlGroup>
+        <ControlGroup label="layers">
+          <Toggle label="delaunay" pressed={showDelaunay} onChange={toggleDelaunay} />
+          <Toggle label="fill" pressed={showFill} onChange={toggleFill} />
+          <Toggle label="circles" pressed={showCircumcircles} onChange={toggleCircumcircles} />
+        </ControlGroup>
+        <ControlGroup label="run" sticky>
+          <Transport playing={!paused} onToggle={togglePause} onReset={handleReset} />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }

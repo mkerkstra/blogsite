@@ -9,6 +9,7 @@ import Script from "next/script";
 import { ThemeProvider } from "@/app/theme-provider";
 import { CommandPaletteLazy } from "@/components/command-palette-lazy";
 import { Footer } from "@/features/resume/components/footer";
+import { FooterGate } from "@/features/resume/components/footer-gate";
 import { Navbar } from "@/features/resume/components/navbar";
 
 // Fonts mirror ~/projects/videa/contribution-report.html:
@@ -120,7 +121,9 @@ export default function RootLayout({
             <main id="main" className="mx-auto w-full max-w-3xl flex-1 px-5 pb-20 pt-10 md:px-8">
               {children}
             </main>
-            <Footer />
+            <FooterGate>
+              <Footer />
+            </FooterGate>
           </div>
           <CommandPaletteLazy />
           <Analytics />

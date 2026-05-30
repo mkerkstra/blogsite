@@ -1,7 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { Sparkles } from "lucide-react";
 import { getTheme, prefersReducedMotion } from "@/features/lab/lib/env";
+import { LAB_CANVAS_CLASS } from "@/features/lab/lib/use-lab-canvas";
+import {
+  ControlGroup,
+  LabSlider,
+  Segmented,
+  Toggle,
+  Tool,
+} from "@/features/lab/components/chrome/controls";
+import { LabChrome } from "@/features/lab/components/chrome/lab-chrome";
 
 /* ────────────────────────────────────────────
    Boids flocking simulation — Canvas2D
@@ -73,7 +83,7 @@ function limitVec(x: number, y: number, max: number): [number, number] {
    Component
    ──────────────────────────────────────────── */
 
-export function Boids() {
+export function Boids({ info }: { info?: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const simRef = useRef<{
@@ -424,133 +434,81 @@ export function Boids() {
     setCohesion(val);
   }, []);
 
-  const handleTrails = useCallback(() => {
-    const next = !simRef.current.trails;
+  const handleTrails = useCallback((next: boolean) => {
     simRef.current.trails = next;
     setTrails(next);
   }, []);
 
-  // ── Styles ──
-
-  const btnBase = "px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors";
-  const btnActive = "bg-foreground/10 text-foreground/80";
-  const btnInactive = "text-foreground/30 hover:text-foreground/50";
+  const handleScatter = useCallback(() => {
+    simRef.current.scatterMul = 1;
+  }, []);
 
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 h-full w-full bg-background"
+        className={LAB_CANVAS_CLASS}
         style={{ zIndex: 0, touchAction: "none", cursor: "crosshair" }}
         aria-hidden="true"
       />
 
-      {/* Controls overlay */}
-      <div
-        className="fixed bottom-16 left-1/2 z-10 -translate-x-1/2"
-        style={{ touchAction: "none" }}
+      <LabChrome
+        identity={{ name: "boids", scent: "reynolds flocking · move to attract" }}
+        info={info}
       >
-        <div className="flex flex-wrap items-center justify-center gap-3 rounded bg-background/80 px-4 py-2.5 backdrop-blur-sm">
-          {/* Count selector */}
-          <div className="flex items-center gap-1">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-              COUNT
-            </span>
-            {[200, 300, 500, 800, 1200].map((n) => (
-              <button
-                key={n}
-                onClick={() => handleCount(n)}
-                className={`${btnBase} ${count === n ? btnActive : btnInactive}`}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          {/* Separation slider */}
-          <label className="flex items-center gap-2">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-              SEP
-            </span>
-            <input
-              type="range"
-              min={0}
-              max={300}
-              value={Math.round(separation * 100)}
-              onChange={(e) => handleSeparation(Number(e.target.value) / 100)}
-              className="h-1 w-14 appearance-none rounded bg-foreground/10 accent-foreground/40"
-            />
-            <span className="w-6 font-mono text-[9px] text-foreground/30">
-              {separation.toFixed(1)}
-            </span>
-          </label>
-
-          {/* Alignment slider */}
-          <label className="flex items-center gap-2">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-              ALI
-            </span>
-            <input
-              type="range"
-              min={0}
-              max={300}
-              value={Math.round(alignment * 100)}
-              onChange={(e) => handleAlignment(Number(e.target.value) / 100)}
-              className="h-1 w-14 appearance-none rounded bg-foreground/10 accent-foreground/40"
-            />
-            <span className="w-6 font-mono text-[9px] text-foreground/30">
-              {alignment.toFixed(1)}
-            </span>
-          </label>
-
-          {/* Cohesion slider */}
-          <label className="flex items-center gap-2">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/30">
-              COH
-            </span>
-            <input
-              type="range"
-              min={0}
-              max={300}
-              value={Math.round(cohesion * 100)}
-              onChange={(e) => handleCohesion(Number(e.target.value) / 100)}
-              className="h-1 w-14 appearance-none rounded bg-foreground/10 accent-foreground/40"
-            />
-            <span className="w-6 font-mono text-[9px] text-foreground/30">
-              {cohesion.toFixed(1)}
-            </span>
-          </label>
-
-          <span className="h-4 w-px bg-foreground/10" />
-
-          {/* Trails toggle */}
-          <button
-            onClick={handleTrails}
-            className={`${btnBase} ${trails ? btnActive : btnInactive}`}
-          >
-            TRAILS
-          </button>
-
-          {/* Scatter button */}
-          <button
-            onPointerDown={() => {
-              simRef.current.scatterHeld = true;
-              simRef.current.scatterMul = 1;
-            }}
-            onPointerUp={() => {
-              simRef.current.scatterHeld = false;
-            }}
-            onPointerLeave={() => {
-              simRef.current.scatterHeld = false;
-            }}
-            className={`${btnBase} ${btnInactive}`}
-          >
-            SCATTER
-          </button>
-        </div>
-      </div>
+        <ControlGroup label="flock">
+          <Segmented
+            label="count"
+            value={count}
+            onChange={handleCount}
+            options={[
+              { value: 200, label: "200" },
+              { value: 300, label: "300" },
+              { value: 500, label: "500" },
+              { value: 800, label: "800" },
+              { value: 1200, label: "1200" },
+            ]}
+          />
+        </ControlGroup>
+        <ControlGroup label="weights">
+          <LabSlider
+            label="sep"
+            min={0}
+            max={3}
+            step={0.1}
+            value={separation}
+            onChange={handleSeparation}
+            format={(v) => v.toFixed(1)}
+          />
+          <LabSlider
+            label="ali"
+            min={0}
+            max={3}
+            step={0.1}
+            value={alignment}
+            onChange={handleAlignment}
+            format={(v) => v.toFixed(1)}
+          />
+          <LabSlider
+            label="coh"
+            min={0}
+            max={3}
+            step={0.1}
+            value={cohesion}
+            onChange={handleCohesion}
+            format={(v) => v.toFixed(1)}
+          />
+        </ControlGroup>
+        <ControlGroup label="render">
+          <Toggle label="trails" pressed={trails} onChange={handleTrails} />
+          <Tool
+            label="Scatter"
+            title="Scatter the flock"
+            onClick={handleScatter}
+            icon={<Sparkles className="h-3.5 w-3.5" aria-hidden="true" />}
+          />
+        </ControlGroup>
+      </LabChrome>
     </>
   );
 }
