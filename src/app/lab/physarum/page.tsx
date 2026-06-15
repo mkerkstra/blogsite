@@ -4,11 +4,7 @@ import { Physarum } from "@/features/lab/components/physarum";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "physarum",
-  "Physarum",
-  "Slime mold simulation with 262k agents on the GPU.",
-);
+export const metadata = labMetadata("physarum");
 
 export default function PhysarumPage() {
   return (

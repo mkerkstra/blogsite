@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "learned-index",
-  "Learned Index",
-  "ALEX. Piecewise linear models replace B-tree pages. The CDF is the index.",
-);
+export const metadata = labMetadata("learned-index");
 
 export default function LearnedIndexPage() {
   return (

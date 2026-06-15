@@ -5,12 +5,16 @@ import Image, { type StaticImageData } from "next/image";
 import heidelbergPic from "../../../public/now/heidelberg.png";
 import olliePic from "../../../public/now/ollie.jpeg";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { JsonLd } from "@/components/json-ld";
 import { SocialMeta } from "@/components/social-meta";
 import { ContributionGraphView } from "@/features/now/components/contribution-graph";
 import { type FocusImage, nowState } from "@/features/now/data/now";
 import { fetchContributionGraph } from "@/features/now/lib/github-contributions";
 import { fetchRecentRepos } from "@/features/now/lib/github-repos";
 import { SectionLabel } from "@/features/resume/components/section-label";
+import { SITE_PERSON } from "@/lib/site";
+import { buildPageSchema } from "@/lib/seo-schema";
 
 /**
  * Static image lookup keyed by the `image` field on a focus block.
@@ -58,10 +62,34 @@ export default async function NowPage() {
   return (
     <div className="flex flex-col gap-12" style={{ viewTransitionName: "page-body" }}>
       <SocialMeta title="Now · kerkstra.dev" description={DESCRIPTION} url="/now" type="profile" />
+      <JsonLd
+        data={buildPageSchema({
+          name: "Now",
+          description: DESCRIPTION,
+          path: "/now",
+          type: "ProfilePage",
+          extra: {
+            dateModified: nowState.updatedOn,
+            mainEntity: SITE_PERSON,
+            about: nowState.focus.map((item) => ({
+              "@type": "Thing",
+              name: item.label,
+              description: item.blurb,
+            })),
+          },
+          breadcrumbs: [
+            { name: "Home", path: "/" },
+            { name: "Now", path: "/now" },
+          ],
+        })}
+      />
       <header className="reveal flex flex-col gap-3">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-          ↳ /now · last updated {updated}
-        </p>
+        <div className="flex flex-col gap-1">
+          <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Now" }]} />
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            last updated {updated}
+          </p>
+        </div>
         <h1
           className="display-name font-display text-[clamp(2.5rem,8vw,4.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground"
           style={{ viewTransitionName: "display-heading" }}

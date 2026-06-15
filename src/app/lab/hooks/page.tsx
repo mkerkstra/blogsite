@@ -3,11 +3,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "hooks",
-  "Hooks",
-  "Deterministic lifecycle callbacks for guardrails, audit trails, memory, and approvals.",
-);
+export const metadata = labMetadata("hooks");
 
 export default function HooksPage() {
   return (

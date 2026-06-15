@@ -3,11 +3,7 @@ import { ParticleLife } from "@/features/lab/components/particle-life";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "particle-life",
-  "Particle Life",
-  "Emergent chemistry from simple attraction rules between colored particles.",
-);
+export const metadata = labMetadata("particle-life");
 
 export default function ParticleLifePage() {
   return (

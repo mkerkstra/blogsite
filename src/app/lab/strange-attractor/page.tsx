@@ -4,11 +4,7 @@ import { StrangeAttractor } from "@/features/lab/components/strange-attractor";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "strange-attractor",
-  "Strange Attractor",
-  "Thomas attractor visualized as 150k particle trails.",
-);
+export const metadata = labMetadata("strange-attractor");
 
 export default function StrangeAttractorPage() {
   return (

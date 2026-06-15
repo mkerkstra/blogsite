@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "kirigami",
-  "Kirigami",
-  "A cut-sheet mechanism. Rotate panels, open pores, and turn paper into motion.",
-);
+export const metadata = labMetadata("kirigami");
 
 export default function KirigamiPage() {
   return (

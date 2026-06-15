@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "graph",
-  "Graph",
-  "Tarjan's algorithm. Find strongly connected components.",
-);
+export const metadata = labMetadata("graph");
 
 export default function GraphPage() {
   return (

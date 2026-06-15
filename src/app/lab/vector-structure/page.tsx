@@ -4,11 +4,7 @@ import { ANALOGIES, CONTEXTUAL_EXAMPLES } from "@/features/lab/data/embedding-da
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "vector-structure",
-  "Vector Structure",
-  "Relationship directions and contextual embeddings inside a learned vector space.",
-);
+export const metadata = labMetadata("vector-structure");
 
 export default function VectorStructurePage() {
   return (

@@ -12,8 +12,7 @@ import { aboutMe } from "../data/about-me";
 import { education } from "../data/education";
 import { experience } from "../data/experience";
 import { toolbox } from "../data/toolbox";
-
-const SITE_URL = "https://www.kerkstra.dev";
+import { SITE_URL } from "@/lib/site";
 
 export function buildPersonSchema(): Record<string, unknown> {
   const currentJob = experience.find((j) => !j.role.time.end) ?? experience[0];

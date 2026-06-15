@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "boids",
-  "Boids",
-  "Flocking simulation. Separation, alignment, cohesion.",
-);
+export const metadata = labMetadata("boids");
 
 export default function BoidsPage() {
   return (

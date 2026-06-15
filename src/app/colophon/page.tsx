@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { JsonLd } from "@/components/json-ld";
 import { SocialMeta } from "@/components/social-meta";
 import { LighthouseScores } from "@/features/colophon/components/lighthouse-scores";
 import { craftNotes } from "@/features/colophon/data/craft-notes";
 import { stack } from "@/features/colophon/data/stack";
 import { tokenGroups } from "@/features/colophon/data/tokens";
 import { SectionLabel } from "@/features/resume/components/section-label";
+import { buildPageSchema } from "@/lib/seo-schema";
 
 const DESCRIPTION =
   "How kerkstra.dev is built. Stack, typography, color tokens, Lighthouse scores, and the accessibility principles behind the design.";
@@ -25,10 +28,32 @@ export default function ColophonPage() {
         url="/colophon"
         type="website"
       />
+      <JsonLd
+        data={buildPageSchema({
+          name: "Colophon",
+          description: DESCRIPTION,
+          path: "/colophon",
+          type: "AboutPage",
+          extra: {
+            about: [
+              ...stack.map((item) => ({
+                "@type": "Thing",
+                name: item.label,
+                description: item.value,
+              })),
+              { "@type": "Thing", name: "Accessibility" },
+              { "@type": "Thing", name: "Performance" },
+              { "@type": "Thing", name: "Design system" },
+            ],
+          },
+          breadcrumbs: [
+            { name: "Home", path: "/" },
+            { name: "Colophon", path: "/colophon" },
+          ],
+        })}
+      />
       <header className="reveal flex flex-col gap-3">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-          ↳ /colophon
-        </p>
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Colophon" }]} />
         <h1
           className="display-name font-display text-[clamp(2.5rem,8vw,4.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground"
           style={{ viewTransitionName: "display-heading" }}

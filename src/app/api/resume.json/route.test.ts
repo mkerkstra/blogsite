@@ -21,6 +21,11 @@ describe("/api/resume.json", () => {
     expect(response.headers.get("cache-control")).toContain("s-maxage=86400");
   });
 
+  it("keeps the API artifact out of search results", async () => {
+    const response = await GET();
+    expect(response.headers.get("x-robots-tag")).toBe("noindex");
+  });
+
   it("returns valid jsonresume v1 schema with all top-level sections", async () => {
     const response = await GET();
     const body = await response.json();

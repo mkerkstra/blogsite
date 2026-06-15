@@ -4,11 +4,7 @@ import { DOCUMENT_CHUNKS, SEARCH_QUERIES } from "@/features/lab/data/embedding-d
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "semantic-search",
-  "Semantic Search",
-  "Query vectors, chunk rankings, thresholds, and filters. The retrieval core of RAG.",
-);
+export const metadata = labMetadata("semantic-search");
 
 export default function SemanticSearchPage() {
   return (

@@ -11,14 +11,9 @@
  *
  * og:image must be an absolute URL.
  */
-const SITE_URL = "https://www.kerkstra.dev";
-const SITE_NAME = "kerkstra.dev";
+import { absoluteUrl, SITE_NAME } from "@/lib/site";
 
 type OgType = "website" | "article" | "profile";
-
-function abs(pathOrUrl: string): string {
-  return pathOrUrl.startsWith("http") ? pathOrUrl : `${SITE_URL}${pathOrUrl}`;
-}
 
 export function SocialMeta({
   title,
@@ -44,8 +39,8 @@ export function SocialMeta({
       <meta property="og:locale" content="en_US" />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
-      <meta property="og:url" content={abs(url)} />
-      <meta property="og:image" content={abs(image)} />
+      <meta property="og:url" content={absoluteUrl(url)} />
+      <meta property="og:image" content={absoluteUrl(image)} />
       <meta property="og:image:width" content={String(imageWidth)} />
       <meta property="og:image:height" content={String(imageHeight)} />
       <meta property="og:image:alt" content={title} />

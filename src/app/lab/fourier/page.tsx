@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "fourier",
-  "Fourier",
-  "Draw a shape. Watch rotating circles recreate it.",
-);
+export const metadata = labMetadata("fourier");
 
 export default function FourierPage() {
   return (

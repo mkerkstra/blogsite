@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "wavelet-tree",
-  "Wavelet Tree",
-  "Recursive alphabet splitting with bitvector rank queries.",
-);
+export const metadata = labMetadata("wavelet-tree");
 
 export default function WaveletTreePage() {
   return (

@@ -3,11 +3,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "subagents",
-  "Subagents",
-  "Specialized agents with separate context, tools, and scoped instructions.",
-);
+export const metadata = labMetadata("subagents");
 
 export default function SubagentsPage() {
   return (

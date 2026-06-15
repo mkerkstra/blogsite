@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "pathfinding",
-  "Pathfinding",
-  "A* vs Dijkstra vs BFS. Draw walls, watch the search.",
-);
+export const metadata = labMetadata("pathfinding");
 
 export default function PathfindingPage() {
   return (

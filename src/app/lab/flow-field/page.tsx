@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "flow-field",
-  "Flow Field",
-  "GPU particle system driven by curl noise.",
-);
+export const metadata = labMetadata("flow-field");
 
 export default function FlowFieldPage() {
   return (

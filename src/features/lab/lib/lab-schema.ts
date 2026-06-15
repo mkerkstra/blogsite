@@ -1,11 +1,9 @@
 /**
  * JSON-LD generators for the /lab surface.
  *
- * Mirrors the homepage Person schema approach: built from the same
- * `experiments.ts` registry the pages render from, and injected into
- * the prerendered HTML by scripts/post-process-html.ts (NOT rendered
- * in the React tree, which trips a hydration warning that costs
- * Lighthouse best-practices points — see src/app/page.tsx).
+ * Built from the same `experiments.ts` registry the pages render from
+ * and injected in-tree through <JsonLd>, matching the rest of the
+ * site's structured data.
  *
  * Each lab page gets:
  *  - CreativeWork  — it's an interactive visualization, not a news/blog
@@ -16,14 +14,7 @@
  * Reference: https://schema.org/CreativeWork · https://schema.org/BreadcrumbList
  */
 import { type Experiment, sections } from "../data/experiments";
-
-const SITE_URL = "https://www.kerkstra.dev";
-
-const AUTHOR = {
-  "@type": "Person",
-  name: "Matt Kerkstra",
-  url: SITE_URL,
-} as const;
+import { SITE_NAME, SITE_PERSON, SITE_URL } from "@/lib/site";
 
 type LocatedExperiment = Experiment & { section: string };
 
@@ -45,8 +36,8 @@ export function buildLabIndexSchema(): Record<string, unknown>[] {
       name: "Lab",
       description: "Visual experiments and algorithm visualizations by Matt Kerkstra.",
       url: `${SITE_URL}/lab`,
-      author: AUTHOR,
-      isPartOf: { "@type": "WebSite", name: "kerkstra.dev", url: SITE_URL },
+      author: SITE_PERSON,
+      isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
     },
     {
       "@context": "https://schema.org",
@@ -68,7 +59,7 @@ export function buildLabSchema(slug: string): Record<string, unknown>[] | null {
   if (!exp) return null;
 
   const url = `${SITE_URL}/lab/${slug}`;
-  const image = `${url}/opengraph-image.png`;
+  const image = `${SITE_URL}/lab-previews/${slug}.dark.png`;
 
   return [
     {
@@ -79,8 +70,8 @@ export function buildLabSchema(slug: string): Record<string, unknown>[] | null {
       url,
       image,
       genre: exp.section,
-      author: AUTHOR,
-      creator: AUTHOR,
+      author: SITE_PERSON,
+      creator: SITE_PERSON,
       isPartOf: { "@type": "CollectionPage", name: "Lab", url: `${SITE_URL}/lab` },
     },
     {

@@ -3,11 +3,7 @@ import { Sorting } from "@/features/lab/components/sorting";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "sorting",
-  "Sorting",
-  "Eight sorting algorithms race side-by-side. Pick three, tune the input.",
-);
+export const metadata = labMetadata("sorting");
 
 export default function SortingPage() {
   return (

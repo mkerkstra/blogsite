@@ -9,7 +9,7 @@ export default defineConfig({
     environment: "happy-dom",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
-    include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    include: ["src/**/*.{test,spec}.{ts,tsx}", "scripts/**/*.{test,spec}.{ts,tsx}"],
   },
   assetsInclude: ["**/*.{jpeg,jpg,png,gif,svg,webp,avif}"],
   resolve: {

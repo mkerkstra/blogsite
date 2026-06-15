@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "game-of-life",
-  "Game of Life",
-  "Conway's cellular automaton. Draw cells and watch them evolve.",
-);
+export const metadata = labMetadata("game-of-life");
 
 export default function GameOfLifePage() {
   return (

@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "cuckoo-filter",
-  "Cuckoo Filter",
-  "Fingerprints in a cuckoo hash table. Insertions kick, chains cascade.",
-);
+export const metadata = labMetadata("cuckoo-filter");
 
 export default function CuckooFilterPage() {
   return (

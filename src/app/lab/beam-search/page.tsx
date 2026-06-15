@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "beam-search",
-  "Beam Search",
-  "Tree of candidates, pruned by score. Greedy vs beam width comparison.",
-);
+export const metadata = labMetadata("beam-search");
 
 export default function BeamSearchPage() {
   return (

@@ -93,6 +93,7 @@ export async function GET() {
   return NextResponse.json(body, {
     headers: {
       "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800",
+      "X-Robots-Tag": "noindex",
     },
   });
 }

@@ -4,11 +4,7 @@ import { RayMarch } from "@/features/lab/components/ray-march";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "ray-march",
-  "Ray March",
-  "Signed distance field rendering in a fragment shader.",
-);
+export const metadata = labMetadata("ray-march");
 
 export default function RayMarchPage() {
   return (

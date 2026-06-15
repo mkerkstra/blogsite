@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "moe-routing",
-  "Mixture of Experts",
-  "Sparse routing. Each token activates a fraction of the network.",
-);
+export const metadata = labMetadata("moe-routing");
 
 export default function MoeRoutingPage() {
   return (

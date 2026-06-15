@@ -3,11 +3,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "agent-handoffs",
-  "Agent Handoffs",
-  "Transfer control across specialists while preserving conversation state.",
-);
+export const metadata = labMetadata("agent-handoffs");
 
 export default function AgentHandoffsPage() {
   return (
