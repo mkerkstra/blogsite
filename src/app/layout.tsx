@@ -8,9 +8,12 @@ import Script from "next/script";
 
 import { ThemeProvider } from "@/app/theme-provider";
 import { CommandPaletteLazy } from "@/components/command-palette-lazy";
+import { JsonLd } from "@/components/json-ld";
 import { Footer } from "@/features/resume/components/footer";
 import { FooterGate } from "@/features/resume/components/footer-gate";
 import { Navbar } from "@/features/resume/components/navbar";
+import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, SITE_AUTHOR, SITE_NAME, SITE_URL } from "@/lib/site";
+import { buildWebSiteSchema } from "@/lib/seo-schema";
 
 // Fonts mirror ~/projects/videa/contribution-report.html:
 // - Hanken Grotesk for body + headings (sans)
@@ -48,12 +51,6 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
-const SITE_URL = "https://www.kerkstra.dev";
-const SITE_NAME = "kerkstra.dev";
-const DEFAULT_TITLE = "Matt Kerkstra - Software Engineer";
-const DEFAULT_DESCRIPTION =
-  "Staff-level platform engineer with seven years building production ML infrastructure and the systems other engineers run on.";
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   // Title template — child pages override `title` and the template
@@ -65,9 +62,9 @@ export const metadata: Metadata = {
   },
   description: DEFAULT_DESCRIPTION,
   applicationName: SITE_NAME,
-  authors: [{ name: "Matt Kerkstra", url: SITE_URL }],
-  creator: "Matt Kerkstra",
-  publisher: "Matt Kerkstra",
+  authors: [{ name: SITE_AUTHOR, url: SITE_URL }],
+  creator: SITE_AUTHOR,
+  publisher: SITE_AUTHOR,
   alternates: {
     canonical: "/",
     types: {
@@ -108,6 +105,7 @@ export default function RootLayout({
         <Script id="theme-init" strategy="beforeInteractive">
           {THEME_INIT_SCRIPT}
         </Script>
+        <JsonLd data={buildWebSiteSchema()} />
         <div className="scroll-progress" aria-hidden="true" />
         <ThemeProvider>
           <a

@@ -3,11 +3,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "advisor-strategy",
-  "Advisor Strategy",
-  "A premium model advises while cheaper executors do the high-volume work.",
-);
+export const metadata = labMetadata("advisor-strategy");
 
 export default function AdvisorStrategyPage() {
   return (

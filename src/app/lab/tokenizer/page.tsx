@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "tokenizer",
-  "Tokenizer (BPE)",
-  "Byte-pair encoding. How text becomes tokens before the model ever sees it.",
-);
+export const metadata = labMetadata("tokenizer");
 
 export default function TokenizerPage() {
   return (

@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "cloth",
-  "Cloth",
-  "Verlet integration cloth. Drag to interact, pull to tear.",
-);
+export const metadata = labMetadata("cloth");
 
 export default function ClothPage() {
   return (

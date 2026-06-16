@@ -1,0 +1,112 @@
+name: IndexNow
+
+on:
+  deployment_status:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: read
+
+concurrency:
+  group: indexnow-production
+  cancel-in-progress: true
+
+jobs:
+  submit:
+    name: submit updated URLs
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.deployment.sha || github.sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Collect changed files
+        id: changes
+        if: github.event_name == 'deployment_status'
+        env:
+          DEPLOYMENT_ENVIRONMENT: ${{ github.event.deployment.environment }}
+          DEPLOYMENT_ID: ${{ github.event.deployment.id }}
+          DEPLOYMENT_SHA: ${{ github.event.deployment.sha }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          previous_successful_sha() {
+            gh api --paginate -X GET "repos/$REPO/deployments" \
+              -f "environment=$DEPLOYMENT_ENVIRONMENT" \
+              -f per_page=100 \
+              --jq ".[] | select(.id != ${DEPLOYMENT_ID}) | [.id, .sha] | @tsv" |
+              while IFS=$'\t' read -r deployment_id sha; do
+                state="$(gh api -X GET "repos/$REPO/deployments/$deployment_id/statuses" \
+                  -f per_page=1 \
+                  --jq '.[0].state // ""')"
+                if [ "$state" = "success" ]; then
+                  echo "$sha"
+                  break
+                fi
+              done
+          }
+
+          before="$(previous_successful_sha)"
+          if [ -n "$before" ]; then
+            echo "Diffing against previous successful $DEPLOYMENT_ENVIRONMENT deployment: $before"
+          else
+            before="$(git rev-parse "$DEPLOYMENT_SHA^" 2>/dev/null || true)"
+            if [ -n "$before" ]; then
+              echo "No previous successful deployment found. Falling back to parent commit: $before"
+            fi
+          fi
+
+          if [ -z "$before" ]; then
+            echo "Could not resolve a diff base. Falling back to full sitemap submission."
+            exit 0
+          fi
+
+          if ! git cat-file -e "$before^{commit}" 2>/dev/null; then
+            git fetch --no-tags --depth=1 origin "$before" || true
+          fi
+          if ! git cat-file -e "$before^{commit}" 2>/dev/null; then
+            echo "Could not fetch diff base $before. Falling back to full sitemap submission."
+            exit 0
+          fi
+
+          git diff --name-only "$before" "$DEPLOYMENT_SHA" > /tmp/indexnow-changed-files.txt
+          {
+            echo "changed_files<<EOF"
+            cat /tmp/indexnow-changed-files.txt
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Changed files:"
+          cat /tmp/indexnow-changed-files.txt
+
+      - name: Wait for production key file
+        env:
+          INDEXNOW_KEY: b0767cf79c5547c7a2d5853ebbb9c16e
+        run: |
+          for attempt in $(seq 1 30); do
+            body="$(curl -fsS "https://www.kerkstra.dev/${INDEXNOW_KEY}.txt" || true)"
+            if [ "$body" = "$INDEXNOW_KEY" ]; then
+              echo "IndexNow key file is live."
+              exit 0
+            fi
+            echo "Waiting for IndexNow key file on production (attempt $attempt)..."
+            sleep 10
+          done
+
+          echo "Timed out waiting for production IndexNow key file."
+          exit 1
+
+      - name: Submit URLs to IndexNow
+        env:
+          INDEXNOW_CHANGED_FILES: ${{ steps.changes.outputs.changed_files }}
+        run: node scripts/submit-indexnow.mjs

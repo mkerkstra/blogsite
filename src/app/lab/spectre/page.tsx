@@ -4,11 +4,7 @@ import { Spectre } from "@/features/lab/components/spectre";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "spectre",
-  "Spectre",
-  "The aperiodic monotile. One shape, infinite non-repeating tiling.",
-);
+export const metadata = labMetadata("spectre");
 
 export default function SpectrePage() {
   return (

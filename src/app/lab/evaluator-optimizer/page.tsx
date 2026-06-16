@@ -3,11 +3,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "evaluator-optimizer",
-  "Evaluator Optimizer",
-  "Generate, critique, revise, and stop when the rubric passes.",
-);
+export const metadata = labMetadata("evaluator-optimizer");
 
 export default function EvaluatorOptimizerPage() {
   return (

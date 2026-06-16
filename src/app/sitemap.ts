@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { sections } from "@/features/lab/data/experiments";
-
-const SITE_URL = "https://www.kerkstra.dev";
+import { SITE_URL } from "@/lib/site";
 
 /**
  * sitemap.xml — Next 16 picks this up automatically and serves it
@@ -12,8 +11,8 @@ const SITE_URL = "https://www.kerkstra.dev";
  * experiments — the bulk of the indexable surface — are generated
  * from the same `sections` registry the /lab index and per-page
  * routes read, so a new experiment lands in the sitemap with no
- * extra step. /ollie is intentionally omitted: it's `noindex` (see
- * src/app/ollie/page.tsx).
+ * extra step. /ollie and /api/resume.json are intentionally omitted:
+ * they're `noindex`.
  *
  * Note: every URL here is a clean path with no query string, so the
  * `&`-escaping caveat that bites query-param sitemaps (?a=x&b=y) in
@@ -29,12 +28,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/now`, lastModified, changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE_URL}/reading`, lastModified, changeFrequency: "monthly", priority: 0.6 },
     { url: `${SITE_URL}/colophon`, lastModified, changeFrequency: "monthly", priority: 0.5 },
-    {
-      url: `${SITE_URL}/api/resume.json`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.4,
-    },
   ];
 
   const labRoutes: MetadataRoute.Sitemap = sections.flatMap((section) =>

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = "https://www.kerkstra.dev";
+import { SITE_URL } from "@/lib/site";
 
 /**
  * robots.txt — Next 16 picks this up automatically and serves it

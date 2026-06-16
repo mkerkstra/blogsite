@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "fluid",
-  "Fluid",
-  "Real-time Navier-Stokes fluid simulation on the GPU.",
-);
+export const metadata = labMetadata("fluid");
 
 export default function FluidPage() {
   return (

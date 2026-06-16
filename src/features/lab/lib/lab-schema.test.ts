@@ -28,7 +28,7 @@ describe("buildLabSchema", () => {
     expect(creativeWork["@type"]).toBe("CreativeWork");
     expect(creativeWork.name).toBe("Kirigami");
     expect(creativeWork.url).toBe("https://www.kerkstra.dev/lab/kirigami");
-    expect(creativeWork.image).toBe("https://www.kerkstra.dev/lab/kirigami/opengraph-image.png");
+    expect(creativeWork.image).toBe("https://www.kerkstra.dev/lab-previews/kirigami.dark.png");
     expect((creativeWork.author as Record<string, string>).name).toBe("Matt Kerkstra");
 
     expect(breadcrumb["@type"]).toBe("BreadcrumbList");

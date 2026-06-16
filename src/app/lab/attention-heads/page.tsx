@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "attention-heads",
-  "Attention Heads",
-  "Multi-head self-attention. Different heads learn different patterns.",
-);
+export const metadata = labMetadata("attention-heads");
 
 export default function AttentionHeadsPage() {
   return (

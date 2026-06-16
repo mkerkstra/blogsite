@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "xor-filter",
-  "XOR Filter",
-  "Hypergraph peeling builds a fingerprint table. Three XORs answer membership.",
-);
+export const metadata = labMetadata("xor-filter");
 
 export default function XorFilterPage() {
   return (

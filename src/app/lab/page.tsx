@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { JsonLd } from "@/components/json-ld";
 import { SocialMeta } from "@/components/social-meta";
-import { SectionLabel } from "@/features/resume/components/section-label";
 import { sections } from "@/features/lab/data/experiments";
 import { buildLabIndexSchema } from "@/features/lab/lib/lab-schema";
+import { SectionLabel } from "@/features/resume/components/section-label";
 
 const DESCRIPTION = "Visual experiments and algorithm visualizations by Matt Kerkstra.";
 
@@ -30,8 +31,9 @@ export default function LabPage() {
     <div style={{ viewTransitionName: "page-body" }}>
       <SocialMeta title="Lab · kerkstra.dev" description={DESCRIPTION} url="/lab" type="website" />
       <JsonLd data={buildLabIndexSchema()} />
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Lab" }]} />
       <h1
-        className="font-display text-4xl italic"
+        className="mt-3 font-display text-4xl italic"
         style={{ viewTransitionName: "display-heading" }}
       >
         lab

@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "speculative-decoding",
-  "Speculative Decoding",
-  "Draft fast, verify once. How speculative decoding accelerates LLM inference.",
-);
+export const metadata = labMetadata("speculative-decoding");
 
 export default function SpeculativeDecodingPage() {
   return (

@@ -4,11 +4,7 @@ import { Mandelbrot } from "@/features/lab/components/mandelbrot";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "mandelbrot",
-  "Mandelbrot",
-  "GPU-rendered Mandelbrot set. Click to zoom, drag to pan.",
-);
+export const metadata = labMetadata("mandelbrot");
 
 export default function MandelbrotPage() {
   return (

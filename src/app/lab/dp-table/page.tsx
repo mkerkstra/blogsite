@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "dp-table",
-  "DP Table",
-  "Edit distance. Watch dynamic programming fill a table.",
-);
+export const metadata = labMetadata("dp-table");
 
 export default function DpTablePage() {
   return (

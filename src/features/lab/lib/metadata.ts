@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { findExperiment } from "@/features/lab/lib/lab-schema";
+
 /**
  * Per-lab page metadata: title, description, canonical.
  *
@@ -9,10 +11,12 @@ import type { Metadata } from "next";
  * instead, which each lab page renders. See
  * docs/architecture/static-seo-routes.md.
  */
-export function labMetadata(slug: string, title: string, description: string): Metadata {
+export function labMetadata(slug: string): Metadata {
+  const exp = findExperiment(slug);
+
   return {
-    title,
-    description,
+    title: exp?.title ?? slug,
+    description: exp?.description ?? "Interactive lab experiment by Matt Kerkstra.",
     alternates: { canonical: `/lab/${slug}` },
   };
 }

@@ -3,11 +3,7 @@ import { LSystem } from "@/features/lab/components/lsystem";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "lsystem",
-  "L-System",
-  "Lindenmayer systems. Fractal trees from simple rewriting rules.",
-);
+export const metadata = labMetadata("lsystem");
 
 export default function LSystemPage() {
   return (

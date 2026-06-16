@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { JsonLd } from "@/components/json-ld";
 import { SocialMeta } from "@/components/social-meta";
 import { bookLink, reading, type Book, type ReadingShelf } from "@/features/reading/data/reading";
 import { SectionLabel } from "@/features/resume/components/section-label";
+import { buildPageSchema } from "@/lib/seo-schema";
 
 const DESCRIPTION =
   "Books Matt Kerkstra keeps reaching for: engineering, sci-fi, and the slow-moving stack.";
@@ -14,6 +17,8 @@ export const metadata: Metadata = {
 };
 
 export const revalidate = 86400;
+
+const books = reading.flatMap((shelf) => shelf.books);
 
 function BookRow({ book }: { book: Book }) {
   return (
@@ -64,12 +69,38 @@ export default function ReadingPage() {
         title="Reading · kerkstra.dev"
         description={DESCRIPTION}
         url="/reading"
-        type="profile"
+        type="website"
+      />
+      <JsonLd
+        data={buildPageSchema({
+          name: "Reading",
+          description: DESCRIPTION,
+          path: "/reading",
+          type: "CollectionPage",
+          extra: {
+            mainEntity: {
+              "@type": "ItemList",
+              itemListElement: books.map((book, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                item: {
+                  "@type": "Book",
+                  name: book.title,
+                  author: book.author,
+                  ...(book.year ? { datePublished: String(book.year) } : {}),
+                  url: bookLink(book),
+                },
+              })),
+            },
+          },
+          breadcrumbs: [
+            { name: "Home", path: "/" },
+            { name: "Reading", path: "/reading" },
+          ],
+        })}
       />
       <header className="reveal flex flex-col gap-3">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-          ↳ /reading
-        </p>
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Reading" }]} />
         <h1
           className="display-name font-display text-[clamp(2.5rem,8vw,4.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground"
           style={{ viewTransitionName: "display-heading" }}

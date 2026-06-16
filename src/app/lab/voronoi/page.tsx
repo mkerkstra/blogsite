@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "voronoi",
-  "Voronoi",
-  "Nearest-neighbor tessellation. Every point owns the space closest to it.",
-);
+export const metadata = labMetadata("voronoi");
 
 export default function VoronoiPage() {
   return (

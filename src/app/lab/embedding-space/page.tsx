@@ -23,11 +23,7 @@ const CLUSTER_SEEDS = CLUSTER_LABELS.map((label, ci) => {
   };
 });
 
-export const metadata = labMetadata(
-  "embedding-space",
-  "Embedding Space",
-  "Real word vectors from MiniLM, projected to 2D with UMAP. Cosine, analogies, retrieval.",
-);
+export const metadata = labMetadata("embedding-space");
 
 export default function EmbeddingSpacePage() {
   return (

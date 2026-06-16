@@ -3,11 +3,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "context-windows",
-  "Context Windows",
-  "The prompt budget that controls what an AI model can actually see.",
-);
+export const metadata = labMetadata("context-windows");
 
 export default function ContextWindowsPage() {
   return (

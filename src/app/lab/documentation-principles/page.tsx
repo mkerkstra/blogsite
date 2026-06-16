@@ -4,16 +4,12 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "documentation-principles",
-  "Documentation Principles",
-  "A document compiler for Diátaxis mode, vocabulary, examples, visuals, and cognitive load.",
-);
+export const metadata = labMetadata("documentation-principles");
 
 export default function DocumentationPrinciplesPage() {
   return (
     <>
-      <LabHead slug="documentation-principles" />
+      <LabHead slug="documentation-principles" rendersOwnHeading />
       <DocumentationPrinciples
         info={
           <>

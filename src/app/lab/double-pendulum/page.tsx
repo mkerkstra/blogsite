@@ -4,11 +4,7 @@ import { Term } from "@/features/lab/components/term";
 import { LabHead } from "@/features/lab/components/lab-head";
 import { labMetadata } from "@/features/lab/lib/metadata";
 
-export const metadata = labMetadata(
-  "double-pendulum",
-  "Double Pendulum",
-  "Chaos in two arms. Nearly identical starts, wildly different paths.",
-);
+export const metadata = labMetadata("double-pendulum");
 
 export default function DoublePendulumPage() {
   return (
