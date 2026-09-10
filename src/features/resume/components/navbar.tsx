@@ -18,6 +18,9 @@ export function Navbar() {
           className="hidden items-center gap-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground sm:flex"
           aria-label="Primary"
         >
+          <Link href="/ai-engineer" className="no-underline transition-colors hover:text-accent">
+            /ai
+          </Link>
           <Link href="/now" className="no-underline transition-colors hover:text-accent">
             /now
           </Link>

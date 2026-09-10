@@ -15,8 +15,8 @@ export const projects: Project[] = [
     url: "narrative.sh",
     href: "https://narrative.sh",
     blurb:
-      "AI-powered companion for tabletop RPG dungeon masters. Co-built with a group of long-time friends who are also software devs.",
-    role: "TypeScript · Next.js · Go",
+      "AI-powered companion for tabletop RPG game masters. Co-built with a group of long-time friends who are also software devs.",
+    role: "TypeScript · Next.js · Go · Postgres/pgvector · Yjs",
     widget: "battle-map",
   },
 ];
