@@ -1,6 +1,6 @@
 import type { WidgetId } from "./widget-id";
 
-export type Highlight = { text: string; widget?: WidgetId };
+export type Highlight = { text: string; pdfText?: string; widget?: WidgetId };
 
 export type Company = {
   name: string;
@@ -37,31 +37,56 @@ export const experience: Job[] = [
         start: new Date("2023-05-01"),
       },
       location: "Remote",
-      overview: "#1 contributor of 45+ engineers across 5 repositories. Operating at Staff scope.",
+      overview:
+        "Operating at Staff scope across a 45-person engineering org: own production LLM products, the Kubernetes ML platform, and source-system integrations.",
     },
     highlights: [
       {
-        text: "Architected and shipped a production AI clinical-note templating system from empty repo to production in **16 days** across 3 services. Graph-based LLM pipeline with Postgres-backed checkpointing, semantic section matching via BAAI/bge-m3 embeddings + Milvus, dual-detector PHI anonymization (Presidio + LLM), SSE streaming, and an admin review UI with structured rich-text editing.",
+        text: "Co-led AI product delivery for **Canon**, replacing fixed clinical-note templates with a block-based system that learns each customer's structure from examples. Built the evaluation and evidence-gated rollout around deterministic diffs, LLM-as-judge over semantic differences, and clinician calibration. Cutover proceeded customer by customer, and clinician edit rate per section fell from roughly 60% to 40%.",
+        pdfText:
+          "Co-led AI product delivery for **Canon**, a block-based LLM system that learns each customer's structure. Evidence-gated evaluation and rollout - deterministic diffs, LLM-as-judge, clinician calibration - cut edit rate from roughly 60% to 40%.",
       },
       {
-        text: "Built the production **Kubernetes ML platform** from an empty repo. Istio ambient mesh, ArgoCD app-of-apps with Kustomize overlays, KServe + vLLM for self-hosted model serving (embeddings, ASR), Langfuse for LLM observability, Milvus for vector search. 13 namespaces / 9 services. Cost stayed flat; new services deploy with a Helm chart and an ArgoCD app. Six engineers now contribute regularly.",
+        text: "Shipped the first production clinical-note **LLM system** with two teammates in 16 days across 3 services: graph-based orchestration with Postgres checkpointing, BAAI/bge-m3 embeddings + Milvus retrieval, dual-detector PHI anonymization (Presidio + LLM), SSE streaming, and an admin review UI. Onboarding shipped as an agent skill for iteration speed, with the hardening plan written down up front.",
+        pdfText:
+          "Shipped the first production **LLM system** with two teammates in 16 days across 3 services: checkpointed graph, embeddings + Milvus retrieval, PHI anonymization, SSE streaming, and review UI.",
       },
       {
-        text: "Led **MongoDB → PostgreSQL/PostGIS** migration of a clinical analyses data model (100M+ records); cut heavy queries from >5s to <500ms. Unlocked a multi-year cascade of product capabilities - spatial segmentation storage, per-patient overlays, and the clinical recommendation engine in production today. Own every layer of that chain, from schema through Python algorithms to TypeScript integration across 10+ versions.",
+        text: "Built the **AI evaluation and feedback loop** with the voice and product teams: clinician edits attributed to the block that produced the text, per-block performance statistics, and edit-pattern dashboards. Turned prioritization debates into measured user behavior and gave clinicians the deciding vote on what ships next.",
+        pdfText:
+          "Built the **AI evaluation and feedback loop**: edits attributed to source blocks, per-block performance stats, and pattern dashboards that let measured user behavior prioritize improvements.",
+      },
+      {
+        text: "Own the **Kubernetes ML platform** the org deploys on: Istio ambient mesh, ArgoCD app-of-apps with Kustomize overlays, KServe + vLLM self-hosted model serving (embeddings, ASR), Langfuse for LLM observability, Milvus for vector search - 13 namespaces / 9 services. Built with the platform team; new services ship with a Helm chart and an ArgoCD app, cost stayed flat, and six engineers contribute regularly.",
+        pdfText:
+          "Own the **Kubernetes ML platform**: Istio ambient mesh, ArgoCD, KServe + vLLM model serving, Langfuse, and Milvus across 13 namespaces / 9 services. Cost stayed flat; six engineers contribute regularly.",
+      },
+      {
+        text: 'Designed a **production shadow evaluation** with the voice team: both diarization variants generated on sampled real sessions, the delivered note never waits, and go-live is a reviewer-gated config change. The design answers "does speaker attribution improve the output?" with production traffic and zero patient-facing exposure.',
+        pdfText:
+          "Designed a **production shadow evaluation** on sampled sessions: both variants run, delivered notes never wait, and activation remains reviewer-gated.",
+      },
+      {
+        text: "Led the **MongoDB → PostgreSQL/PostGIS** migration of 100M+ clinical analysis records with the data and CV teams; heavy queries dropped from >5s to <500ms. Own the chain from schemas through Python treatment-recommendation algorithms to TypeScript integrations across 10+ versions.",
+        pdfText:
+          "Led the **MongoDB -> PostgreSQL/PostGIS** migration of 100M+ records; cut heavy queries from >5s to <500ms. Own schemas, Python algorithms, and TypeScript integrations across 10+ versions.",
         widget: "compounding-arc",
       },
       {
-        text: "Built an end-to-end **voice-to-clinical-note pipeline**: offline-resilient browser capture (OPFS, Service Workers), Jotai recording state, BullMQ async processing, transcription, structured LLM summarization, multi-language support. Migrated the service into the ML cluster for direct in-mesh access to inference infra. 60K+ TS LOC across client and API.",
+        text: "Built the end-to-end **voice-to-clinical-note product**: offline-resilient React/browser capture, BullMQ async processing, transcription, structured LLM summarization, and practice-management-system context. More than 60K TypeScript LOC across client and API.",
+        pdfText:
+          "Built the end-to-end **voice-to-clinical-note product**: offline-resilient React capture, BullMQ async processing, transcription, LLM summarization, and PMS context.",
       },
       {
-        text: "Delivered the unified-appointments backend that landed the **largest dental services organization (DSO) contract** in the United States - vault practice search, dual-mode practice support, optimizations for legacy PMS integrations.",
+        text: "Delivered the unified-appointments backend behind the **largest dental services organization (DSO) contract** in the United States - vault practice search, dual-mode practice support, legacy PMS integration optimizations.",
+        pdfText:
+          "Built the unified-appointments backend behind the **largest U.S. DSO contract**, including vault search, dual-mode practices, and legacy PMS optimizations.",
         widget: "huddle",
       },
       {
-        text: "Established a **Kubeflow**-based experimentation framework standardizing data versioning and model promotion across the ML org.",
-      },
-      {
-        text: "Run the bi-weekly **Backend Guild** (18+ months) driving cross-team architectural alignment. Drove org-wide adoption of typed query patterns (Kysely + footgun-prevention bots) and AI-assisted developer tooling - first mover on Cursor rules, CLAUDE.md, and MCP integrations a year before mainstream.",
+        text: "Run the bi-weekly **Backend Guild** (18+ months): typed query patterns (Kysely + footgun-prevention bots) adopted org-wide, AI-assisted developer tooling, architecture decisions written down as ADRs.",
+        pdfText:
+          "Run the bi-weekly **Backend Guild**: org-wide typed-query patterns, AI developer tooling, and written ADRs.",
       },
     ],
   },

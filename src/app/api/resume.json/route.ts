@@ -29,7 +29,7 @@ export async function GET() {
     $schema: "https://raw.githubusercontent.com/jsonresume/resume-schema/v1.0.0/schema.json",
     basics: {
       name: aboutMe.name,
-      label: "Software Engineer",
+      label: aboutMe.title,
       email: aboutMe.contact.email,
       phone: aboutMe.contact.phone,
       url: "https://www.kerkstra.dev",

@@ -1,9 +1,9 @@
 export const SITE_URL = "https://www.kerkstra.dev";
 export const SITE_NAME = "kerkstra.dev";
 export const SITE_AUTHOR = "Matt Kerkstra";
-export const DEFAULT_TITLE = "Matt Kerkstra - Software Engineer";
+export const DEFAULT_TITLE = "Matt Kerkstra - Staff AI Engineer";
 export const DEFAULT_DESCRIPTION =
-  "Staff-level platform engineer with seven years building production ML infrastructure and the systems other engineers run on.";
+  "Staff AI engineer shipping production LLM systems, evaluation loops, retrieval, model-serving infrastructure, and reliable AI products.";
 
 export const SITE_PERSON = {
   "@type": "Person",

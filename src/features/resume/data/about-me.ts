@@ -15,10 +15,10 @@ export type AboutMe = {
 
 export const aboutMe: AboutMe = {
   name: "Matt Kerkstra",
-  title: "Software Engineer",
+  title: "Staff AI Engineer",
   location: "Austin, TX",
   blurb:
-    "Staff-level platform engineer. Seven years building production ML infrastructure and the systems other engineers run on. #1 of 45+ contributors across five repositories at my current employer. 2,076 commits, 1.5M LOC over three years. Built the Kubernetes ML platform, the model-serving stack, a voice-to-clinical-note pipeline, and a graph-based clinical AI application that shipped from architecture to production in sixteen days. Architectural bets compound: a single 2023 Postgres/PostGIS migration is still enabling new product surface in 2026.",
+    "Staff-level AI engineer with seven years building customer-facing production systems. At VideaHealth, I operate at Staff scope across 45 engineers, owning LLM product delivery from evaluation and retrieval through KServe/vLLM serving, Kubernetes operations, backend integrations, safe rollout, and user feedback. Cut clinician edit rate from roughly 60% to 40%, shipped production AI in 16 days, and enable six engineers across 13 namespaces and nine services. TypeScript, Python, Go, React, PostgreSQL.",
   contact: {
     email: "mattkerkstra@gmail.com",
     phone: "918-398-3588",

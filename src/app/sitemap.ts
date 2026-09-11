@@ -8,7 +8,7 @@ import { SITE_URL } from "@/lib/site";
  * at /sitemap.xml.
  *
  * Top-level routes are listed by hand (small, fixed set). The lab
- * experiments — the bulk of the indexable surface — are generated
+ * experiments - the bulk of the indexable surface - are generated
  * from the same `sections` registry the /lab index and per-page
  * routes read, so a new experiment lands in the sitemap with no
  * extra step. /ollie and /api/resume.json are intentionally omitted:
@@ -24,6 +24,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const topLevel: MetadataRoute.Sitemap = [
     { url: SITE_URL, lastModified, changeFrequency: "monthly", priority: 1 },
+    {
+      url: `${SITE_URL}/ai-engineer`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
     { url: `${SITE_URL}/lab`, lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: `${SITE_URL}/now`, lastModified, changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE_URL}/reading`, lastModified, changeFrequency: "monthly", priority: 0.6 },

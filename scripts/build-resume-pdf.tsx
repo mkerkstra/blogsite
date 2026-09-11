@@ -32,8 +32,8 @@ const COLORS = {
 const styles = StyleSheet.create({
   page: {
     backgroundColor: COLORS.paper,
-    paddingTop: 32,
-    paddingBottom: 28,
+    paddingTop: 29,
+    paddingBottom: 23,
     paddingHorizontal: 47,
     fontFamily: "Helvetica",
     fontSize: 8,
@@ -43,8 +43,8 @@ const styles = StyleSheet.create({
 
   // ── Header ──
   header: {
-    paddingBottom: 8,
-    marginBottom: 10,
+    paddingBottom: 7,
+    marginBottom: 8,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.ink,
     borderBottomStyle: "solid",
@@ -86,13 +86,13 @@ const styles = StyleSheet.create({
 
   // ── Section header ──
   section: {
-    marginBottom: 10,
+    marginBottom: 8,
   },
   sectionHead: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    marginBottom: 5,
+    marginBottom: 4,
   },
   sectionLabel: {
     fontFamily: "Courier-Bold",
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
 
   // ── Job ──
   job: {
-    marginBottom: 6,
+    marginBottom: 5,
   },
   jobHead: {
     flexDirection: "row",
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   },
   jobBullets: {
     flexDirection: "column",
-    gap: 1.5,
+    gap: 1.2,
     marginTop: 1,
   },
   bullet: {
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "baseline",
     gap: 10,
-    marginBottom: 2,
+    marginBottom: 0,
   },
   projectName: {
     fontFamily: "Helvetica-Bold",
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     color: COLORS.body,
     lineHeight: 1.42,
     marginLeft: 0,
-    marginBottom: 4,
+    marginBottom: 0,
   },
 
   // ── Education ──
@@ -327,7 +327,7 @@ function ResumeDocument() {
   const [lede, rest] = splitLede(aboutMe.blurb);
 
   return (
-    <Document title="Matt Kerkstra – Resume" author={aboutMe.name} subject="Resume">
+    <Document title="Matt Kerkstra - Resume" author={aboutMe.name} subject="Resume">
       <Page size="LETTER" style={styles.page}>
         {/* ── Header ── */}
         <View style={styles.header}>
@@ -403,8 +403,8 @@ function ResumeDocument() {
                 <View style={styles.jobBullets}>
                   {job.highlights.map((h) => (
                     <View key={h.text} style={styles.bullet}>
-                      <Text style={styles.bulletDash}>−</Text>
-                      <Text style={styles.bulletText}>{renderBullet(h.text)}</Text>
+                      <Text style={styles.bulletDash}>-</Text>
+                      <Text style={styles.bulletText}>{renderBullet(h.pdfText ?? h.text)}</Text>
                     </View>
                   ))}
                 </View>
@@ -425,10 +425,10 @@ function ResumeDocument() {
                 <Text style={styles.projectName}>
                   {clean(project.name)} <Text style={styles.projectAt}>at</Text>{" "}
                   <Text style={styles.projectUrl}>{clean(project.url)}</Text>
-                  <Text style={styles.projectMeta}> · {clean(project.blurb)}</Text>
                 </Text>
                 <Text style={styles.projectRole}>{clean(project.role)}</Text>
               </View>
+              <Text style={styles.projectBlurb}>{clean(project.blurb)}</Text>
             </View>
           ))}
         </View>
@@ -466,6 +466,7 @@ const hashPath = path.resolve(process.cwd(), "public/resume.pdf.hash");
 // differ on every run even when content is identical. Skipping the render
 // when inputs haven't changed keeps `public/resume.pdf` stable in git.
 const inputHash = createHash("sha256")
+  .update(readFileSync(new URL(import.meta.url), "utf8"))
   .update(JSON.stringify({ aboutMe, education, experience, projects, toolbox }))
   .digest("hex");
 
