@@ -284,17 +284,15 @@ export function CommandPalette() {
   // Individual lab experiments live in their own group below everything —
   // 32 entries would otherwise bury the rest of Pages.
   const labs: ItemDef[] = labSections.flatMap((section) =>
-    section.experiments.map(
-      (exp): ItemDef => ({
-        id: `lab-${exp.slug}`,
-        label: exp.title,
-        icon: LAB_ICONS[exp.slug] ?? Cpu,
-        perform: () => router.push(`/lab/${exp.slug}`),
-        // Fold slug + category + description into keywords so fuzzy
-        // search still hits on "bpe", "sdf", "moe", "chaos", etc.
-        keywords: [exp.slug, section.label.toLowerCase(), exp.description.toLowerCase()],
-      }),
-    ),
+    section.experiments.map((exp): ItemDef => ({
+      id: `lab-${exp.slug}`,
+      label: exp.title,
+      icon: LAB_ICONS[exp.slug] ?? Cpu,
+      perform: () => router.push(`/lab/${exp.slug}`),
+      // Fold slug + category + description into keywords so fuzzy
+      // search still hits on "bpe", "sdf", "moe", "chaos", etc.
+      keywords: [exp.slug, section.label.toLowerCase(), exp.description.toLowerCase()],
+    })),
   );
 
   const actions: ItemDef[] = [
