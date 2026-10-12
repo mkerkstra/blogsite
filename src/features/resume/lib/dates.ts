@@ -17,11 +17,6 @@ export function formatMonthYear(d: Date): string {
   });
 }
 
-/** "MAY 2023" — uppercase variant for the PDF mono date column. */
-export function formatMonthYearUpper(d: Date): string {
-  return formatMonthYear(d).toUpperCase();
-}
-
 /** Just the year. "2023" / "2022". */
 export function formatYear(d: Date): string {
   return d.getUTCFullYear().toString();

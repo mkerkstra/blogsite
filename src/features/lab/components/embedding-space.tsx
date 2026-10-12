@@ -243,10 +243,10 @@ export function EmbeddingSpace({ info }: { info?: ReactNode }) {
     simRef.current = sim;
 
     // Measure each label once. Redo after web fonts load so widths are
-    // precise once JetBrains Mono resolves (fallback monospace is close).
+    // exact for the system monospace face.
     const labelWidths: number[] = Array.from({ length: WORDS.length }, () => 0);
     const measureLabels = () => {
-      ctx.font = `${LABEL_FONT_PX}px 'JetBrains Mono', monospace`;
+      ctx.font = `${LABEL_FONT_PX}px ui-monospace, Menlo, monospace`;
       for (let i = 0; i < WORDS.length; i++) {
         const w = WORDS[i];
         if (!w) continue;
@@ -562,7 +562,7 @@ export function EmbeddingSpace({ info }: { info?: ReactNode }) {
           ctx.arc(cx, cy, maxR + 36, 0, Math.PI * 2);
           ctx.fill();
 
-          ctx.font = "11px 'JetBrains Mono', monospace";
+          ctx.font = "11px ui-monospace, Menlo, monospace";
           ctx.fillStyle = clusterColor(ci, isDark, 0.22);
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -590,7 +590,7 @@ export function EmbeddingSpace({ info }: { info?: ReactNode }) {
 
             if (centerWord && centerWs) {
               drawNeighborFan(ctx, sim, centerIdx, centerWord, centerWs, c, 4);
-              ctx.font = "10px 'JetBrains Mono', monospace";
+              ctx.font = "10px ui-monospace, Menlo, monospace";
               ctx.fillStyle = c.accent;
               ctx.textAlign = "center";
               ctx.fillText(`top cosine neighbors of "${repWord}"`, centerWs.x, centerWs.y + 32);
@@ -611,7 +611,7 @@ export function EmbeddingSpace({ info }: { info?: ReactNode }) {
         if (fw && fws) {
           drawNeighborFan(ctx, sim, focusIdx, fw, fws, c, 5);
           if (focusSource === "query") {
-            ctx.font = "10px 'JetBrains Mono', monospace";
+            ctx.font = "10px ui-monospace, Menlo, monospace";
             ctx.fillStyle = c.accent;
             ctx.textAlign = "center";
             ctx.fillText(`query: "${fw.word}" · top 5 by cosine`, fws.x, fws.y + 32);
@@ -650,7 +650,7 @@ export function EmbeddingSpace({ info }: { info?: ReactNode }) {
         }
 
         const fontSize = isFocus ? 12 : 10;
-        ctx.font = `${fontSize}px 'JetBrains Mono', monospace`;
+        ctx.font = `${fontSize}px ui-monospace, Menlo, monospace`;
         ctx.fillStyle = isFocus ? c.textBright : c.text;
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
@@ -819,7 +819,7 @@ function drawNeighborFan(
 
     const mx = (centerWs.x + nws.x) / 2;
     const my = (centerWs.y + nws.y) / 2;
-    ctx.font = "9px 'JetBrains Mono', monospace";
+    ctx.font = "9px ui-monospace, Menlo, monospace";
     ctx.fillStyle = c.textBright;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -867,11 +867,11 @@ function drawAnalogy(
   const predictedWord = WORDS[dIdx]?.word ?? "?";
   const score = analogy.top[0]?.score.toFixed(2) ?? "?";
 
-  ctx.font = "11px 'JetBrains Mono', monospace";
+  ctx.font = "11px ui-monospace, Menlo, monospace";
   ctx.fillStyle = c.textBright;
   ctx.textAlign = "center";
   ctx.fillText(`${analogy.a} − ${analogy.b} + ${analogy.c} ≈ ${predictedWord}`, labelX, labelY);
-  ctx.font = "9px 'JetBrains Mono', monospace";
+  ctx.font = "9px ui-monospace, Menlo, monospace";
   ctx.fillStyle = c.text;
   ctx.fillText(`top match cos=${score}`, labelX, labelY + 14);
 }

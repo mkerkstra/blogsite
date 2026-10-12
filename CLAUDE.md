@@ -12,7 +12,7 @@ Personal site for Matt Kerkstra → kerkstra.dev. Resume home page plus `/now`, 
 - TS config: `bundler` resolution, ES2017 target, `react-jsx`, `@/*` → `./src/*` alias
 - **Tailwind 4** via `@tailwindcss/postcss`. No `tailwind.config.*`: tokens are shadcn-style HSL CSS variables in `src/app/globals.css`, bridged with `@theme inline`; dark mode is `@custom-variant dark`.
 - Hand-rolled theme provider in `src/app/theme-provider.tsx` (no `next-themes`; the inline init script in `layout.tsx` prevents FOUC) · `lucide-react` for UI icons; brand glyphs live in `src/components/brand-icons.tsx` (no other icon libs)
-- `next/font/google` — **Hanken Grotesk** (`font-sans`, body/headings) + **Newsreader** italic (`font-display`) + **JetBrains Mono** (`font-mono`, labels/chips/metadata)
+- `next/font/google` — **Hanken Grotesk** (`font-sans`: body, headings, and all labels/metadata) + **Newsreader** italic (`font-display`). `font-mono` is the system stack (`ui-monospace`, no webfont) and is reserved for literal code: code samples, CSS var names, the terminal widget, lab telemetry values.
 - `@vercel/analytics` + `@vercel/speed-insights` (don't swap to PostHog without explicit ask)
 - `cmdk` + `@radix-ui/react-dialog` for the ⌘K palette · `date-fns` behind `features/resume/lib/dates.ts`
 - **oxlint + oxfmt** for lint/format (NOT eslint/prettier — they were intentionally removed). oxlint config is `oxlintrc.json` and only lints `src/`.
@@ -48,7 +48,7 @@ src/
     theme-provider.tsx          # light/dark provider ('use client')
     globals.css                 # Tailwind import + HSL tokens + grain + reveal anims + view-transition + print
     icon.svg                    # favicon (>_ glyph in lime)
-    og/route.tsx                # OG image (next/og) — NOT an opengraph-image convention file, see SEO below
+    og/route.tsx                # OG image (next/og), fonts vendored in og/fonts (OFL) — NOT an opengraph-image convention file, see SEO below
     not-found.tsx               # on-brand 404 (Ollie)
     robots.ts · sitemap.ts      # sitemap must list every public route, including each lab
     now/ · reading/ · colophon/ · ai-engineer/ · ollie/
@@ -58,6 +58,7 @@ src/
     llms.txt/route.ts
   components/
     command-palette*.tsx        # ⌘K palette (cmdk), lazy loader, navbar hint button
+    mobile-nav.tsx              # < sm menu; panel drops below the header (header height is a lab layout constant)
     theme-toggle.tsx            # Sun/Moon button
     json-ld.tsx · social-meta.tsx · breadcrumbs.tsx   # in-tree SEO
     widget-frame.tsx · brand-icons.tsx
@@ -91,19 +92,20 @@ docs/architecture/static-seo-routes.md   # why SEO meta renders in-tree (read be
 
 ## Aesthetic
 
-"Engineer's editorial." Italic Newsreader display name against Hanken Grotesk body, with dense JetBrains Mono for labels, chips, and metadata. Two-tone (ink #0a0a0a / cream #f5f1e8) plus a single accent: electric lime (#d4ff00) in dark, green (#2a8a0e) in light. SVG fractal-noise grain overlay. `[01]`-numbered section labels with hairline rules. Don't introduce new fonts, new accent colors, or card-style chrome without an explicit ask — the design is intentional.
+"Engineer's editorial." Italic Newsreader display name against Hanken Grotesk for everything else. Labels are sentence-case sans (small, `font-medium`, `tabular-nums` for dates/numbers), never tracked all-caps mono: that pattern reads as AI-generated and was deliberately retired. Section labels are a plain accent numeral + heading with a hairline rule. Two-tone (ink #0a0a0a / cream #f5f1e8) plus a single accent: electric lime (#d4ff00) in dark, green (#2a8a0e) in light. SVG fractal-noise grain overlay. `[01]`-numbered section labels with hairline rules. Don't introduce new fonts, new accent colors, or card-style chrome without an explicit ask — the design is intentional.
 
 ## Conventions
 
 - **Data is source of truth.** Resume content lives in `src/features/resume/data/*` and mirrors `videa/resume.md`. The PDF, `/api/resume.json`, `/api/ai-profile.json`, `/llms.txt`, and `/ai-engineer` all read the same files. If you update content, update the data file — don't hand-write strings into components or routes.
 - **Both renderers must work.** When changing data shapes, update `scripts/build-resume-pdf.tsx` alongside the components, and run `pnpm build:pdf` to verify the PDF still renders cleanly (delete `public/resume.pdf.hash` to force a render when only code changed).
+- **PDF type.** Helvetica for body and labels, Times-Italic for accents, Helvetica-Bold caps only for section heads. No Courier.
 - **PDF unicode caveat.** Built-in PDF fonts (Helvetica/Times/Courier) only support Latin-1. `clean()` in `scripts/lib/pdf-text.ts` substitutes `→`, `↳`, `✕`, `✓` — add new substitutions there if you introduce new unicode in data files.
 - **Static SEO, no X/Twitter.** Never add `openGraph` to `metadata` or an `opengraph-image`/`twitter-image` file: Next derives `twitter:*` tags from them, and Matt is off X. OG tags and JSON-LD render in-tree via `<SocialMeta>`, `<JsonLd>`, and (for labs) `<LabHead>`. Post-build edits to `.next` don't reach Vercel. See `docs/architecture/static-seo-routes.md`.
 - **Copy style.** No em-dashes in user-facing site copy (use periods or commas). Don't name-drop specific employers' internal projects or orgs without an explicit go-ahead.
 - **Formatting.** oxfmt enforces double quotes + trailing semis. Don't fight it. After an inline element like `<Term>` followed by text across a JSX line break, use `&nbsp;`, not `{" "}` (oxfmt collapses it).
 - **No new shadcn primitives** unless needed. The original `Card`/`Button`/`Collapsible` were removed because they didn't carry weight in the editorial design.
 - **Animations are CSS-only** on the site chrome. No motion library. Reveals are `.reveal` + `.reveal-N` utilities in `globals.css`. (Lab experiments use raw Canvas2D/WebGL; see the lab doc.)
-- **Server components by default.** Only mark `'use client'` for components that need state, theme, or event handlers (theme provider/toggle, command palette, cycling portrait, footer gate, Ollie 404, and the lab experiments).
+- **Server components by default.** Only mark `'use client'` for components that need state, theme, or event handlers (theme provider/toggle, command palette, mobile nav, cycling portrait, footer gate, Ollie 404, and the lab experiments).
 - **Lighthouse 100s.** Desktop + mobile across the site and every lab. CI re-audits after each deploy and commits `lighthouse.json` (`Update Lighthouse scores [skip ci]` commits are expected).
 
 ## GitHub contribution graph (private)

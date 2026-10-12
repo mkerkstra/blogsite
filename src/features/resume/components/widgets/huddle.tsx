@@ -6,7 +6,7 @@ export function Huddle() {
       <svg
         viewBox="0 0 220 96"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-[88px] w-full font-mono"
+        className="h-[88px] w-full"
         aria-hidden="true"
       >
         {/* Row 1 — 08:30 */}

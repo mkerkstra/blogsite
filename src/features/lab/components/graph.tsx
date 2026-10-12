@@ -793,7 +793,7 @@ export function Graph({ info }: { info?: ReactNode }) {
             title="Step"
             onClick={manualStep}
             active={runState !== "running" && runState !== "done"}
-            icon={<span className="font-mono text-[10px] uppercase tracking-[0.1em]">step</span>}
+            icon={<span className="font-medium text-[12px]">step</span>}
           />
         </ControlGroup>
         <ControlGroup label="speed">

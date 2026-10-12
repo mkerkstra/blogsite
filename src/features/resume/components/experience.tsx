@@ -13,14 +13,14 @@ function JobBlock({ job }: { job: Job }) {
   return (
     <article className="grid grid-cols-1 gap-4 border-t border-border py-6 md:grid-cols-[7rem_1fr] md:gap-8">
       {/* Left rail — date / location */}
-      <div className="flex flex-col gap-1 text-[11px] uppercase tracking-[0.12em] text-muted-foreground md:text-right">
-        <div className="font-mono text-accent">
+      <div className="flex flex-col gap-1 text-[13px] font-medium tabular-nums text-muted-foreground md:text-right">
+        <div className="text-accent">
           {formatYear(job.role.time.start)}
           <span className="mx-1 text-muted-foreground opacity-60">→</span>
           {isPresent ? "now" : formatYear(end)}
         </div>
-        <div className="font-mono">{duration}</div>
-        <div className="font-mono">{job.role.location}</div>
+        <div>{duration}</div>
+        <div>{job.role.location}</div>
       </div>
 
       {/* Right column — role + highlights */}
@@ -40,11 +40,11 @@ function JobBlock({ job }: { job: Job }) {
             ) : (
               job.company.name
             )}
-            <span className="ml-2 font-mono text-[11px] font-normal text-muted-foreground">
+            <span className="ml-2 text-[13px] font-normal text-muted-foreground">
               · {job.company.blurb}
             </span>
           </h3>
-          <div className="font-mono text-[11px] text-muted-foreground">
+          <div className="text-[13px] text-muted-foreground">
             {job.role.title}
             <span className="mx-2 opacity-50">·</span>
             {formatMonthYear(job.role.time.start)} – {isPresent ? "Present" : formatMonthYear(end)}
@@ -68,7 +68,7 @@ function JobBlock({ job }: { job: Job }) {
               <div className="flex gap-2.5 md:contents">
                 <span
                   aria-hidden
-                  className="mt-[2px] shrink-0 font-mono text-[13px] leading-none text-accent"
+                  className="mt-[2px] shrink-0 text-[14px] leading-none text-accent"
                 >
                   ›
                 </span>

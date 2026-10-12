@@ -3,14 +3,14 @@
 @custom-variant dark (&:is(.dark *));
 
 /* @theme inline — keeps references to externally-defined CSS variables
-   (next/font sets --font-display/--font-sans/--font-mono on <html>, and
+   (next/font sets --font-display/--font-sans on <html>, and
    the shadcn-style HSL tokens below flip on .dark) without emitting a
    shadowing theme variable. Without `inline`, `--font-display: var(--font-display), …`
    would self-reference and invalidate. */
 @theme inline {
   --font-display: var(--font-display), ui-serif, Georgia, serif;
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));

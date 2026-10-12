@@ -71,7 +71,7 @@ export default function ColophonPage() {
               key={item.label}
               className="grid grid-cols-1 gap-2 border-t border-border py-3 md:grid-cols-[7rem_1fr] md:gap-8"
             >
-              <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground md:text-right">
+              <div className="font-medium text-[12px] text-muted-foreground md:text-right">
                 {item.label}
               </div>
               <div className="text-[13px] text-foreground/90">{item.value}</div>
@@ -85,7 +85,7 @@ export default function ColophonPage() {
         <SectionLabel index="02">Typography</SectionLabel>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-1 border-t border-border pt-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            <p className="font-medium text-[12px] text-muted-foreground">
               --font-display · Newsreader
             </p>
             <p className="font-display text-[2rem] italic leading-tight text-foreground">
@@ -93,7 +93,7 @@ export default function ColophonPage() {
             </p>
           </div>
           <div className="flex flex-col gap-1 border-t border-border pt-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            <p className="font-medium text-[12px] text-muted-foreground">
               --font-sans · Hanken Grotesk
             </p>
             <div className="flex flex-col gap-1">
@@ -109,8 +109,8 @@ export default function ColophonPage() {
             </div>
           </div>
           <div className="flex flex-col gap-1 border-t border-border pt-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              --font-mono · JetBrains Mono
+            <p className="font-medium text-[12px] text-muted-foreground">
+              --font-mono · system ui-monospace, code only
             </p>
             <p className="font-mono text-[13px] text-foreground">
               const site = &quot;kerkstra.dev&quot;;
@@ -125,9 +125,7 @@ export default function ColophonPage() {
         <div className="flex flex-col gap-6">
           {tokenGroups.map((group) => (
             <div key={group.label} className="flex flex-col gap-2">
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                {group.label}
-              </p>
+              <p className="font-medium text-[12px] text-muted-foreground">{group.label}</p>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                 {group.tokens.map((token) => (
                   <div key={token.variable} className="flex items-center gap-2">
@@ -155,10 +153,7 @@ export default function ColophonPage() {
         <ul className="flex flex-col gap-2">
           {craftNotes.map((note) => (
             <li key={note} className="flex gap-2.5 text-[13px] leading-[1.7] text-foreground/90">
-              <span
-                aria-hidden
-                className="mt-[3px] shrink-0 font-mono text-[10px] text-muted-foreground"
-              >
+              <span aria-hidden className="mt-[3px] shrink-0 text-[12px] text-muted-foreground">
                 ·
               </span>
               {note}
@@ -210,7 +205,7 @@ export default function ColophonPage() {
               key={item.label}
               className="grid grid-cols-1 gap-2 border-t border-border py-3 md:grid-cols-[7rem_1fr] md:gap-8"
             >
-              <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground md:text-right">
+              <div className="font-medium text-[12px] text-muted-foreground md:text-right">
                 {item.label}
               </div>
               <p className="text-[13px] leading-[1.7] text-foreground/90">{item.text}</p>

@@ -46,7 +46,7 @@ src/
    - 3-4 paragraphs explaining the algorithm/technique at a level an interested engineer can follow
    - `<Term>` tooltips wrapping domain-specific jargon (definitions in `glossary.ts`)
    - Citation links at the bottom (`hover:text-accent`, `border-t border-border pt-2`)
-   - Body text uses `font-sans` (not mono) inside the panel
+   - Body text uses `font-sans` (not mono) inside the panel. Chrome labels are sentence-case sans; `font-mono` (system stack) is only for numeric telemetry values. Canvas text uses `ui-monospace, Menlo, monospace` (next/font family names don't resolve in canvas).
 
 3. **Use shared utilities.** Don't duplicate:
    - `getTheme()` / `prefersReducedMotion()` — import from `lib/env.ts`

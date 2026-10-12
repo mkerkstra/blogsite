@@ -11,9 +11,7 @@ export default function NotFound() {
   return (
     <div className="flex flex-col gap-10 py-12" style={{ viewTransitionName: "page-body" }}>
       <div className="reveal flex flex-col gap-3">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-          [404] · not found
-        </p>
+        <p className="font-medium text-[12px] text-muted-foreground">[404] · not found</p>
         <h1
           className="display-name font-display text-[clamp(3.5rem,11vw,6.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground"
           style={{ viewTransitionName: "display-heading" }}
@@ -29,7 +27,7 @@ export default function NotFound() {
         resume page is still the canonical entry point.
       </p>
 
-      <div className="reveal reveal-3 flex items-baseline gap-3 border-t border-border pt-4 font-mono text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+      <div className="reveal reveal-3 flex items-baseline gap-3 border-t border-border pt-4 font-medium text-[13px] text-muted-foreground">
         <span>↳</span>
         <Link href="/" className="text-foreground no-underline transition-colors hover:text-accent">
           back to /

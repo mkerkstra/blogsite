@@ -18,7 +18,7 @@ import { education } from "../src/features/resume/data/education";
 import { experience } from "../src/features/resume/data/experience";
 import { projects } from "../src/features/resume/data/projects";
 import { toolbox } from "../src/features/resume/data/toolbox";
-import { formatMonthYearUpper } from "../src/features/resume/lib/dates";
+import { formatMonthYear } from "../src/features/resume/lib/dates";
 import { clean, splitLede, splitName } from "./lib/pdf-text";
 
 const COLORS = {
@@ -74,11 +74,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 0,
-    fontFamily: "Courier",
-    fontSize: 6.5,
+    fontFamily: "Helvetica",
+    fontSize: 7,
     color: COLORS.dim,
-    textTransform: "uppercase",
-    letterSpacing: 0.4,
   },
   contactItem: {
     marginRight: 14,
@@ -95,10 +93,11 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   sectionLabel: {
-    fontFamily: "Courier-Bold",
-    fontSize: 6,
+    // Print-resume convention: caps section heads aid scanning.
+    fontFamily: "Helvetica-Bold",
+    fontSize: 6.5,
     color: COLORS.ink,
-    letterSpacing: 1.4,
+    letterSpacing: 1,
     textTransform: "uppercase",
   },
   sectionRule: {
@@ -131,12 +130,10 @@ const styles = StyleSheet.create({
   },
   skillLabel: {
     width: 76,
-    fontFamily: "Courier-Bold",
-    fontSize: 5.8,
+    fontFamily: "Helvetica-Bold",
+    fontSize: 7,
     color: COLORS.dim,
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-    paddingTop: 1.5,
+    paddingTop: 0.6,
   },
   skillValue: {
     flex: 1,
@@ -181,11 +178,9 @@ const styles = StyleSheet.create({
     fontWeight: "normal",
   },
   jobDates: {
-    fontFamily: "Courier",
-    fontSize: 6.5,
+    fontFamily: "Helvetica",
+    fontSize: 7,
     color: COLORS.dim,
-    textTransform: "uppercase",
-    letterSpacing: 0.4,
   },
   jobTagline: {
     fontFamily: "Times-Italic",
@@ -249,11 +244,9 @@ const styles = StyleSheet.create({
     color: COLORS.body,
   },
   projectRole: {
-    fontFamily: "Courier",
-    fontSize: 6.5,
+    fontFamily: "Helvetica",
+    fontSize: 7,
     color: COLORS.dim,
-    textTransform: "uppercase",
-    letterSpacing: 0.4,
   },
   projectBlurb: {
     fontFamily: "Helvetica",
@@ -286,11 +279,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   edMeta: {
-    fontFamily: "Courier",
-    fontSize: 6.5,
+    fontFamily: "Helvetica",
+    fontSize: 7,
     color: COLORS.dim,
-    textTransform: "uppercase",
-    letterSpacing: 0.4,
   },
 });
 
@@ -384,9 +375,7 @@ function ResumeDocument() {
           {experience.map((job) => {
             const start = job.role.time.start;
             const end = job.role.time.end;
-            const dateStr = `${formatMonthYearUpper(start)} - ${
-              end ? formatMonthYearUpper(end) : "PRESENT"
-            }`;
+            const dateStr = `${formatMonthYear(start)} - ${end ? formatMonthYear(end) : "Present"}`;
             return (
               <View key={job.company.name} style={styles.job} wrap={false}>
                 <View style={styles.jobHead}>

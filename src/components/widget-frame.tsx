@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 /**
  * Shared chrome for every Experience widget. Hairline border, slightly
- * recessed background (muted token), uppercase mono label + caption.
+ * recessed background (muted token), small sans label + caption.
  * Matches the editorial grammar — no rounded corners, no shadow, no
  * card-style chrome. Inner viz slot inherits text color so SVGs can use
  * `currentColor` for ink strokes.
@@ -27,11 +27,11 @@ export function WidgetFrame({
       aria-hidden="true"
       className="widget-hover group/widget flex flex-col gap-1.5 border border-border bg-muted/50 p-3 text-foreground transition-colors duration-200 hover:border-accent/60 hover:bg-muted"
     >
-      <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground transition-colors duration-200 group-hover/widget:text-accent">
+      <p className="font-medium text-[11px] text-muted-foreground transition-colors duration-200 group-hover/widget:text-accent">
         {label}
       </p>
       <div className="flex min-h-[88px] flex-1 items-center justify-center">{children}</div>
-      <p className="font-mono text-[9px] tabular-nums tracking-wide text-muted-foreground transition-colors duration-200 group-hover/widget:text-foreground">
+      <p className="text-[11px] tabular-nums text-muted-foreground transition-colors duration-200 group-hover/widget:text-foreground">
         {caption}
       </p>
     </div>

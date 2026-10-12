@@ -28,9 +28,7 @@ export function AboutMe() {
       {/* Hero — oversized italic display name */}
       <div className="reveal flex items-start justify-between gap-6">
         <div className="flex flex-col gap-3">
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            ↳ {aboutMe.title}
-          </p>
+          <p className="font-medium text-[12px] text-muted-foreground">↳ {aboutMe.title}</p>
           <h1
             className="display-name font-display text-[clamp(3.5rem,11vw,6.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground"
             style={{ viewTransitionName: "display-heading" }}
@@ -50,10 +48,8 @@ export function AboutMe() {
       <dl className="reveal reveal-2 grid grid-cols-1 gap-x-6 gap-y-2 border-t border-border pt-4 text-[11px] sm:grid-cols-2">
         {META.map((m) => (
           <div key={m.label} className="flex items-baseline gap-3">
-            <dt className="w-8 shrink-0 font-mono uppercase tracking-[0.15em] text-muted-foreground">
-              {m.label}
-            </dt>
-            <dd className="font-mono text-foreground">
+            <dt className="w-8 shrink-0 font-medium text-muted-foreground">{m.label}</dt>
+            <dd className="text-foreground">
               {m.href ? (
                 <a
                   href={m.href}

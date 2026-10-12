@@ -5,8 +5,8 @@ import { Pause, Play, RotateCcw } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-/** Tiny uppercase field label shared by every control. */
-export const fieldLabel = "font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground";
+/** Tiny field label shared by every control. */
+export const fieldLabel = "font-medium text-[11px] text-muted-foreground";
 
 /**
  * A cluster of controls of one kind (Setup · Transport · Meta), grouped per
@@ -26,9 +26,7 @@ export function ControlGroup({
   return (
     <div className="flex items-center gap-2.5">
       {label && (
-        <span className="hidden font-mono text-[8px] uppercase tracking-[0.2em] text-foreground/30 md:inline">
-          {label}
-        </span>
+        <span className="hidden font-medium text-[10px] text-foreground/30 md:inline">{label}</span>
       )}
       {children}
     </div>
@@ -179,7 +177,7 @@ export function LabSelect<T extends string>({
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value as T)}
-        className="h-7 cursor-pointer rounded border border-foreground/15 bg-background/60 px-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-foreground/80 focus:border-accent focus:outline-none"
+        className="h-7 cursor-pointer rounded border border-foreground/15 bg-background/60 px-1.5 font-medium text-[12px] text-foreground/80 focus:border-accent focus:outline-none"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -258,7 +256,7 @@ export function Segmented<T extends string | number>({
             onClick={() => onChange(o.value)}
             aria-pressed={value === o.value}
             className={cn(
-              "inline-flex min-h-[24px] min-w-[24px] items-center justify-center rounded px-2 font-mono text-[10px] uppercase tracking-[0.1em] transition-colors",
+              "inline-flex min-h-[24px] min-w-[24px] items-center justify-center rounded px-2 font-medium text-[12px] transition-colors",
               value === o.value
                 ? "bg-foreground/10 text-foreground/90"
                 : "text-foreground/40 hover:text-foreground/70",
@@ -288,7 +286,7 @@ export function Toggle({
       onClick={() => onChange(!pressed)}
       aria-pressed={pressed}
       className={cn(
-        "inline-flex min-h-[24px] items-center rounded px-2 font-mono text-[10px] uppercase tracking-[0.1em] transition-colors",
+        "inline-flex min-h-[24px] items-center rounded px-2 font-medium text-[12px] transition-colors",
         pressed
           ? "bg-foreground/10 text-foreground/90"
           : "text-foreground/40 hover:text-foreground/70",

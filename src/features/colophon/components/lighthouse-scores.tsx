@@ -36,7 +36,7 @@ export function LighthouseScores() {
 
   if (!data) {
     return (
-      <p className="font-mono text-[11px] text-muted-foreground">
+      <p className="text-[13px] text-muted-foreground">
         Run <code className="text-foreground">pnpm audit:lighthouse</code> to generate Lighthouse
         scores.
       </p>
@@ -57,20 +57,16 @@ export function LighthouseScores() {
           const score = data.scores[cat.id] ?? 0;
           return (
             <div key={cat.id} className="flex flex-col gap-1 border-t border-border pt-3">
-              <span className="font-mono text-[32px] font-semibold tabular-nums leading-none text-accent">
+              <span className="text-[32px] font-semibold tabular-nums leading-none text-accent">
                 {score}
               </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                {cat.label}
-              </span>
+              <span className="font-medium text-[12px] text-muted-foreground">{cat.label}</span>
             </div>
           );
         })}
       </div>
 
-      <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">
-        last audited {auditDate}
-      </p>
+      <p className="font-medium text-[11px] text-muted-foreground">last audited {auditDate}</p>
 
       <div className="flex flex-col gap-6">
         {lighthouseCategories.map((cat) => {

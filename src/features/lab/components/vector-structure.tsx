@@ -141,7 +141,7 @@ function drawLabel(
   color: string,
   size = 11,
 ) {
-  ctx.font = `${size}px 'JetBrains Mono', monospace`;
+  ctx.font = `${size}px ui-monospace, Menlo, monospace`;
   ctx.fillStyle = color;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
@@ -151,10 +151,10 @@ function drawLabel(
 function drawTitle(ctx: CanvasRenderingContext2D, c: ThemeColors, mode: ViewMode) {
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
-  ctx.font = "10px 'JetBrains Mono', monospace";
+  ctx.font = "10px ui-monospace, Menlo, monospace";
   ctx.fillStyle = c.textDim;
   ctx.fillText("VECTOR STRUCTURE", 20, 58);
-  ctx.font = "9px 'JetBrains Mono', monospace";
+  ctx.font = "9px ui-monospace, Menlo, monospace";
   ctx.fillText(
     mode === "directions"
       ? "relationship offsets resolved in 384D, drawn in the 2D projection"
@@ -209,10 +209,10 @@ function drawDirections(
   ctx.strokeRect(panelX, panelY, panelW, 76);
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
-  ctx.font = "12px 'JetBrains Mono', monospace";
+  ctx.font = "12px ui-monospace, Menlo, monospace";
   ctx.fillStyle = c.textBright;
   ctx.fillText(analogy.label, panelX + panelW / 2, panelY + 14);
-  ctx.font = "10px 'JetBrains Mono', monospace";
+  ctx.font = "10px ui-monospace, Menlo, monospace";
   ctx.fillStyle = c.text;
   ctx.fillText(
     `top match: ${predicted?.word ?? "?"} · cos=${analogy.top[0]?.score.toFixed(2) ?? "?"}`,
@@ -286,10 +286,10 @@ function drawContext(
   ctx.strokeRect(panelX, panelY, panelW, 108);
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
-  ctx.font = "10px 'JetBrains Mono', monospace";
+  ctx.font = "10px ui-monospace, Menlo, monospace";
   ctx.fillStyle = c.textDim;
   ctx.fillText(`surface word: "${example.word}"`, panelX + 16, panelY + 14);
-  ctx.font = "11px 'JetBrains Mono', monospace";
+  ctx.font = "11px ui-monospace, Menlo, monospace";
   ctx.fillStyle = c.textBright;
   ctx.fillText(example.note, panelX + 16, panelY + 32);
 

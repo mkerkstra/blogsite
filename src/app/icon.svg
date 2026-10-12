@@ -3,7 +3,7 @@
   <text
     x="16"
     y="22"
-    font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace"
+    font-family="ui-monospace, Menlo, monospace"
     font-size="20"
     font-weight="700"
     text-anchor="middle"

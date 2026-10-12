@@ -32,9 +32,7 @@ export default function OlliePage() {
         type="profile"
       />
       <header className="reveal flex flex-col gap-3">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-          ↳ /ollie
-        </p>
+        <p className="font-medium text-[12px] text-muted-foreground">↳ /ollie</p>
         <h1
           className="display-name font-display text-[clamp(2.5rem,8vw,4.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground"
           style={{ viewTransitionName: "display-heading" }}
@@ -52,10 +50,7 @@ export default function OlliePage() {
           <ul className="flex flex-col gap-1.5">
             {ollieBio.traits.map((trait) => (
               <li key={trait} className="flex gap-2.5 text-[13px] leading-[1.7] text-foreground/90">
-                <span
-                  aria-hidden
-                  className="mt-[3px] shrink-0 font-mono text-[10px] text-muted-foreground"
-                >
+                <span aria-hidden className="mt-[3px] shrink-0 text-[12px] text-muted-foreground">
                   ·
                 </span>
                 {trait}
@@ -77,9 +72,7 @@ export default function OlliePage() {
                 sizes="(max-width: 768px) 45vw, 240px"
                 className="h-auto w-full border border-border"
               />
-              <p className="font-mono text-[9px] italic tracking-wide text-muted-foreground">
-                {pic.alt}
-              </p>
+              <p className="text-[11px] italic text-muted-foreground">{pic.alt}</p>
             </div>
           ))}
         </div>
