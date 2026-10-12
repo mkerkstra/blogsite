@@ -111,6 +111,8 @@ type ItemDef = {
   icon: React.ComponentType<{ className?: string }>;
   perform: () => void | Promise<void>;
   keywords?: string[];
+  /** Action closes the palette itself (e.g. after showing a confirmation). */
+  keepOpen?: boolean;
 };
 
 function jumpTo(id: string) {
@@ -161,9 +163,9 @@ export function CommandPalette() {
     if (!open) setCopied(false);
   }, [open]);
 
-  const run = (perform: () => void | Promise<void>) => {
-    void perform();
-    setOpen(false);
+  const run = (item: ItemDef) => {
+    void item.perform();
+    if (!item.keepOpen) setOpen(false);
   };
 
   const isDark = resolvedTheme === "dark";
@@ -250,6 +252,12 @@ export function CommandPalette() {
   const pages: ItemDef[] = [
     { id: "page-resume", label: "/  ·  resume", icon: User, perform: () => router.push("/") },
     {
+      id: "page-ai-engineer",
+      label: "/ai-engineer  ·  AI engineering focus",
+      icon: Cpu,
+      perform: () => router.push("/ai-engineer"),
+    },
+    {
       id: "page-now",
       label: "/now  ·  what I'm doing now",
       icon: Sparkles,
@@ -324,7 +332,7 @@ export function CommandPalette() {
       label: "View JSON resume",
       icon: Code,
       perform: () => {
-        window.open("/api/resume.json", "_blank");
+        window.open("/api/resume.json", "_blank", "noopener,noreferrer");
       },
       keywords: ["json", "api", "schema"],
     },
@@ -332,8 +340,16 @@ export function CommandPalette() {
       id: "copy-email",
       label: copied ? "Email copied!" : "Copy email address",
       icon: Copy,
+      keepOpen: true,
       perform: async () => {
-        await navigator.clipboard.writeText(aboutMe.contact.email);
+        try {
+          await navigator.clipboard.writeText(aboutMe.contact.email);
+        } catch {
+          // Clipboard blocked (permissions / insecure context): hand off to the mail client.
+          setOpen(false);
+          window.location.href = `mailto:${aboutMe.contact.email}`;
+          return;
+        }
         setCopied(true);
         // keep palette open briefly so the user sees the confirmation
         setTimeout(() => setOpen(false), 700);
@@ -457,14 +473,14 @@ function CommandItem({
   external = false,
 }: {
   item: ItemDef;
-  onRun: (perform: () => void | Promise<void>) => void;
+  onRun: (item: ItemDef) => void;
   external?: boolean;
 }) {
   const Icon = item.icon;
   return (
     <Command.Item
       value={`${item.label} ${(item.keywords ?? []).join(" ")}`}
-      onSelect={() => onRun(item.perform)}
+      onSelect={() => onRun(item)}
       className="flex cursor-pointer items-center gap-3 rounded-sm px-3 py-2 text-foreground/90 aria-selected:bg-accent/15 aria-selected:text-accent"
     >
       <Icon className="h-3.5 w-3.5 shrink-0" />

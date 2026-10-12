@@ -165,6 +165,14 @@ function measureTokenWidth(ctx: CanvasRenderingContext2D, text: string, fontSize
   return ctx.measureText(text).width + fontSize * 1.2; // padding
 }
 
+/** Truncate `text` with an ellipsis so it fits `maxWidth` in the current ctx.font. */
+function fitText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let t = text;
+  while (t.length > 1 && ctx.measureText(`${t}\u2026`).width > maxWidth) t = t.slice(0, -1);
+  return `${t}\u2026`;
+}
+
 /* ── Component ── */
 
 export function Tokenizer({ info }: { info?: ReactNode }) {
@@ -604,9 +612,12 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
       // Top content anchor: cleared below the navbar band AND the live readout
       // HUD (which floats over the top ~115px on the right corner).
       const navbarOffset = 96;
-      const padding = 32;
-      const rulesPanelWidth = Math.min(260, w * 0.25);
-      const mainAreaWidth = w - rulesPanelWidth - padding * 3;
+      // Narrow viewports stack the merge log under the token area instead of
+      // squeezing it into a side column.
+      const narrow = w < 640;
+      const padding = narrow ? 16 : 32;
+      const rulesPanelWidth = narrow ? w - padding * 2 : Math.min(260, w * 0.25);
+      const mainAreaWidth = narrow ? w - padding * 2 : w - rulesPanelWidth - padding * 3;
       const mainAreaLeft = padding;
 
       /* ── Draw input sentence (top) ── */
@@ -627,30 +638,37 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
       const sentenceTextY = sentenceY + 18;
       const charSpacing = 0;
       let charX = mainAreaLeft;
+      let sentenceLineY = sentenceTextY;
       for (let i = 0; i < s.originalSentence.length; i++) {
         const ch = s.originalSentence[i];
         if (!ch) continue;
         const displayCh = ch === " " ? "\u2581" : ch;
         const charW = g.measureText(displayCh).width;
 
+        // Wrap to the next line rather than running under the merge log
+        if (charX + charW > mainAreaLeft + mainAreaWidth && charX > mainAreaLeft) {
+          charX = mainAreaLeft;
+          sentenceLineY += 24;
+        }
+
         // Subtle char boundary
-        if (i > 0) {
+        if (charX > mainAreaLeft) {
           g.strokeStyle = colors.divider;
           g.lineWidth = 1;
           g.beginPath();
-          g.moveTo(charX - 1, sentenceTextY - 2);
-          g.lineTo(charX - 1, sentenceTextY + 18);
+          g.moveTo(charX - 1, sentenceLineY - 2);
+          g.lineTo(charX - 1, sentenceLineY + 18);
           g.stroke();
         }
 
         g.fillStyle = colors.tokenText;
-        g.fillText(displayCh, charX + 1, sentenceTextY);
+        g.fillText(displayCh, charX + 1, sentenceLineY);
         charX += charW + charSpacing + 3;
       }
 
       /* ── Draw tokens (main area) ── */
 
-      const tokenAreaY = sentenceTextY + 44;
+      const tokenAreaY = sentenceLineY + 44;
 
       g.font = `9px 'JetBrains Mono', monospace`;
       g.fillStyle = colors.textDim;
@@ -673,7 +691,8 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
         const tok = s.tokens[i];
         if (!tok) continue;
 
-        const tokW = tok.width;
+        // A fully merged token can be wider than a row; clamp it (text is ellipsized below)
+        const tokW = Math.min(tok.width, maxRowWidth);
 
         // Wrap to next row if needed
         if (rowX + tokW > mainAreaLeft + maxRowWidth && rowX > mainAreaLeft) {
@@ -723,7 +742,7 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
         g.globalAlpha = tok.opacity;
         g.textAlign = "center";
         g.textBaseline = "middle";
-        g.fillText(tok.text, drawX + tokW / 2, drawY + tokHeight / 2);
+        g.fillText(fitText(g, tok.text, tokW - fontSize), drawX + tokW / 2, drawY + tokHeight / 2);
         g.globalAlpha = 1;
 
         rowX += tokW + gap;
@@ -749,7 +768,11 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
       if (s.simState === "highlighting" || s.simState === "merging") {
         g.fillStyle = colors.accentBright;
         g.fillText(
-          `merging: "${s.highlightPairLeft}" + "${s.highlightPairRight}" (${s.highlightFrequency}x)`,
+          fitText(
+            g,
+            `merging: "${s.highlightPairLeft}" + "${s.highlightPairRight}" (${s.highlightFrequency}x)`,
+            mainAreaWidth,
+          ),
           mainAreaLeft,
           statsY,
         );
@@ -763,9 +786,10 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
 
       /* ── Merge rules panel (right side) ── */
 
-      const rulesPanelX = w - rulesPanelWidth - padding;
-      const rulesPanelY = navbarOffset + 24;
-      const rulesPanelH = h - rulesPanelY - 80;
+      const rulesPanelX = narrow ? padding : w - rulesPanelWidth - padding;
+      const rulesPanelY = narrow ? statsY + 28 : navbarOffset + 24;
+      // Bottom 72px clears the LabChrome strip.
+      const rulesPanelH = narrow ? Math.max(120, h - rulesPanelY - 72) : h - rulesPanelY - 80;
 
       g.font = `9px 'JetBrains Mono', monospace`;
       g.fillStyle = colors.textDim;
@@ -811,7 +835,12 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
         g.fillStyle = isLatest ? colors.accentBright : colors.textMid;
 
         const ruleText = `"${rule.left}" + "${rule.right}" \u2192 "${rule.result}"`;
-        g.fillText(ruleText, rulesPanelX + 22, ry + ruleLineH / 2);
+        // 22px number gutter + 34px badge column
+        g.fillText(
+          fitText(g, ruleText, rulesPanelWidth - 56),
+          rulesPanelX + 22,
+          ry + ruleLineH / 2,
+        );
 
         // Frequency badge
         const badgeX = rulesPanelX + rulesPanelWidth - 28;

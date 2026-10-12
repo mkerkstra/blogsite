@@ -6,8 +6,8 @@
  * handler, we keep open-graph link previews working without leaking
  * twitter:* tags into the HTML head.
  *
- * The metadata.openGraph.images field in src/app/layout.tsx points
- * here explicitly.
+ * Pages reference it via og:image tags rendered in-tree by
+ * <SocialMeta> (see docs/architecture/static-seo-routes.md).
  */
 import { ImageResponse } from "next/og";
 
@@ -25,17 +25,24 @@ const SIZE = { width: 1200, height: 630 };
 // - Newsreader italic 400 for the hero display
 // - Hanken Grotesk 500 for body / tagline copy
 // - JetBrains Mono 400 for metadata labels (top/bottom strips)
+// Fail the build loudly rather than handing Satori an HTML error page as
+// font bytes (which would bake a broken OG image into the static output).
+async function fontBuffer(r: Response) {
+  if (!r.ok) throw new Error(`OG font fetch failed: ${r.status} ${r.url}`);
+  return r.arrayBuffer();
+}
+
 async function loadFonts() {
   const [serifItalic, sansMedium, monoRegular] = await Promise.all([
     fetch(
       "https://cdn.jsdelivr.net/npm/@fontsource/newsreader/files/newsreader-latin-400-italic.woff",
-    ).then((r) => r.arrayBuffer()),
+    ).then(fontBuffer),
     fetch(
       "https://cdn.jsdelivr.net/npm/@fontsource/hanken-grotesk/files/hanken-grotesk-latin-500-normal.woff",
-    ).then((r) => r.arrayBuffer()),
+    ).then(fontBuffer),
     fetch(
       "https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff",
-    ).then((r) => r.arrayBuffer()),
+    ).then(fontBuffer),
   ]);
   return { serifItalic, sansMedium, monoRegular };
 }

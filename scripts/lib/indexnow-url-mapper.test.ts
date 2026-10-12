@@ -14,6 +14,14 @@ describe("routesForChangedFiles", () => {
     ).toEqual(["/now", "/reading", "/colophon"]);
   });
 
+  it("maps /ai-engineer page and positioning data changes to /ai-engineer", () => {
+    expect(routesForChangedFiles(["src/app/ai-engineer/page.tsx"])).toEqual(["/ai-engineer"]);
+    expect(routesForChangedFiles(["src/features/resume/data/positioning.ts"])).toEqual([
+      "/",
+      "/ai-engineer",
+    ]);
+  });
+
   it("maps lab page, component, and preview changes to lab index plus detail route", () => {
     expect(
       routesForChangedFiles([
