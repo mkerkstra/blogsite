@@ -11,7 +11,7 @@ export default function NotFound() {
   return (
     <div className="flex flex-col gap-10 py-12" style={{ viewTransitionName: "page-body" }}>
       <div className="reveal flex flex-col gap-3">
-        <p className="font-medium text-[12px] text-muted-foreground">[404] · not found</p>
+        <p className="font-medium text-[12px] text-muted-foreground">404 · not found</p>
         <h1
           className="display-name font-display text-[clamp(3.5rem,11vw,6.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground"
           style={{ viewTransitionName: "display-heading" }}
