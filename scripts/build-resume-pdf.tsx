@@ -467,6 +467,10 @@ const hashPath = path.resolve(process.cwd(), "public/resume.pdf.hash");
 // when inputs haven't changed keeps `public/resume.pdf` stable in git.
 const inputHash = createHash("sha256")
   .update(readFileSync(new URL(import.meta.url), "utf8"))
+  // Render helpers change PDF output too; without them a helper-only edit
+  // would leave the committed PDF stale.
+  .update(readFileSync(new URL("./lib/pdf-text.ts", import.meta.url), "utf8"))
+  .update(readFileSync(new URL("../src/features/resume/lib/dates.ts", import.meta.url), "utf8"))
   .update(JSON.stringify({ aboutMe, education, experience, projects, toolbox }))
   .digest("hex");
 

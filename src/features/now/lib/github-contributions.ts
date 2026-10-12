@@ -113,10 +113,16 @@ export async function fetchContributionGraph(): Promise<ContributionGraph | null
       }),
       next: { revalidate: 86400 },
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.warn(`[now] GitHub contributions fetch failed: HTTP ${res.status}`);
+      return null;
+    }
     const json = (await res.json()) as RawCalendarResponse;
-    return parseContributionGraph(json);
-  } catch {
+    const graph = parseContributionGraph(json);
+    if (!graph) console.warn("[now] GitHub contributions response had no calendar data");
+    return graph;
+  } catch (err) {
+    console.warn("[now] GitHub contributions fetch failed:", err);
     return null;
   }
 }

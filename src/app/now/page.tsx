@@ -141,12 +141,13 @@ export default async function NowPage() {
           // and "Include private contributions on my profile" is on.
           <ContributionGraphView graph={graph} />
         ) : (
-          // Fallback when no GITHUB_TOKEN is configured. Public contributions
-          // only — won't show the videahealth/narrative private commits.
+          // Fallback when GITHUB_TOKEN is unset or the GraphQL fetch failed
+          // (see the build log warning). Public contributions only — won't
+          // show the videahealth/narrative private commits.
           // Setup instructions: see CLAUDE.md → "GitHub contribution graph (private)".
           <div className="flex flex-col gap-3 overflow-hidden rounded border border-border bg-card p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-              public contributions only · GITHUB_TOKEN env var unset
+              public contributions only
             </p>
             <picture>
               <source

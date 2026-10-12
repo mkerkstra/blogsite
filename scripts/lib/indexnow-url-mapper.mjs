@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 
-const TOP_LEVEL_ROUTES = ["/", "/now", "/reading", "/colophon", "/lab"];
+const TOP_LEVEL_ROUTES = ["/", "/ai-engineer", "/now", "/reading", "/colophon", "/lab"];
 
 const GLOBAL_ROUTE_PATTERNS = [
   /^src\/app\/layout\.tsx$/,
@@ -38,6 +38,14 @@ const LAB_SURFACE_PATTERNS = [
 
 const ROUTE_RULES = [
   { route: "/", patterns: [/^src\/app\/page\.tsx$/, /^src\/features\/resume\//] },
+  {
+    route: "/ai-engineer",
+    patterns: [
+      /^src\/app\/ai-engineer\/page\.tsx$/,
+      /^src\/features\/resume\/data\/positioning\.ts$/,
+      /^src\/features\/resume\/components\/section-label\.tsx$/,
+    ],
+  },
   { route: "/now", patterns: [/^src\/app\/now\/page\.tsx$/, /^src\/features\/now\//] },
   { route: "/reading", patterns: [/^src\/app\/reading\/page\.tsx$/, /^src\/features\/reading\//] },
   {
