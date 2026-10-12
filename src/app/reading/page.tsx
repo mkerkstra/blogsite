@@ -23,7 +23,7 @@ const books = reading.flatMap((shelf) => shelf.books);
 function BookRow({ book }: { book: Book }) {
   return (
     <div className="grid grid-cols-1 gap-2 border-t border-border py-4 md:grid-cols-[7rem_1fr] md:gap-8">
-      <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground md:text-right">
+      <div className="font-medium text-[12px] text-muted-foreground md:text-right">
         {book.year ?? ""}
       </div>
       <div className="flex flex-col gap-1">

@@ -161,7 +161,7 @@ function findMergePairIndices(tokens: string[], left: string, right: string): nu
 /* ── Measure text helper ── */
 
 function measureTokenWidth(ctx: CanvasRenderingContext2D, text: string, fontSize: number): number {
-  ctx.font = `${fontSize}px 'JetBrains Mono', monospace`;
+  ctx.font = `${fontSize}px ui-monospace, Menlo, monospace`;
   return ctx.measureText(text).width + fontSize * 1.2; // padding
 }
 
@@ -623,13 +623,13 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
       /* ── Draw input sentence (top) ── */
 
       const sentenceY = navbarOffset + 24;
-      g.font = `9px 'JetBrains Mono', monospace`;
+      g.font = `9px ui-monospace, Menlo, monospace`;
       g.fillStyle = colors.textDim;
       g.textAlign = "left";
       g.textBaseline = "top";
       g.fillText("INPUT", mainAreaLeft, sentenceY);
 
-      g.font = `14px 'JetBrains Mono', monospace`;
+      g.font = `14px ui-monospace, Menlo, monospace`;
       g.fillStyle = colors.text;
       g.textAlign = "left";
       g.textBaseline = "top";
@@ -670,7 +670,7 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
 
       const tokenAreaY = sentenceLineY + 44;
 
-      g.font = `9px 'JetBrains Mono', monospace`;
+      g.font = `9px ui-monospace, Menlo, monospace`;
       g.fillStyle = colors.textDim;
       g.textAlign = "left";
       g.textBaseline = "top";
@@ -737,7 +737,7 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
         }
 
         // Token text
-        g.font = `${fontSize}px 'JetBrains Mono', monospace`;
+        g.font = `${fontSize}px ui-monospace, Menlo, monospace`;
         g.fillStyle = isHighlighted ? colors.accentBright : colors.tokenText;
         g.globalAlpha = tok.opacity;
         g.textAlign = "center";
@@ -760,7 +760,7 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
       /* ── Status line (steady stats live in the readout HUD) ── */
 
       const statsY = Math.max(rowY + rowHeight + 30, tokenAreaY + 100);
-      g.font = `11px 'JetBrains Mono', monospace`;
+      g.font = `11px ui-monospace, Menlo, monospace`;
       g.textAlign = "left";
       g.textBaseline = "top";
 
@@ -791,7 +791,7 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
       // Bottom 72px clears the LabChrome strip.
       const rulesPanelH = narrow ? Math.max(120, h - rulesPanelY - 72) : h - rulesPanelY - 80;
 
-      g.font = `9px 'JetBrains Mono', monospace`;
+      g.font = `9px ui-monospace, Menlo, monospace`;
       g.fillStyle = colors.textDim;
       g.textAlign = "left";
       g.textBaseline = "top";
@@ -822,7 +822,7 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
         if (ry + ruleLineH < panelContentY || ry > panelContentY + rulesPanelH) continue;
 
         // Rule number
-        g.font = `9px 'JetBrains Mono', monospace`;
+        g.font = `9px ui-monospace, Menlo, monospace`;
         g.fillStyle = colors.textDim;
         g.textAlign = "left";
         g.textBaseline = "middle";
@@ -830,7 +830,7 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
         g.fillText(numStr, rulesPanelX, ry + ruleLineH / 2);
 
         // Rule content
-        g.font = `10px 'JetBrains Mono', monospace`;
+        g.font = `10px ui-monospace, Menlo, monospace`;
         const isLatest = i === s.mergeRules.length - 1;
         g.fillStyle = isLatest ? colors.accentBright : colors.textMid;
 
@@ -847,7 +847,7 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
         g.fillStyle = colors.badge;
         roundRect(g, badgeX, ry + 3, 22, ruleLineH - 6, 2);
         g.fill();
-        g.font = `8px 'JetBrains Mono', monospace`;
+        g.font = `8px ui-monospace, Menlo, monospace`;
         g.fillStyle = colors.badgeText;
         g.textAlign = "center";
         g.fillText(`${rule.frequency}x`, badgeX + 11, ry + ruleLineH / 2);
@@ -858,7 +858,7 @@ export function Tokenizer({ info }: { info?: ReactNode }) {
 
       // Empty state
       if (s.mergeRules.length === 0) {
-        g.font = `10px 'JetBrains Mono', monospace`;
+        g.font = `10px ui-monospace, Menlo, monospace`;
         g.fillStyle = colors.textDim;
         g.textAlign = "left";
         g.textBaseline = "top";

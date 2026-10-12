@@ -10,7 +10,7 @@ export function Footer() {
           dead space between a left-pinned copyright and right-pinned socials. */}
       <div className="mx-auto flex w-full max-w-3xl items-center justify-center gap-4 px-5 py-6 md:px-8">
         <span className="rule hidden sm:block" aria-hidden />
-        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 font-medium text-[12px] text-muted-foreground">
           <span className="font-semibold leading-none text-accent" aria-hidden>
             &gt;_
           </span>

@@ -3,7 +3,7 @@ import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
-import { Hanken_Grotesk, JetBrains_Mono, Newsreader } from "next/font/google";
+import { Hanken_Grotesk, Newsreader } from "next/font/google";
 import Script from "next/script";
 
 import { ThemeProvider } from "@/app/theme-provider";
@@ -18,7 +18,8 @@ import { buildWebSiteSchema } from "@/lib/seo-schema";
 // Fonts mirror ~/projects/videa/contribution-report.html:
 // - Hanken Grotesk for body + headings (sans)
 // - Newsreader italic for display accents (the hero name, "at" connectors, ledes)
-// - JetBrains Mono for labels, chips, metadata
+// - Labels and metadata are the sans too; monospace (system stack, no
+//   webfont) is reserved for literal code.
 //
 // Theme-init script — runs synchronously before hydration to set
 // the `light`/`dark` class on <html> based on localStorage +
@@ -41,13 +42,6 @@ const display = Newsreader({
   weight: ["400"],
   style: ["italic"],
   variable: "--font-display",
-  display: "swap",
-});
-
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "600"],
-  variable: "--font-mono",
   display: "swap",
 });
 
@@ -96,11 +90,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${sans.variable} ${display.variable} ${mono.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`${sans.variable} ${display.variable} `} suppressHydrationWarning>
       <body className="grain min-h-screen bg-background font-sans text-foreground antialiased">
         <Script id="theme-init" strategy="beforeInteractive">
           {THEME_INIT_SCRIPT}
@@ -110,7 +100,7 @@ export default function RootLayout({
         <ThemeProvider>
           <a
             href="#main"
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-background focus:px-3 focus:py-2 focus:font-mono focus:text-xs focus:text-foreground focus:outline-solid focus:outline-2 focus:outline-accent"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-background focus:px-3 focus:py-2 focus:text-xs focus:text-foreground focus:outline-solid focus:outline-2 focus:outline-accent"
           >
             Skip to main content
           </a>

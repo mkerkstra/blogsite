@@ -7,7 +7,7 @@ export type BreadcrumbItem = {
 
 export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   return (
-    <nav aria-label="Breadcrumb" className="font-mono text-[10px] uppercase tracking-[0.2em]">
+    <nav aria-label="Breadcrumb" className="font-medium text-[12px]">
       <ol className="flex flex-wrap items-center gap-1.5 text-muted-foreground">
         {items.map((item, index) => {
           const isCurrent = index === items.length - 1;

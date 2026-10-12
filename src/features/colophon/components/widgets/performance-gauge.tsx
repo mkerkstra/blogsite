@@ -6,7 +6,7 @@ export function PerformanceGauge() {
       <svg
         viewBox="0 0 220 96"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-[88px] w-full font-mono"
+        className="h-[88px] w-full"
         aria-hidden="true"
       >
         {/* Horizontal track */}
@@ -75,14 +75,7 @@ export function PerformanceGauge() {
             &lt;50ms
           </text>
         </g>
-        <text
-          x="14"
-          y="28"
-          fontSize="9"
-          fill="hsl(var(--accent))"
-          fontWeight="600"
-          className="font-mono"
-        >
+        <text x="14" y="28" fontSize="9" fill="hsl(var(--accent))" fontWeight="600" className="">
           100
         </text>
       </svg>

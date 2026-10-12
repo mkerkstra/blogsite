@@ -903,7 +903,7 @@ export function AttentionHeads({ info }: { info?: ReactNode }) {
       }
 
       // ── Draw tokens ──
-      c.font = `${W < 640 ? 10 : 12}px "JetBrains Mono", monospace`;
+      c.font = `${W < 640 ? 10 : 12}px ui-monospace, Menlo, monospace`;
       c.textAlign = "center";
       c.textBaseline = "middle";
 
@@ -929,10 +929,10 @@ export function AttentionHeads({ info }: { info?: ReactNode }) {
         c.fillText(sent.tokens[i], tx + tokenBoxW / 2, tokenY + tokenBoxH / 2);
 
         // Index below token
-        c.font = `${W < 640 ? 7 : 8}px "JetBrains Mono", monospace`;
+        c.font = `${W < 640 ? 7 : 8}px ui-monospace, Menlo, monospace`;
         c.fillStyle = p.textMuted;
         c.fillText(String(i), tx + tokenBoxW / 2, tokenY + tokenBoxH + 12);
-        c.font = `${W < 640 ? 10 : 12}px "JetBrains Mono", monospace`;
+        c.font = `${W < 640 ? 10 : 12}px ui-monospace, Menlo, monospace`;
       }
 
       const isSmall = W < 640;
@@ -941,7 +941,7 @@ export function AttentionHeads({ info }: { info?: ReactNode }) {
       const heatWeights = sent.heads[state.activeHead];
 
       // Heatmap title
-      c.font = `${isSmall ? 7 : 8}px "JetBrains Mono", monospace`;
+      c.font = `${isSmall ? 7 : 8}px ui-monospace, Menlo, monospace`;
       c.textAlign = "center";
       c.fillStyle = p.textMuted;
       const heatTotalW = N * heatCellSize;
@@ -952,7 +952,7 @@ export function AttentionHeads({ info }: { info?: ReactNode }) {
       );
 
       // Column labels (keys)
-      c.font = `${isSmall ? 6 : 7}px "JetBrains Mono", monospace`;
+      c.font = `${isSmall ? 6 : 7}px ui-monospace, Menlo, monospace`;
       c.textAlign = "center";
       c.fillStyle = p.textMuted;
       for (let j = 0; j < N; j++) {
@@ -1002,7 +1002,7 @@ export function AttentionHeads({ info }: { info?: ReactNode }) {
 
           // Weight text for larger cells
           if (heatCellSize >= 22 && w > 0.04) {
-            c.font = `${isSmall ? 6 : 7}px "JetBrains Mono", monospace`;
+            c.font = `${isSmall ? 6 : 7}px ui-monospace, Menlo, monospace`;
             c.textAlign = "center";
             c.fillStyle =
               w > 0.3
@@ -1016,7 +1016,7 @@ export function AttentionHeads({ info }: { info?: ReactNode }) {
       }
 
       // Axis labels
-      c.font = `${isSmall ? 8 : 9}px "JetBrains Mono", monospace`;
+      c.font = `${isSmall ? 8 : 9}px ui-monospace, Menlo, monospace`;
       c.fillStyle = p.text;
       c.textAlign = "center";
       c.fillText("keys (attended to)", heatX + heatTotalW / 2, heatY + N * heatCellSize + 16);
@@ -1032,7 +1032,7 @@ export function AttentionHeads({ info }: { info?: ReactNode }) {
       if (hovRow >= 0 && hovCol >= 0) {
         const w = heatWeights[hovRow][hovCol];
         const tooltipText = `${sent.tokens[hovRow]} -> ${sent.tokens[hovCol]}: ${w.toFixed(3)}`;
-        c.font = `10px "JetBrains Mono", monospace`;
+        c.font = `10px ui-monospace, Menlo, monospace`;
         const metrics = c.measureText(tooltipText);
         const tw = metrics.width + 16;
         const th = 22;
@@ -1059,7 +1059,7 @@ export function AttentionHeads({ info }: { info?: ReactNode }) {
         const legendY = tokenY + tokenBoxH + 30;
         const legendX = W / 2;
 
-        c.font = `${isSmall ? 7 : 8}px "JetBrains Mono", monospace`;
+        c.font = `${isSmall ? 7 : 8}px ui-monospace, Menlo, monospace`;
         c.textAlign = "center";
 
         // Outgoing legend

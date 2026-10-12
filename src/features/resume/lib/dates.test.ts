@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  calculateDuration,
-  formatMonthYear,
-  formatMonthYearUpper,
-  formatRange,
-  formatYear,
-} from "./dates";
+import { calculateDuration, formatMonthYear, formatRange, formatYear } from "./dates";
 
 describe("date helpers", () => {
   // Reproduces the off-by-one TZ bug we fixed: bare-date string parses
@@ -23,12 +17,6 @@ describe("date helpers", () => {
 
     it("returns Feb 2019 for 2019-02-01", () => {
       expect(formatMonthYear(new Date("2019-02-01"))).toBe("Feb 2019");
-    });
-  });
-
-  describe("formatMonthYearUpper", () => {
-    it("uppercases the formatted month-year", () => {
-      expect(formatMonthYearUpper(new Date("2023-05-01"))).toBe("MAY 2023");
     });
   });
 

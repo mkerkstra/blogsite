@@ -49,13 +49,13 @@ export default function EmbeddingSpacePage() {
               around the plane does not change what it is close to.
             </p>
             <div className="border-y border-border py-3">
-              <p className="mb-3 font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground">
+              <p className="mb-3 font-medium text-[11px] text-muted-foreground">
                 the 75 seeds · closest in-cluster pair shown with real 384D cosine
               </p>
-              <dl className="space-y-3 font-mono text-[11px] leading-[1.55]">
+              <dl className="space-y-3 text-[13px] leading-[1.55]">
                 {CLUSTER_SEEDS.map((group) => (
                   <div key={group.label}>
-                    <dt className="mb-0.5 text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+                    <dt className="font-medium mb-0.5 text-[11px] text-muted-foreground">
                       {group.label} <span className="text-foreground/30">{group.words.length}</span>
                     </dt>
                     <dd className="text-foreground/70">{group.words.join(" · ")}</dd>

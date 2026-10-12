@@ -44,7 +44,7 @@ export default function AiEngineerPage() {
       />
 
       <header className="reveal flex flex-col gap-4">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        <p className="font-medium text-[12px] text-muted-foreground">
           ↳ /ai-engineer · role profile
         </p>
         <h1
@@ -69,9 +69,7 @@ export default function AiEngineerPage() {
               key={role.title}
               className="grid grid-cols-1 gap-2 border-t border-border py-4 md:grid-cols-[9rem_1fr] md:gap-8"
             >
-              <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                {role.fit}
-              </p>
+              <p className="font-medium text-[12px] text-muted-foreground">{role.fit}</p>
               <div className="flex flex-col gap-1">
                 <h2 className="text-[15px] font-medium text-foreground">{role.title}</h2>
                 <p className="text-[13px] leading-[1.7] text-muted-foreground">{role.rationale}</p>
@@ -89,9 +87,7 @@ export default function AiEngineerPage() {
               key={item.label}
               className="grid grid-cols-1 gap-2 border-t border-border py-4 md:grid-cols-[9rem_1fr] md:gap-8"
             >
-              <h2 className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                {item.label}
-              </h2>
+              <h2 className="font-medium text-[12px] text-muted-foreground">{item.label}</h2>
               <p className="text-[13px] leading-[1.7] text-foreground/90">{item.proof}</p>
             </article>
           ))}

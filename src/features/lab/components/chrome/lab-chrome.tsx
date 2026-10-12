@@ -135,11 +135,11 @@ export function LabChrome({
       >
         {/* identity caption */}
         <div className="flex shrink-0 flex-col justify-center gap-1 border-l-2 border-accent pl-2.5">
-          <span className="font-mono text-[10px] uppercase leading-none tracking-[0.16em] text-foreground/80">
+          <span className="font-medium text-[12px] leading-none text-foreground/80">
             {identity.name}
           </span>
           {identity.scent && (
-            <span className="hidden font-mono text-[8px] uppercase leading-none tracking-[0.1em] text-foreground/35 sm:block">
+            <span className="hidden font-medium text-[10px] leading-none text-foreground/35 sm:block">
               {identity.scent}
             </span>
           )}
@@ -154,7 +154,7 @@ export function LabChrome({
               onClick={() => setSheetOpen((v) => !v)}
               aria-expanded={sheetOpen}
               aria-label="Controls"
-              className="inline-flex h-8 items-center gap-1.5 rounded px-2 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:text-accent"
+              className="inline-flex h-8 items-center gap-1.5 rounded px-2 font-medium text-[12px] text-muted-foreground transition-colors hover:text-accent"
             >
               <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
               <span className="hidden sm:inline">controls</span>
@@ -198,7 +198,7 @@ export function LabChrome({
                 aria-expanded={infoOpen}
                 aria-controls="lab-info-panel"
                 title="How it works (?)"
-                className="inline-flex h-8 items-center gap-1.5 rounded px-1.5 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:text-accent"
+                className="inline-flex h-8 items-center gap-1.5 rounded px-1.5 font-medium text-[12px] text-muted-foreground transition-colors hover:text-accent"
               >
                 <CircleHelp className="h-3.5 w-3.5" aria-hidden="true" />
                 <span className="hidden md:inline">how it works</span>

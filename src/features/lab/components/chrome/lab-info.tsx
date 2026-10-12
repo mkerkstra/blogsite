@@ -44,9 +44,7 @@ export function LabInfo({
       >
         <div className="mx-auto max-h-[44vh] w-full max-w-3xl overflow-y-auto px-5 py-5 md:px-8">
           <div className="flex items-center justify-between pb-3">
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-              how it works
-            </span>
+            <span className="font-medium text-[12px] text-accent">how it works</span>
             <button
               type="button"
               onClick={onClose}

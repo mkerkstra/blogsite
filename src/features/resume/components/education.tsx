@@ -10,7 +10,7 @@ export function Education() {
           key={row.school}
           className="grid grid-cols-1 gap-2 border-t border-border py-4 md:grid-cols-[7rem_1fr] md:gap-8"
         >
-          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground md:text-right">
+          <div className="font-medium text-[12px] text-muted-foreground md:text-right">
             {row.year}
             {row.gpa ? <span className="ml-2">GPA {row.gpa}</span> : null}
           </div>

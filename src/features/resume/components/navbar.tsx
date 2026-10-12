@@ -2,6 +2,7 @@ import { Download } from "lucide-react";
 import Link from "next/link";
 
 import { CommandPaletteHint } from "@/components/command-palette-hint";
+import { MobileNav } from "@/components/mobile-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Navbar() {
@@ -10,12 +11,12 @@ export function Navbar() {
       <div className="mx-auto flex h-12 w-full max-w-3xl items-center justify-between gap-3 px-5 md:px-8">
         <Link
           href="/"
-          className="font-mono text-[11px] uppercase tracking-[0.2em] text-foreground no-underline hover:text-accent"
+          className="font-medium text-[13px] text-foreground no-underline hover:text-accent"
         >
           kerkstra<span className="text-muted-foreground">.dev</span>
         </Link>
         <nav
-          className="hidden items-center gap-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground sm:flex"
+          className="hidden items-center gap-4 font-medium text-[12px] text-muted-foreground sm:flex"
           aria-label="Primary"
         >
           <Link href="/ai-engineer" className="no-underline transition-colors hover:text-accent">
@@ -38,12 +39,13 @@ export function Navbar() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Download resume.pdf"
-            className="inline-flex h-8 items-center gap-1.5 px-2 font-mono text-[11px] uppercase tracking-[0.15em] text-muted-foreground no-underline transition-colors hover:text-accent"
+            className="inline-flex h-8 items-center gap-1.5 px-2 font-medium text-[13px] text-muted-foreground no-underline transition-colors hover:text-accent"
           >
             <Download className="h-3.5 w-3.5" aria-hidden="true" />
             <span className="hidden sm:inline">resume.pdf</span>
           </a>
           <ThemeToggle />
+          <MobileNav />
         </div>
       </div>
     </header>

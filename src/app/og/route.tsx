@@ -9,46 +9,40 @@
  * Pages reference it via og:image tags rendered in-tree by
  * <SocialMeta> (see docs/architecture/static-seo-routes.md).
  */
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
 import { ImageResponse } from "next/og";
 
+// Rendered once at build time (no revalidate): the image only changes on
+// deploy, and build-time rendering is what makes the local font reads safe.
 export const dynamic = "force-static";
-export const revalidate = 86400;
 
 const SIZE = { width: 1200, height: 630 };
 
 // Satori chokes on variable fonts (opentype.js can't parse the
 // variable-axis tables in Newsreader/Hanken-Grotesk from google/fonts
 // and throws "Cannot read properties of undefined (reading '256')").
-// Pull static single-weight WOFFs from @fontsource via jsdelivr
-// instead — Satori supports WOFF and fontsource ships pre-sliced
-// static-weight files. Font stack matches the web layout:
+// Static single-weight WOFFs from @fontsource are vendored in ./fonts
+// (OFL-1.1, licenses alongside) so the build has no CDN dependency.
+// Font stack matches the web layout:
 // - Newsreader italic 400 for the hero display
-// - Hanken Grotesk 500 for body / tagline copy
-// - JetBrains Mono 400 for metadata labels (top/bottom strips)
-// Fail the build loudly rather than handing Satori an HTML error page as
-// font bytes (which would bake a broken OG image into the static output).
-async function fontBuffer(r: Response) {
-  if (!r.ok) throw new Error(`OG font fetch failed: ${r.status} ${r.url}`);
-  return r.arrayBuffer();
-}
+// - Hanken Grotesk 500 for the tagline, 400 for the metadata strips
+const FONT_DIR = join(process.cwd(), "src/app/og/fonts");
 
 async function loadFonts() {
-  const [serifItalic, sansMedium, monoRegular] = await Promise.all([
-    fetch(
-      "https://cdn.jsdelivr.net/npm/@fontsource/newsreader/files/newsreader-latin-400-italic.woff",
-    ).then(fontBuffer),
-    fetch(
-      "https://cdn.jsdelivr.net/npm/@fontsource/hanken-grotesk/files/hanken-grotesk-latin-500-normal.woff",
-    ).then(fontBuffer),
-    fetch(
-      "https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff",
-    ).then(fontBuffer),
-  ]);
-  return { serifItalic, sansMedium, monoRegular };
+  const [serifItalic, sansMedium, sansRegular] = await Promise.all(
+    [
+      "newsreader-latin-400-italic.woff",
+      "hanken-grotesk-latin-500-normal.woff",
+      "hanken-grotesk-latin-400-normal.woff",
+    ].map((file) => readFile(join(FONT_DIR, file))),
+  );
+  return { serifItalic, sansMedium, sansRegular };
 }
 
 export async function GET() {
-  const { serifItalic, monoRegular, sansMedium } = await loadFonts();
+  const { serifItalic, sansMedium, sansRegular } = await loadFonts();
   return new ImageResponse(
     <div
       style={{
@@ -64,20 +58,19 @@ export async function GET() {
         position: "relative",
       }}
     >
-      {/* Top mono label */}
+      {/* Top label */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           gap: 16,
-          fontSize: 18,
-          color: "#666666",
-          letterSpacing: "0.2em",
-          textTransform: "uppercase",
-          fontFamily: "JetBrains Mono",
+          fontSize: 22,
+          color: "#888888",
+          fontFamily: "Hanken Grotesk",
+          fontWeight: 400,
         }}
       >
-        <span style={{ color: "#d4ff00", fontWeight: 700 }}>{">_"}</span>
+        <span style={{ color: "#d4ff00", fontWeight: 500 }}>{">_"}</span>
         <span>kerkstra.dev</span>
       </div>
 
@@ -85,10 +78,10 @@ export async function GET() {
       <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
         <div
           style={{
-            fontSize: 200,
+            fontSize: 172,
             fontStyle: "italic",
             fontFamily: "Newsreader",
-            lineHeight: 0.9,
+            lineHeight: 1,
             letterSpacing: "-0.03em",
             color: "#f5f1e8",
             display: "flex",
@@ -116,14 +109,14 @@ export async function GET() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-end",
-          fontSize: 18,
-          color: "#666666",
-          letterSpacing: "0.12em",
-          fontFamily: "JetBrains Mono",
+          fontSize: 22,
+          color: "#888888",
+          fontFamily: "Hanken Grotesk",
+          fontWeight: 400,
         }}
       >
         <div style={{ display: "flex", gap: 28 }}>
-          <span>AUSTIN, TX</span>
+          <span>Austin, TX</span>
           <span style={{ color: "#333333" }}>·</span>
           <span>github.com/mkerkstra</span>
         </div>
@@ -155,8 +148,8 @@ export async function GET() {
           weight: 400,
         },
         {
-          name: "JetBrains Mono",
-          data: monoRegular,
+          name: "Hanken Grotesk",
+          data: sansRegular,
           style: "normal",
           weight: 400,
         },

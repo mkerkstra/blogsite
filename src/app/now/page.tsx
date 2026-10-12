@@ -86,9 +86,7 @@ export default async function NowPage() {
       <header className="reveal flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Now" }]} />
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            last updated {updated}
-          </p>
+          <p className="font-medium text-[12px] text-muted-foreground">last updated {updated}</p>
         </div>
         <h1
           className="display-name font-display text-[clamp(2.5rem,8vw,4.5rem)] font-normal italic leading-[0.92] tracking-tight text-foreground"
@@ -109,7 +107,7 @@ export default async function NowPage() {
                 key={item.label}
                 className="grid grid-cols-1 gap-2 border-t border-border py-4 md:grid-cols-[7rem_1fr] md:gap-8"
               >
-                <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground md:text-right">
+                <div className="font-medium text-[12px] text-muted-foreground md:text-right">
                   {item.label}
                 </div>
                 <div className="flex flex-col gap-3">
@@ -146,7 +144,7 @@ export default async function NowPage() {
           // show the videahealth/narrative private commits.
           // Setup instructions: see CLAUDE.md → "GitHub contribution graph (private)".
           <div className="flex flex-col gap-3 overflow-hidden rounded border border-border bg-card p-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+            <p className="font-medium text-[12px] text-muted-foreground">
               public contributions only
             </p>
             <picture>
@@ -170,7 +168,7 @@ export default async function NowPage() {
                 key={repo.key}
                 className="grid grid-cols-1 gap-2 border-t border-border py-3 md:grid-cols-[7rem_1fr] md:gap-8"
               >
-                <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground md:text-right">
+                <div className="font-medium text-[12px] text-muted-foreground md:text-right">
                   {timeSince(repo.pushedAt)}
                 </div>
                 <div className="flex flex-col gap-1">
@@ -196,7 +194,7 @@ export default async function NowPage() {
                   {repo.description ? (
                     <p className="text-[12px] text-muted-foreground">{repo.description}</p>
                   ) : null}
-                  <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <p className="font-medium text-[12px] text-muted-foreground">
                     {repo.language ?? "—"}
                   </p>
                 </div>

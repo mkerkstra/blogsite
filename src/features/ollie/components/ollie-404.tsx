@@ -39,9 +39,7 @@ export function Ollie404() {
         sizes="(max-width: 768px) 90vw, 384px"
         className="h-auto w-full border border-border"
       />
-      <p className="font-mono text-[10px] italic tracking-wide text-muted-foreground">
-        {pic.caption}
-      </p>
+      <p className="text-[12px] italic text-muted-foreground">{pic.caption}</p>
     </div>
   );
 }

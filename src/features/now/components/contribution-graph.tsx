@@ -36,7 +36,7 @@ export function ContributionGraphView({ graph }: { graph: ContributionGraph }) {
 
   return (
     <div className="flex flex-col gap-3 overflow-hidden rounded border border-border bg-card p-4">
-      <div className="flex items-baseline justify-between font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+      <div className="flex items-baseline justify-between font-medium text-[12px] text-muted-foreground">
         <span>
           <span className="text-foreground">{graph.totalContributions.toLocaleString()}</span>
           {" contributions · last 12 months"}
@@ -75,7 +75,7 @@ export function ContributionGraphView({ graph }: { graph: ContributionGraph }) {
         )}
       </svg>
 
-      <div className="flex items-center justify-end gap-1.5 font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">
+      <div className="flex items-center justify-end gap-1.5 font-medium text-[11px] text-muted-foreground">
         <span>less</span>
         {([0, 1, 2, 3, 4] as const).map((level) => (
           <span key={level} className={`inline-block h-2.5 w-2.5 rounded-sm ${LEVEL_BG[level]}`} />

@@ -309,7 +309,7 @@ function drawLabel(
   y: number,
   colors: Colors,
 ) {
-  ctx.font = "9px 'JetBrains Mono', monospace";
+  ctx.font = "9px ui-monospace, Menlo, monospace";
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
   ctx.fillStyle = colors.muted;
@@ -340,13 +340,13 @@ function drawPrincipleCard(
   ctx.lineWidth = hover ? 1.8 : 1;
   ctx.stroke();
 
-  ctx.font = "10px 'JetBrains Mono', monospace";
+  ctx.font = "10px ui-monospace, Menlo, monospace";
   ctx.fillStyle = active ? colors.fg : colors.muted;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
   ctx.fillText(principle.title.toUpperCase(), x + 11, y + 10);
 
-  ctx.font = "10px 'JetBrains Mono', monospace";
+  ctx.font = "10px ui-monospace, Menlo, monospace";
   ctx.fillStyle = active ? colors.muted : colors.reject;
   const lines = wrapText(ctx, principle.body, width - 22).slice(0, 2);
   lines.forEach((line, index) => ctx.fillText(line, x + 11, y + 27 + index * 12));
@@ -372,7 +372,7 @@ function drawModeMaterial(
   ctx.strokeStyle = accepted ? colors.accentSoft : colors.line;
   ctx.stroke();
 
-  ctx.font = "9px 'JetBrains Mono', monospace";
+  ctx.font = "9px ui-monospace, Menlo, monospace";
   ctx.fillStyle = accepted ? colors.fg : colors.reject;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
@@ -397,16 +397,16 @@ function drawModeGate(
   ctx.strokeStyle = colors.line;
   ctx.stroke();
 
-  ctx.font = "10px 'JetBrains Mono', monospace";
+  ctx.font = "10px ui-monospace, Menlo, monospace";
   ctx.fillStyle = colors.accent;
   ctx.textAlign = "center";
   ctx.fillText("DIÁTAXIS", x + width / 2, y + 20);
 
-  ctx.font = "18px 'JetBrains Mono', monospace";
+  ctx.font = "18px ui-monospace, Menlo, monospace";
   ctx.fillStyle = colors.fg;
   ctx.fillText(state.mode.toUpperCase(), x + width / 2, y + height / 2 + 4);
 
-  ctx.font = "9px 'JetBrains Mono', monospace";
+  ctx.font = "9px ui-monospace, Menlo, monospace";
   ctx.fillStyle = colors.muted;
   ctx.fillText("ONE DOCUMENT JOB", x + width / 2, y + height - 18);
 }
@@ -494,7 +494,7 @@ function drawFunctionalDiagram(
       0,
     );
 
-    ctx.font = "8px 'JetBrains Mono', monospace";
+    ctx.font = "8px ui-monospace, Menlo, monospace";
     ctx.fillStyle = colors.muted;
     ctx.textAlign = "left";
     ctx.fillText("BEFORE", x, y + 62);
@@ -522,7 +522,7 @@ function drawFunctionalDiagram(
       ctx.lineTo(sx + 17, y + 14);
       ctx.stroke();
 
-      ctx.font = "8px 'JetBrains Mono', monospace";
+      ctx.font = "8px ui-monospace, Menlo, monospace";
       ctx.fillStyle = colors.muted;
       ctx.textAlign = "center";
       ctx.fillText(label.toUpperCase(), sx + stepW / 2, y + 34);
@@ -555,7 +555,7 @@ function drawFunctionalDiagram(
 
     ["field", "type", "value"].forEach((header, index) => {
       const hx = x + cols[index] + 9;
-      ctx.font = "8px 'JetBrains Mono', monospace";
+      ctx.font = "8px ui-monospace, Menlo, monospace";
       ctx.fillStyle = index === 2 ? colors.accent : colors.muted;
       ctx.textAlign = "left";
       ctx.fillText(header.toUpperCase(), hx, y + 12);
@@ -567,7 +567,7 @@ function drawFunctionalDiagram(
       ["status", "enum", "active"],
     ].forEach((row, rowIndex) => {
       row.forEach((cell, colIndex) => {
-        ctx.font = "8px 'JetBrains Mono', monospace";
+        ctx.font = "8px ui-monospace, Menlo, monospace";
         ctx.fillStyle = colIndex === 2 ? colors.fg : colors.muted;
         ctx.fillText(cell.toUpperCase(), x + cols[colIndex] + 9, y + 31 + rowIndex * 9);
       });
@@ -610,7 +610,7 @@ function drawFunctionalDiagram(
   ctx.stroke();
   drawTinyTextLines(ctx, x + 238, y + 13, [width - 262, width - 290, width - 250], colors, 0);
 
-  ctx.font = "8px 'JetBrains Mono', monospace";
+  ctx.font = "8px ui-monospace, Menlo, monospace";
   ctx.fillStyle = colors.muted;
   ctx.textAlign = "left";
   labels.forEach((label, index) => {
@@ -641,11 +641,11 @@ function drawDecorativeDiagram(
   ctx.stroke();
 
   if (mode === "tutorial") {
-    ctx.font = "34px 'JetBrains Mono', monospace";
+    ctx.font = "34px ui-monospace, Menlo, monospace";
     ctx.fillStyle = colors.accentSoft;
     ctx.textAlign = "left";
     ctx.fillText("01", x + 4, y + 43);
-    ctx.font = "9px 'JetBrains Mono', monospace";
+    ctx.font = "9px ui-monospace, Menlo, monospace";
     ctx.fillStyle = colors.muted;
     ctx.fillText("START HERE", x + 76, y + 18);
     drawTinyTextLines(ctx, x + 76, y + 29, [width - 118, width - 172, width - 138], colors, 0);
@@ -665,7 +665,7 @@ function drawDecorativeDiagram(
       ctx.arc(sx, midY - 5, 7, 0, Math.PI * 2);
       ctx.fillStyle = i % 2 === 0 ? colors.accentSoft : colors.faint;
       ctx.fill();
-      ctx.font = "8px 'JetBrains Mono', monospace";
+      ctx.font = "8px ui-monospace, Menlo, monospace";
       ctx.fillStyle = colors.muted;
       ctx.textAlign = "center";
       ctx.fillText(String(i + 1).padStart(2, "0"), sx, midY + 16);
@@ -678,7 +678,7 @@ function drawDecorativeDiagram(
   }
 
   if (mode === "reference") {
-    ctx.font = "28px 'JetBrains Mono', monospace";
+    ctx.font = "28px ui-monospace, Menlo, monospace";
     ctx.fillStyle = colors.accentSoft;
     ctx.textAlign = "left";
     ctx.fillText("META", x + 2, y + 42);
@@ -701,7 +701,7 @@ function drawDecorativeDiagram(
   }
 
   const centerX = x + width / 2;
-  ctx.font = "26px 'JetBrains Mono', monospace";
+  ctx.font = "26px ui-monospace, Menlo, monospace";
   ctx.fillStyle = colors.accentSoft;
   ctx.textAlign = "center";
   ctx.fillText("RECAP", centerX, y + 39);
@@ -742,17 +742,17 @@ function drawExamplePanel(
   ctx.strokeStyle = colors.line;
   ctx.stroke();
 
-  ctx.font = "10px 'JetBrains Mono', monospace";
+  ctx.font = "10px ui-monospace, Menlo, monospace";
   ctx.fillStyle = colors.accent;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
   ctx.fillText(example.eyebrow.toUpperCase(), x + 18, y + 16);
 
-  ctx.font = "17px 'JetBrains Mono', monospace";
+  ctx.font = "17px ui-monospace, Menlo, monospace";
   ctx.fillStyle = colors.fg;
   ctx.fillText(example.title, x + 18, y + 39);
 
-  ctx.font = "10px 'JetBrains Mono', monospace";
+  ctx.font = "10px ui-monospace, Menlo, monospace";
   ctx.fillStyle = colors.muted;
   wrapText(ctx, example.intro, width - 36)
     .slice(0, 2)
@@ -760,7 +760,7 @@ function drawExamplePanel(
 
   example.rows.forEach((row, index) => {
     const rowY = rowTop + index * rowGap;
-    ctx.font = "9px 'JetBrains Mono', monospace";
+    ctx.font = "9px ui-monospace, Menlo, monospace";
     ctx.fillStyle = colors.fg;
     ctx.fillText(row.label.toUpperCase(), x + 18, rowY);
     ctx.fillStyle = colors.muted;
@@ -831,13 +831,13 @@ function drawScene(
   const gateY = top + 88;
   const gateH = clamp(height * 0.18, 120, 154);
 
-  ctx.font = "18px 'JetBrains Mono', monospace";
+  ctx.font = "18px ui-monospace, Menlo, monospace";
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
   ctx.fillStyle = colors.fg;
   ctx.fillText("Documentation principles", margin, top - 64);
 
-  ctx.font = "11px 'JetBrains Mono', monospace";
+  ctx.font = "11px ui-monospace, Menlo, monospace";
   ctx.fillStyle = colors.muted;
   ctx.fillText("Concepts first. Then one example shows how they behave.", margin, top - 39);
 

@@ -454,7 +454,7 @@ export function KvCache({ info }: { info?: ReactNode }) {
 
       ctx.save();
       // Label
-      ctx.font = "9px 'JetBrains Mono', monospace";
+      ctx.font = "9px ui-monospace, Menlo, monospace";
       ctx.fillStyle = colors.textDim;
       ctx.textAlign = "left";
       ctx.fillText("TOKEN SEQUENCE", tokenX, matrixTop - 14);
@@ -485,7 +485,7 @@ export function KvCache({ info }: { info?: ReactNode }) {
 
         // Token label
         ctx.fillStyle = isCurrentToken ? colors.textBright : colors.text;
-        ctx.font = `${Math.max(8, tokenH - 4)}px 'JetBrains Mono', monospace`;
+        ctx.font = `${Math.max(8, tokenH - 4)}px ui-monospace, Menlo, monospace`;
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
         const label = s.tokens[i].replace("▁", "");
@@ -493,7 +493,7 @@ export function KvCache({ info }: { info?: ReactNode }) {
 
         // Position number
         ctx.fillStyle = colors.textDim;
-        ctx.font = "7px 'JetBrains Mono', monospace";
+        ctx.font = "7px ui-monospace, Menlo, monospace";
         ctx.textAlign = "right";
         ctx.fillText(String(i), tokenX + tw - 4, tokenY + tokenH / 2 + 0.5);
 
@@ -505,13 +505,13 @@ export function KvCache({ info }: { info?: ReactNode }) {
       ctx.save();
 
       // Matrix label
-      ctx.font = "9px 'JetBrains Mono', monospace";
+      ctx.font = "9px ui-monospace, Menlo, monospace";
       ctx.fillStyle = colors.textDim;
       ctx.textAlign = "center";
       ctx.fillText("KV CACHE", mxStart + matrixW / 2, matrixTop - 14);
 
       // Column headers (head indices)
-      ctx.font = "7px 'JetBrains Mono', monospace";
+      ctx.font = "7px ui-monospace, Menlo, monospace";
       ctx.fillStyle = colors.textDim;
       ctx.textAlign = "center";
       for (let c = 0; c < NUM_HEADS; c++) {
@@ -625,7 +625,7 @@ export function KvCache({ info }: { info?: ReactNode }) {
 
         // Query label
         ctx.fillStyle = colors.cacheNew;
-        ctx.font = "7px 'JetBrains Mono', monospace";
+        ctx.font = "7px ui-monospace, Menlo, monospace";
         ctx.textAlign = "left";
         ctx.globalAlpha = s.arrowProgress;
         ctx.fillText("Q", queryX + 2, queryY - 6);
@@ -633,7 +633,7 @@ export function KvCache({ info }: { info?: ReactNode }) {
       }
 
       // Row position labels (every 8th)
-      ctx.font = "7px 'JetBrains Mono', monospace";
+      ctx.font = "7px ui-monospace, Menlo, monospace";
       ctx.fillStyle = colors.textDim;
       ctx.textAlign = "right";
       for (let r = 0; r < MAX_TOKENS; r += 8) {
@@ -651,7 +651,7 @@ export function KvCache({ info }: { info?: ReactNode }) {
       const barX2 = barLeft + barW + 16;
 
       // Labels
-      ctx.font = "8px 'JetBrains Mono', monospace";
+      ctx.font = "8px ui-monospace, Menlo, monospace";
       ctx.fillStyle = colors.textDim;
       ctx.textAlign = "center";
       ctx.fillText("MEM", barX1 + barW / 2, matrixTop - 14);
@@ -699,7 +699,7 @@ export function KvCache({ info }: { info?: ReactNode }) {
       }
 
       // Bar labels at bottom
-      ctx.font = "7px 'JetBrains Mono', monospace";
+      ctx.font = "7px ui-monospace, Menlo, monospace";
       ctx.fillStyle = colors.textDim;
       ctx.textAlign = "center";
       ctx.fillText("O(n)", barX1 + barW / 2, barTop + barH + 14);
@@ -708,13 +708,13 @@ export function KvCache({ info }: { info?: ReactNode }) {
         ctx.fillStyle = colors.cacheNew;
         ctx.fillText("O(n)", barX2 + barW / 2, barTop + barH + 14);
         ctx.fillStyle = colors.textDim;
-        ctx.font = "6px 'JetBrains Mono', monospace";
+        ctx.font = "6px ui-monospace, Menlo, monospace";
         ctx.fillText("(ghost: O(n²))", barX2 + barW / 2, barTop + barH + 24);
       } else {
         ctx.fillStyle = colors.recompute;
         ctx.fillText("O(n²)", barX2 + barW / 2, barTop + barH + 14);
         ctx.fillStyle = colors.textDim;
-        ctx.font = "6px 'JetBrains Mono', monospace";
+        ctx.font = "6px ui-monospace, Menlo, monospace";
         ctx.fillText("(ghost: O(n))", barX2 + barW / 2, barTop + barH + 24);
       }
 

@@ -81,11 +81,9 @@ export default function LabPage() {
                       />
                     </div>
                     <div className="flex items-baseline gap-3">
-                      <span className="font-mono text-[10px] tracking-[0.15em] text-muted-foreground">
-                        [{indexLabel}]
-                      </span>
+                      <span className="text-[12px] text-muted-foreground">[{indexLabel}]</span>
                       <div className="min-w-0">
-                        <span className="font-mono text-sm text-foreground transition-colors group-hover:text-accent">
+                        <span className="text-sm text-foreground transition-colors group-hover:text-accent">
                           {exp.title}
                         </span>
                         <p className="mt-0.5 text-sm text-muted-foreground">{exp.description}</p>

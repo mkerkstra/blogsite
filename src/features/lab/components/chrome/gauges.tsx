@@ -2,9 +2,8 @@
 
 import { cn } from "@/lib/utils";
 
-/** Tiny uppercase readout label. */
-const readoutLabel =
-  "font-mono text-[8px] uppercase tracking-[0.18em] text-foreground/35 leading-none";
+/** Tiny readout label. */
+const readoutLabel = "font-medium text-[10px] text-foreground/35 leading-none";
 
 /** Pulsing "live" marker; the pulse drops under prefers-reduced-motion. */
 export function LiveDot() {

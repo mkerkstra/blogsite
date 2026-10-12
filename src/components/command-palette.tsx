@@ -391,11 +391,11 @@ export function CommandPalette() {
         Search site pages, lab experiments, page sections, actions, and contact links.
       </DialogPrimitive.Description>
       <div
-        className="w-full max-w-xl border border-border bg-background font-mono text-sm shadow-2xl"
+        className="w-full max-w-xl border border-border bg-background text-sm shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 border-b border-border px-4 py-3">
-          <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          <span className="font-mono text-[12px] text-muted-foreground" aria-hidden="true">
             &gt;_
           </span>
           <Command.Input
@@ -403,13 +403,13 @@ export function CommandPalette() {
             className="w-full bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-hidden"
             autoFocus
           />
-          <kbd className="ml-auto border border-border px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground">
-            ESC
+          <kbd className="font-medium ml-auto border border-border px-1.5 py-0.5 text-[11px] text-muted-foreground">
+            Esc
           </kbd>
         </div>
 
         <Command.List className="max-h-[420px] overflow-y-auto p-2">
-          <Command.Empty className="px-3 py-6 text-center text-[11px] uppercase tracking-wider text-muted-foreground">
+          <Command.Empty className="font-medium px-3 py-6 text-center text-[13px] text-muted-foreground">
             no matches
           </Command.Empty>
 
@@ -446,7 +446,7 @@ export function CommandPalette() {
           </CommandGroup>
         </Command.List>
 
-        <div className="flex items-center justify-between border-t border-border px-4 py-2 text-[9px] uppercase tracking-[0.15em] text-muted-foreground">
+        <div className="font-medium flex items-center justify-between border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
           <span>↑↓ navigate</span>
           <span>↵ select</span>
           <span>⌘K to toggle</span>
@@ -460,7 +460,7 @@ function CommandGroup({ label, children }: { label: string; children: React.Reac
   return (
     <Command.Group
       heading={label}
-      className="mb-1 **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:pb-1.5 **:[[cmdk-group-heading]]:pt-2 **:[[cmdk-group-heading]]:font-mono **:[[cmdk-group-heading]]:text-[9px] **:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:tracking-[0.2em] **:[[cmdk-group-heading]]:text-muted-foreground"
+      className="mb-1 **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:pb-1.5 **:[[cmdk-group-heading]]:pt-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-[11px] **:[[cmdk-group-heading]]:text-muted-foreground"
     >
       {children}
     </Command.Group>

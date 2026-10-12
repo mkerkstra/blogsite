@@ -227,7 +227,7 @@ export function SemanticSearch({ info }: { info?: ReactNode }) {
         ctx.globalAlpha = 1;
 
         if ((ranked || pass) && !isCompact) {
-          ctx.font = `${pass ? 11 : 9}px 'JetBrains Mono', monospace`;
+          ctx.font = `${pass ? 11 : 9}px ui-monospace, Menlo, monospace`;
           ctx.fillStyle = pass ? c.textBright : c.text;
           ctx.textAlign = "left";
           ctx.textBaseline = "middle";
@@ -253,7 +253,7 @@ export function SemanticSearch({ info }: { info?: ReactNode }) {
         const mx = lerp(queryPoint.x, pt.x, 0.52);
         const my = lerp(queryPoint.y, pt.y, 0.52);
         if (!isCompact) {
-          ctx.font = "9px 'JetBrains Mono', monospace";
+          ctx.font = "9px ui-monospace, Menlo, monospace";
           ctx.fillStyle = pass ? c.textBright : c.textDim;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -273,7 +273,7 @@ export function SemanticSearch({ info }: { info?: ReactNode }) {
       ctx.arc(queryPoint.x, queryPoint.y, 7, 0, Math.PI * 2);
       ctx.fill();
       if (!isCompact) {
-        ctx.font = "12px 'JetBrains Mono', monospace";
+        ctx.font = "12px ui-monospace, Menlo, monospace";
         ctx.fillStyle = c.textBright;
         ctx.textAlign = "center";
         ctx.textBaseline = "bottom";
@@ -290,12 +290,12 @@ export function SemanticSearch({ info }: { info?: ReactNode }) {
 
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
-      ctx.font = "9px 'JetBrains Mono', monospace";
+      ctx.font = "9px ui-monospace, Menlo, monospace";
       ctx.fillStyle = c.textDim;
       ctx.fillText("RANKED CHUNKS", panelX + 14, panelY + 12);
 
       if (visible.length === 0) {
-        ctx.font = "11px 'JetBrains Mono', monospace";
+        ctx.font = "11px ui-monospace, Menlo, monospace";
         ctx.fillStyle = c.text;
         ctx.fillText("no chunks match the metadata filter", panelX + 14, panelY + 40);
       }
@@ -309,13 +309,13 @@ export function SemanticSearch({ info }: { info?: ReactNode }) {
         ctx.fillRect(panelX + 12, y - 4, panelW - 24, 25);
         ctx.fillStyle = pass ? c.accent : c.reject;
         ctx.fillRect(panelX + 12, y - 4, 3, 25);
-        ctx.font = "10px 'JetBrains Mono', monospace";
+        ctx.font = "10px ui-monospace, Menlo, monospace";
         ctx.fillStyle = pass ? c.textBright : c.text;
         ctx.fillText(`${String(i + 1).padStart(2, "0")} ${match.chunk.title}`, panelX + 24, y);
         ctx.textAlign = "right";
         ctx.fillText(match.score.toFixed(2), panelX + panelW - 16, y);
         ctx.textAlign = "left";
-        ctx.font = "8px 'JetBrains Mono', monospace";
+        ctx.font = "8px ui-monospace, Menlo, monospace";
         ctx.fillStyle = c.textDim;
         ctx.fillText(`${match.chunk.category} · ${match.chunk.source}`, panelX + 24, y + 14);
       }

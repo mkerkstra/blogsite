@@ -919,7 +919,7 @@ function drawNode(ctx: CanvasRenderingContext2D, node: LayoutNode, theme: ThemeC
   if (scale < 0.01) return;
 
   const labelText = node.token + " " + node.prob.toFixed(2);
-  ctx.font = `${FONT_SIZE}px 'JetBrains Mono', monospace`;
+  ctx.font = `${FONT_SIZE}px ui-monospace, Menlo, monospace`;
   const textW = ctx.measureText(labelText).width;
   const nodeW = textW + 16;
   const halfW = nodeW / 2;
@@ -1004,7 +1004,7 @@ function drawEdge(
   ctx.globalAlpha = baseAlpha * easeOutCubic(child.scaleAnim);
 
   // Get node widths for edge endpoints
-  ctx.font = `${FONT_SIZE}px 'JetBrains Mono', monospace`;
+  ctx.font = `${FONT_SIZE}px ui-monospace, Menlo, monospace`;
   const parentLabel = parent.token + " " + parent.prob.toFixed(2);
   const childLabel = child.token + " " + child.prob.toFixed(2);
   const parentHalfW = (ctx.measureText(parentLabel).width + 16) / 2;
