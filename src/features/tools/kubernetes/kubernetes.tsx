@@ -28,6 +28,9 @@ import {
   walkCamera,
   type Hit,
 } from "./scene";
+import { factoryStages } from "./factory";
+import { releaseDepthRenderer } from "./depth-renderer";
+import { createCampusAnimation } from "./animation";
 import styles from "./kubernetes.module.css";
 
 const options = lessons.map((lesson, i) => ({
@@ -36,6 +39,7 @@ const options = lessons.map((lesson, i) => ({
 }));
 export function KubernetesCommons() {
   const [cluster, dispatch] = useReducer(clusterReducer, undefined, initialCluster);
+  const [factory, setFactory] = useState(false);
   const [stop, setStop] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [walking, setWalking] = useState(false);
@@ -43,6 +47,9 @@ export function KubernetesCommons() {
   const [canvasError, setCanvasError] = useState(false);
   const { canvasRef, sizeRef } = useLabCanvas();
   const guideRef = useRef<HTMLElement>(null);
+  const animation = useRef(createCampusAnimation());
+  const playingRef = useRef(playing);
+  playingRef.current = playing;
   const camera = useRef(homeCamera());
   const hits = useRef<Hit[]>([]);
   const keys = useRef(new Set<string>());
@@ -55,9 +62,11 @@ export function KubernetesCommons() {
   walkingRef.current = walking;
   const lesson = lessons[stop];
   const ready = readyPods(cluster);
+  const factoryStage = factoryStages[Math.min(cluster.tick, factoryStages.length - 1)];
   const pending = cluster.pods.filter((p) => p.node === null).length;
 
   function visit(index: number) {
+    setFactory(false);
     setStop(index);
     guideRef.current?.scrollTo({ top: 0 });
     const landmark = lessons[index].landmark;
@@ -94,8 +103,10 @@ export function KubernetesCommons() {
     );
   }
   function reset() {
+    setFactory(false);
     dispatch({ type: "reset" });
-    setPlaying(true);
+    setPlaying(!motion.current);
+    animation.current = createCampusAnimation();
     setStop(0);
     setWalking(false);
     camera.current = homeCamera();
@@ -103,9 +114,38 @@ export function KubernetesCommons() {
     requestCount.current = 0;
     setRequestStatus("The kettles are ready. Send a request.");
   }
+  function startFactory() {
+    reset();
+    dispatch({ type: "factory" });
+    setFactory(true);
+    setStop(6);
+  }
   useEffect(() => {
-    motion.current = prefersReducedMotion();
-    if (motion.current) setPlaying(false);
+    if (!factory) return;
+    setStop(factoryStages[Math.min(cluster.tick, factoryStages.length - 1)].stop);
+    if (cluster.tick === 4) dispatch({ type: "mesh" });
+    if (cluster.tick === 5 || cluster.tick === 8) {
+      const pods = readyPods(live.current.cluster);
+      const pod = pods[0];
+      if (pod) {
+        request.current = { pod: pod.id, start: performance.now() - (motion.current ? 1800 : 0) };
+        setRequestStatus(
+          `Factory request → tea-api → illustrative mesh proxy → tea-${pod.id}. One ready backend selected.`,
+        );
+      }
+    }
+    if (cluster.tick === 6) dispatch({ type: "delete" });
+    if (cluster.tick >= 8) setPlaying(false);
+  }, [factory, cluster.tick]);
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => {
+      motion.current = prefersReducedMotion();
+      if (motion.current) setPlaying(false);
+    };
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
   }, []);
   useEffect(() => {
     if (!playing) return;
@@ -126,6 +166,9 @@ export function KubernetesCommons() {
     const draw = (time: number) => {
       const dt = Math.min(0.05, (time - last) / 1000);
       last = time;
+      animation.current.reduced = motion.current;
+      animation.current.active = playingRef.current;
+      if (playingRef.current && !motion.current) animation.current.time += dt * 1000;
       const c = camera.current;
       if (document.activeElement === canvas) {
         const k = keys.current;
@@ -160,6 +203,7 @@ export function KubernetesCommons() {
         getTheme() === "dark",
         time,
         request.current,
+        animation.current,
       );
       if (r && time - r.start > 3000) request.current = null;
       raf = requestAnimationFrame(draw);
@@ -167,6 +211,7 @@ export function KubernetesCommons() {
     raf = requestAnimationFrame(draw);
     return () => {
       cancelAnimationFrame(raf);
+      releaseDepthRenderer(ctx);
       window.removeEventListener("blur", clearKeys);
     };
   }, [canvasRef, sizeRef]);
@@ -183,6 +228,27 @@ export function KubernetesCommons() {
             The cluster <em>commons.</em>
           </h1>
           <p className={styles.intro}>Big infrastructure ideas. Tiny tea kiosks.</p>
+          <div className={styles.factoryControls}>
+            <Tool
+              label={factory ? "Restart the tea factory" : "Run the tea factory"}
+              icon={<>{factory ? "↻ Restart the tea factory" : "▶ Run the tea factory"}</>}
+              onClick={startFactory}
+              primary
+            />
+            {factory && (
+              <Tool
+                label="Explore freely"
+                icon={<>Explore freely</>}
+                onClick={() => setFactory(false)}
+              />
+            )}
+            <p>
+              One connected story, from a declaration to a cup of tea.{" "}
+              {factory
+                ? "Pause or Step to explain each handoff."
+                : "About 20 seconds. All the moving parts stay in view."}
+            </p>
+          </div>
           <div className={styles.tourNav}>
             <LabSelect
               label="Stop"
@@ -224,7 +290,17 @@ export function KubernetesCommons() {
               <p>{lesson.try}</p>
             </div>
           </section>
-          <section className={styles.experiments} aria-label="Cluster experiments">
+          <fieldset
+            className={styles.experiments}
+            aria-label="Cluster experiments"
+            disabled={factory && cluster.tick < 8}
+          >
+            {factory && cluster.tick < 8 && (
+              <p className={styles.note}>
+                The factory is driving these controls. Use Pause / Step below, or Explore freely to
+                take over.
+              </p>
+            )}
             <div className={styles.replicaRow}>
               <Stepper
                 label="Replicas"
@@ -274,7 +350,7 @@ export function KubernetesCommons() {
             <p className={styles.request} role="status">
               {requestStatus}
             </p>
-          </section>
+          </fieldset>
           <details className={styles.details}>
             <summary>Under the hood</summary>
             <pre>{lesson.code}</pre>
@@ -415,6 +491,26 @@ export function KubernetesCommons() {
               />
             </div>
           </div>
+          {factory && (
+            <div className={styles.factoryStory} role="status">
+              <div className={styles.factoryTrack} aria-label="Factory progress" role="group">
+                {["Declare", "Reconcile", "Capacity", "Ready", "Mesh", "Serve", "Repair"].map(
+                  (name, i) => (
+                    <span
+                      key={name}
+                      data-active={Math.min(cluster.tick, 6) === i}
+                      data-done={cluster.tick > i}
+                    >
+                      {name}
+                      {i < 6 ? " →" : ""}
+                    </span>
+                  ),
+                )}
+              </div>
+              <strong>{factoryStage.title}</strong>
+              <p>{factoryStage.text}</p>
+            </div>
+          )}
           <div className={styles.stats} role="group" aria-label="Cluster status">
             <div>
               <strong>
@@ -511,9 +607,10 @@ export function KubernetesCommons() {
               contract.
             </p>
             <p>
-              Use the simulation controls to change desired state and watch controllers respond.
-              Pause and step for a presenter-led explanation. Reduced-motion preferences start the
-              simulation paused.
+              Run the tea factory to see the entire system work together, then explore individual
+              stops. Use the simulation controls to change desired state and watch controllers
+              respond. Pause and step for a presenter-led explanation. Reduced-motion preferences
+              start the simulation paused.
             </p>
             <p>
               The geometry is a conceptual map. Services are logical endpoints, not physical
@@ -538,6 +635,7 @@ export function KubernetesCommons() {
             label="Step: advance one reconciliation step"
             onClick={() => {
               setPlaying(false);
+              animation.current.time += 2200;
               dispatch({ type: "tick" });
             }}
             icon={<>Step →</>}

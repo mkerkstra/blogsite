@@ -1,3 +1,5 @@
+import { drawDepthFaces } from "./depth-renderer";
+import { updatePodVisuals, type CampusAnimation } from "./animation";
 import type { Cluster } from "./model";
 export type Vec = [number, number, number];
 export type Camera = { x: number; y: number; z: number; yaw: number; pitch: number };
@@ -42,10 +44,12 @@ export function drawScene(
   dark: boolean,
   time: number,
   request: { pod: number; start: number } | null,
+  animation: CampusAnimation,
 ): Hit[] {
   const bg = dark ? "#0b0e0b" : "#f5f1e8";
   const fg = dark ? "#eeeade" : "#252b21";
   const accent = dark ? "#d4ff00" : "#2a8a0e";
+  const phase = animation.reduced ? 0 : animation.time / 1000;
   const muted = dark ? "#9ba28e" : "#626b59";
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, w, h);
@@ -91,7 +95,13 @@ export function drawScene(
   }
   const faces: { points: Vec[]; fill: string; stroke: string; depth: number }[] = [];
   const labels: { p: Vec; title: string; sub: string; landmark: string }[] = [];
+  let podTransform: { origin: Vec; scale: number } | null = null;
   function box(p: Vec, size: Vec, highlight = false, pale = false) {
+    if (podTransform) {
+      const { origin, scale } = podTransform;
+      p = p.map((v, i) => origin[i] + (v - origin[i]) * scale) as Vec;
+      size = size.map((v) => v * scale) as Vec;
+    }
     const [x, y, z] = p,
       [sx, sy, sz] = size;
     const vertices: Vec[] = [
@@ -121,6 +131,7 @@ export function drawScene(
       [2, 3, 7, 6],
       [3, 0, 4, 7],
       [4, 5, 6, 7],
+      [3, 2, 1, 0],
     ].forEach((indices, i) => {
       let points = indices.map((j) => view(vertices[j]));
       const clipped: Vec[] = [];
@@ -201,8 +212,12 @@ export function drawScene(
       "pods",
     );
   }
-  for (const p of s.pods) {
-    const pos = podPosition(s, p.id);
+  const visuals = updatePodVisuals(s, animation, (id) => podPosition(s, id));
+  for (const visual of visuals) {
+    const p = visual.pod;
+    const pos: Vec = [...visual.position];
+    pos[1] += (1 - visual.scale) * 1.5;
+    podTransform = { origin: pos, scale: visual.scale };
     box(pos, [1.45, 1.35, 1.35], p.ready);
     box([pos[0], pos[1] + 1.35, pos[2]], [1.8, 0.22, 1.65], p.ready);
     // A tiny chimney and two front windows give each disposable kiosk some personality.
@@ -211,6 +226,8 @@ export function drawScene(
       box([pos[0] + offset, pos[1] + 0.65, pos[2] + 0.69], [0.18, 0.22, 0.05], false, true);
     if (s.mesh && p.node !== null)
       box([pos[0] + 0.9, pos[1], pos[2] + 0.5], [0.35, 0.85, 0.35], true);
+    podTransform = null;
+    if (visual.departed !== undefined) continue;
     label(
       [pos[0], pos[1] + 2.2, pos[2]],
       `tea-${p.id}`,
@@ -225,8 +242,11 @@ export function drawScene(
   box([11, 0, -12], [4, 0.5, 4], selected === "capacity");
   box([10, 0.5, -12], [0.65, 6, 0.65], selected === "capacity", true);
   box([12, 6, -12], [5, 0.4, 0.5], true);
-  line([14, 6, -12], [14, 3.4, -12], accent, 2);
-  box([14, 2.5, -12], [1.4, 0.9, 1.4], true);
+  const provisioning = s.nodes.some((n) => n.status === "provisioning");
+  const craneX = 13 + Math.sin(phase * (provisioning ? 1.7 : 0.45)) * (provisioning ? 1 : 0.35);
+  const craneY = 2.5 + (1 + Math.sin(phase * (provisioning ? 2 : 0.6))) * (provisioning ? 1 : 0.2);
+  line([craneX, 6, -12], [craneX, craneY + 0.9, -12], accent, 2);
+  box([craneX, craneY, -12], [1.4, 0.9, 1.4], true);
   label([11, 7.5, -12], "Capacity crane", "Auto Mode · managed Karpenter", "capacity");
   box(service, [4, 0.4, 3], selected === "service");
   box([0, 0.4, 12], [2.8, 2, 1.8], true);
@@ -255,22 +275,59 @@ export function drawScene(
   box([1, 0, -13], [3.5, 2.5, 3], selected === "pantry", true);
   box([1, 2.5, -13], [4, 0.3, 3.5], true);
   label([1, 4, -13], "The pantry", "Config · Secrets · storage", "pantry");
-  faces
-    .sort((a, b) => b.depth - a.depth)
-    .forEach((face) => {
-      ctx.beginPath();
-      face.points.forEach((v, i) => {
-        const p = project(v);
-        if (i === 0) ctx.moveTo(...p);
-        else ctx.lineTo(...p);
-      });
-      ctx.closePath();
-      ctx.fillStyle = face.fill;
-      ctx.fill();
-      ctx.strokeStyle = face.stroke;
-      ctx.lineWidth = 0.7;
-      ctx.stroke();
-    });
+  if (!drawDepthFaces(ctx, faces, w, h, focal)) {
+    ctx.fillStyle = fg;
+    ctx.font = "14px sans-serif";
+    ctx.fillText(
+      "3D rendering is unavailable. Use the guide and text inventory to explore.",
+      20,
+      h / 2,
+    );
+    return [];
+  }
+  // These pulses depict control messages, never application traffic through a controller.
+  function dot(p: Vec, radius: number, color: string, opacity = 1) {
+    const v = view(p);
+    if (v[2] < 0.3) return;
+    const screen = project(v);
+    ctx.globalAlpha = opacity;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(...screen, Math.max(1, Math.min(14, (radius * focal) / v[2])), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  function message(a: Vec, b: Vec, offset: number) {
+    const t = (phase * 0.22 + offset) % 1;
+    dot(a.map((value, i) => value + (b[i] - value) * t) as Vec, 0.12, accent, 0.85);
+  }
+  if (!animation.reduced) {
+    message([-9, 0.4, -12], [0, 0.4, 0], 0);
+    if (s.operator) message([-13, 0.4, 9], [-9, 0.4, -12], 0.3);
+    if (s.mesh) message([11, 0.4, 9], [0, 0.4, 12], 0.6);
+    for (const visual of visuals) {
+      if (!visual.pod.ready || visual.departed !== undefined || visual.scale < 1) continue;
+      const [x, y, z] = visual.position;
+      for (let i = 0; i < 3; i++) {
+        const rise = (phase * 0.45 + i / 3 + visual.pod.id * 0.17) % 1;
+        dot(
+          [x + 0.35 + Math.sin(phase + i) * rise * 0.25, y + 2.1 + rise * 1.4, z - 0.3],
+          0.07 + rise * 0.1,
+          fg,
+          (1 - rise) * 0.5,
+        );
+      }
+    }
+    for (let i = 0; i < 3; i++) {
+      const rise = (phase * 0.4 + i / 3) % 1;
+      dot(
+        [Math.sin(phase + i) * rise * 0.3, 3.6 + rise, 12],
+        0.09 + rise * 0.13,
+        fg,
+        (1 - rise) * 0.5,
+      );
+    }
+  }
   if (request) {
     const end = podPosition(s, request.pod);
     const progress = Math.min(1, (time - request.start) / 1800);

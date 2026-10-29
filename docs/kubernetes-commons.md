@@ -1,6 +1,12 @@
 # The cluster commons
 
-A browser-only Kubernetes refresher at `/tools/kubernetes`, linked from `/tools`, the navigation, command palette, and sitemap. React and a custom Canvas2D perspective renderer reuse the labs' controls, theme helpers, canvas sizing, fullscreen, and recording. No rendering dependencies or cloud integrations are added.
+A browser-only Kubernetes refresher at `/tools/kubernetes`, linked from `/tools`, the navigation, command palette, and sitemap. React, a raw WebGL2 depth-tested geometry pass, and Canvas2D overlays reuse the labs' controls, theme helpers, canvas sizing, fullscreen, and recording. No rendering dependencies or cloud integrations are added.
+
+## Watch the whole factory
+
+Choose **Run the tea factory** for a connected, roughly twenty-second story. A fictional TeaStand declaration drives the operator, Deployment/ReplicaSet, scheduler, Auto Mode capacity, kubelets, readiness, Service, and optional mesh. Then a Pod disappears and the system repairs it. The camera stays on the whole campus; the stage captions distinguish control messages from request traffic. Pause and Step work through the same sequence manually. Explore freely exits the story.
+
+Kiosk arrivals/departures, tea steam, control-message pulses, and the provisioning crane animate while playing. Pause freezes ambient motion. Reduced motion removes these effects, starts paused, and keeps manual changes visible immediately. A hardware depth buffer resolves overlapping surfaces and close camera views, including the undersides of roofs. Without WebGL2, the guide and inventory remain available.
 
 ## A ten-minute field trip
 
@@ -39,7 +45,7 @@ This is a conceptual simulation, not a Kubernetes or AWS emulator. No commands e
 
 - `pnpm test`: includes invariant and transition tests for capacity, readiness, failure recovery, operator ownership, immutable state, and identity replacement.
 - `pnpm typecheck`, `pnpm lint`, `pnpm build`.
-- With a local server running, `pnpm exec tsx scripts/capture-kubernetes.ts` checks capacity recovery, operator reconciliation, mobile overflow, reduced motion, and browser runtime errors. It refreshes the two tool previews and screenshots under `docs/screenshots/kubernetes/`. Set `TOOLS_PREVIEW_URL` to target a different local server.
+- With a local server running, `pnpm exec tsx scripts/capture-kubernetes.ts` checks capacity recovery, operator reconciliation, mobile overflow, reduced motion, and browser runtime errors. It also verifies changing frames while playing, frozen frames when paused, reduced-motion stability, and the complete factory run. It captures a canvas-only `factory.webm` demonstration and refreshes the two tool previews and screenshots under `docs/screenshots/kubernetes/`. Set `TOOLS_PREVIEW_URL` to target a different local server.
 
 ## Primary references
 

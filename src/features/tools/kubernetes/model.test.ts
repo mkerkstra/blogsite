@@ -5,6 +5,23 @@ const tick = (s: Cluster, count = 1): Cluster => {
   return s;
 };
 describe("cluster teaching model", () => {
+  it("builds the factory from intent through capacity and repairs a deleted kiosk", () => {
+    let s = clusterReducer(initialCluster(), { type: "factory" });
+    expect(s.pods).toHaveLength(0);
+    s = tick(s);
+    expect(s.desired).toBe(5);
+    expect(s.pods.filter((p) => p.node === null)).toHaveLength(1);
+    expect(s.nodes.some((n) => n.status === "provisioning")).toBe(true);
+    s = tick(s, 2);
+    expect(readyPods(s)).toHaveLength(5);
+    s = clusterReducer(s, { type: "mesh" });
+    s = clusterReducer(s, { type: "delete" });
+    expect(readyPods(s)).toHaveLength(4);
+    s = tick(s, 2);
+    expect(readyPods(s)).toHaveLength(5);
+    expect(s.pods.some((p) => p.id === 1)).toBe(false);
+    expect(s.mesh).toBe(true);
+  });
   it("replaces a deleted Pod with a new identity without changing desired state", () => {
     const initial = initialCluster();
     const deleted = clusterReducer(initial, { type: "delete" });

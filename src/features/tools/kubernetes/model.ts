@@ -19,7 +19,8 @@ export type Action =
   | { type: "auto" }
   | { type: "mesh" }
   | { type: "operator" }
-  | { type: "reset" };
+  | { type: "reset" }
+  | { type: "factory" };
 
 export function initialCluster(): Cluster {
   return {
@@ -47,6 +48,17 @@ export function readyPods(s: Cluster) {
 }
 export function clusterReducer(state: Cluster, action: Action): Cluster {
   if (action.type === "reset") return initialCluster();
+  if (action.type === "factory")
+    return {
+      ...initialCluster(),
+      desired: 0,
+      pods: [],
+      nextPod: 1,
+      operator: true,
+      events: [
+        "Application team submits a TeaStand requesting five servings. The platform provides two ready nodes.",
+      ],
+    };
   const s: Cluster = {
     ...state,
     pods: state.pods.map((p) => ({ ...p })),
