@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 
 /**
- * Hides the site footer on immersive lab detail pages (`/lab/<slug>`).
+ * Hides the site footer on immersive lab detail pages and the Kubernetes tool.
  *
  * Those pages render a full-bleed `fixed inset-0` canvas plus their own bottom
  * chrome (experiment label at `bottom-6 left-5`, control bar at `bottom-16`).
@@ -16,6 +16,6 @@ import { usePathname } from "next/navigation";
  */
 export function FooterGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  if (/^\/lab\/[^/]+/.test(pathname ?? "")) return null;
+  if (/^\/lab\/[^/]+/.test(pathname ?? "") || pathname === "/tools/kubernetes") return null;
   return <>{children}</>;
 }

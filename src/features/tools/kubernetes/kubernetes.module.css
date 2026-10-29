@@ -1,0 +1,579 @@
+.shell {
+  position: fixed;
+  inset: 49px 0 48px;
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  background: hsl(var(--background));
+  overflow: hidden;
+}
+.guide {
+  overflow-y: auto;
+  padding: 25px 26px 32px;
+  border-right: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  z-index: 2;
+  scrollbar-width: thin;
+}
+.back {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+  text-decoration: none;
+}
+.back:hover {
+  color: hsl(var(--accent));
+}
+.eyebrow {
+  font-size: 10px;
+  color: hsl(var(--muted-foreground));
+  margin: 23px 0 10px;
+}
+.guide h1 {
+  font-size: 33px;
+  line-height: 1.06;
+  letter-spacing: -1.2px;
+  font-weight: 500;
+}
+.guide h1 em {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 47px;
+}
+.intro {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+  margin: 12px 0 22px;
+}
+.tourNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+}
+.tourNav select {
+  max-width: 195px;
+}
+.progress {
+  display: flex;
+  gap: 4px;
+  margin: 12px 0 24px;
+}
+.progress span {
+  height: 3px;
+  flex: 1;
+  background: hsl(var(--border));
+}
+.progress span[data-active="true"] {
+  background: hsl(var(--accent));
+}
+.kicker {
+  font-size: 11px !important;
+  color: hsl(var(--accent)) !important;
+  line-height: 1.5 !important;
+  margin-bottom: 9px !important;
+}
+.lesson h2 {
+  font-size: 21px;
+  line-height: 1.22;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+}
+.lesson p {
+  font-size: 13px;
+  line-height: 1.65;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 16px;
+}
+.lesson h3 {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.try {
+  border-left: 2px solid hsl(var(--accent));
+  padding-left: 13px;
+  margin-top: 20px;
+}
+.try p {
+  font-size: 12px;
+}
+.experiments {
+  border-top: 1px solid hsl(var(--border));
+  padding-top: 18px;
+  margin-top: 21px;
+}
+.replicaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.replicaRow > span {
+  font-size: 10px;
+  color: hsl(var(--muted-foreground));
+}
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin: 15px 0;
+}
+.actions button {
+  font-size: 11px;
+  border: 1px solid hsl(var(--border));
+  min-height: 35px;
+  padding: 0 9px;
+}
+.actions button[aria-pressed="true"] {
+  color: hsl(var(--accent));
+  border-color: hsl(var(--accent));
+}
+.request {
+  font-size: 11px;
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
+  min-height: 33px;
+}
+.details {
+  border-top: 1px solid hsl(var(--border));
+  padding: 12px 0;
+  font-size: 12px;
+}
+.details summary {
+  cursor: pointer;
+  min-height: 24px;
+  line-height: 24px;
+}
+.details pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  line-height: 1.7;
+  padding: 12px 0;
+  color: hsl(var(--muted-foreground));
+}
+.details a {
+  color: hsl(var(--accent));
+}
+.details p,
+.details ul {
+  font-size: 12px;
+  line-height: 1.65;
+  color: hsl(var(--muted-foreground));
+  margin: 8px 0;
+}
+.note {
+  font-size: 10px;
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+  margin-top: 15px;
+}
+.world {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  background: hsl(var(--background));
+}
+.world canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  outline-offset: -3px;
+}
+.world canvas:focus-visible {
+  outline: 2px solid hsl(var(--accent));
+}
+.worldHeader {
+  position: absolute;
+  top: 25px;
+  left: 27px;
+  right: 27px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  pointer-events: none;
+}
+.worldHeader p {
+  font-size: 10px;
+  margin-top: 7px;
+  color: hsl(var(--muted-foreground));
+}
+.liveDot {
+  display: inline-block;
+  background: hsl(var(--accent));
+  width: 6px;
+  height: 6px;
+  border-radius: 100%;
+  margin-right: 8px;
+}
+.viewButton {
+  pointer-events: auto;
+}
+.viewButton button {
+  background: hsl(var(--background));
+  gap: 8px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+.stats {
+  position: absolute;
+  top: 86px;
+  left: 27px;
+  display: flex;
+  gap: 27px;
+  pointer-events: none;
+}
+.stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stats strong {
+  font-family: ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 27px;
+  color: hsl(var(--accent));
+}
+.stats strong span {
+  font-size: 17px;
+  color: hsl(var(--muted-foreground));
+}
+.stats > div > span {
+  font-size: 10px;
+  color: hsl(var(--muted-foreground));
+}
+.bottomOverlay {
+  position: absolute;
+  bottom: 45px;
+  left: 27px;
+  right: 27px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 30px;
+  pointer-events: none;
+}
+.events {
+  max-width: 490px;
+  padding: 12px 15px;
+  background: hsl(var(--background));
+  border-left: 1px solid hsl(var(--border));
+  opacity: 0.94;
+}
+.events > p {
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 9px;
+}
+.events > p > span {
+  font-size: 10px;
+  color: hsl(var(--muted-foreground));
+  margin-left: 12px;
+}
+.events li {
+  font-size: 10px;
+  line-height: 1.55;
+  color: hsl(var(--muted-foreground));
+  margin-top: 6px;
+}
+.events li:first-child {
+  color: hsl(var(--foreground));
+}
+.map {
+  width: 85px;
+  flex-shrink: 0;
+  color: hsl(var(--accent));
+}
+.map svg {
+  width: 85px;
+  height: 94px;
+}
+.map span {
+  font-size: 8px;
+  color: hsl(var(--muted-foreground));
+}
+.walkInstructions {
+  position: absolute;
+  left: 27px;
+  bottom: 15px;
+  font-size: 10px;
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+}
+.walkControls {
+  position: absolute;
+  right: 20px;
+  bottom: 12px;
+  display: flex;
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+}
+.walkControls button {
+  min-width: 36px;
+  min-height: 36px;
+}
+.fallback {
+  position: absolute;
+  top: 40%;
+  left: 15%;
+  right: 15%;
+  font-size: 14px;
+  background: hsl(var(--background));
+  padding: 20px;
+}
+@media (min-width: 1500px) {
+  .shell {
+    grid-template-columns: 390px minmax(0, 1fr);
+  }
+  .guide {
+    padding: 28px 32px;
+  }
+  .lesson p {
+    font-size: 14px;
+  }
+  .guide h1 {
+    font-size: 38px;
+  }
+  .guide h1 em {
+    font-size: 52px;
+  }
+}
+@media (max-width: 1000px) {
+  .shell {
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+  .guide {
+    padding: 20px;
+  }
+  .worldHeader {
+    left: 18px;
+    right: 18px;
+  }
+  .worldHeader p {
+    max-width: 140px;
+  }
+  .stats {
+    left: 18px;
+    gap: 20px;
+    top: 100px;
+  }
+  .map {
+    display: none;
+  }
+  .bottomOverlay {
+    left: 18px;
+    right: 18px;
+  }
+  .walkInstructions {
+    max-width: 220px;
+    left: 18px;
+  }
+  .walkControls {
+    bottom: 45px;
+    right: 18px;
+  }
+  .events {
+    max-width: 330px;
+  }
+  .walkControls ~ .events {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .shell {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .world {
+    order: 0;
+    flex: none;
+    height: 46svh;
+    min-height: 310px;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  .guide {
+    order: 1;
+    overflow: visible;
+    border-right: 0;
+    padding: 22px;
+    flex: none;
+  }
+  .guide h1 em {
+    display: inline;
+    font-size: 35px;
+  }
+  .guide h1 {
+    font-size: 30px;
+  }
+  .eyebrow {
+    margin: 14px 0 9px;
+  }
+  .intro {
+    margin-bottom: 15px;
+  }
+  .tourNav {
+    justify-content: flex-start;
+    gap: 12px;
+  }
+  .worldHeader {
+    top: 14px;
+    left: 15px;
+    right: 15px;
+    font-size: 11px;
+  }
+  .worldHeader p {
+    font-size: 8px;
+    margin-top: 5px;
+  }
+  .viewButton button {
+    font-size: 10px;
+    gap: 5px;
+  }
+  .stats {
+    left: 15px;
+    top: 67px;
+    gap: 19px;
+  }
+  .stats strong {
+    font-size: 20px;
+  }
+  .stats > div > span {
+    font-size: 9px;
+  }
+  .bottomOverlay {
+    left: 15px;
+    right: 15px;
+    bottom: 34px;
+  }
+  .events {
+    padding: 5px 9px;
+    max-width: 100%;
+  }
+  .events > p {
+    font-size: 9px;
+    margin-bottom: 3px;
+  }
+  .events li {
+    font-size: 9px;
+    margin: 0;
+  }
+  .events li:not(:first-child) {
+    display: none;
+  }
+  .map {
+    display: none;
+  }
+  .walkInstructions {
+    bottom: 10px;
+    left: 15px;
+    font-size: 8px;
+    max-width: 100%;
+  }
+  .walkControls {
+    bottom: 67px;
+  }
+  .progress {
+    margin-bottom: 19px;
+  }
+  .actions button {
+    min-height: 40px;
+  }
+  .note {
+    max-width: 460px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shell * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+
+.factoryControls {
+  margin: 0 0 20px;
+  padding: 12px 0;
+  border-top: 1px solid hsl(var(--border));
+  border-bottom: 1px solid hsl(var(--border));
+}
+.factoryControls button {
+  font-size: 12px;
+  min-height: 36px;
+  padding: 0 10px;
+  color: hsl(var(--accent));
+}
+.factoryControls p {
+  font-size: 11px;
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
+  margin-top: 8px;
+}
+.factoryStory {
+  position: absolute;
+  top: 80px;
+  left: auto;
+  width: min(520px, calc(100% - 300px));
+  right: 27px;
+  max-width: 560px;
+  background: hsl(var(--background)/0.94);
+  border-left: 2px solid hsl(var(--accent));
+  padding: 12px 15px;
+  pointer-events: none;
+}
+.factoryStory strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+.factoryStory p {
+  font-size: 11px;
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
+  margin-top: 5px;
+}
+.factoryTrack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 9px;
+  font-size: 10px;
+  color: hsl(var(--muted-foreground));
+}
+.factoryTrack span[data-active="true"] {
+  color: hsl(var(--accent));
+}
+.factoryTrack span[data-done="true"] {
+  color: hsl(var(--foreground));
+}
+@media (max-width: 1100px) {
+  .factoryStory {
+    top: 155px;
+    left: 18px;
+    right: 18px;
+    width: auto;
+  }
+}
+@media (max-width: 700px) {
+  .world:has(.factoryStory) {
+    height: 65svh;
+    min-height: 470px;
+  }
+  .factoryStory {
+    width: auto;
+    top: 120px;
+    left: 15px;
+    right: 15px;
+    padding: 9px 11px;
+  }
+  .factoryStory p {
+    font-size: 10px;
+  }
+  .factoryTrack {
+    font-size: 9px;
+    gap: 5px;
+  }
+  .factoryStory strong {
+    font-size: 12px;
+  }
+}

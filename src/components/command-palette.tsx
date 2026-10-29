@@ -232,7 +232,10 @@ export function CommandPalette() {
           },
         ];
       default:
-        if (pathname.startsWith("/lab/") && pathname !== "/lab/") {
+        if (
+          (pathname.startsWith("/lab/") && pathname !== "/lab/") ||
+          pathname === "/tools/kubernetes"
+        ) {
           return [
             {
               id: "lab-info",
@@ -250,6 +253,19 @@ export function CommandPalette() {
   }, [pathname]);
 
   const pages: ItemDef[] = [
+    {
+      id: "page-tools",
+      label: "/tools · interactive explainers",
+      icon: Wrench,
+      perform: () => router.push("/tools"),
+    },
+    {
+      id: "tool-kubernetes",
+      label: "Kubernetes · The cluster commons",
+      icon: Network,
+      perform: () => router.push("/tools/kubernetes"),
+      keywords: ["eks", "karpenter", "istio", "operators"],
+    },
     { id: "page-resume", label: "/  ·  resume", icon: User, perform: () => router.push("/") },
     {
       id: "page-ai-engineer",
