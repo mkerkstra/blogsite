@@ -23,6 +23,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
 
   const topLevel: MetadataRoute.Sitemap = [
+    { url: `${SITE_URL}/tools`, lastModified, changeFrequency: "monthly", priority: 0.8 },
+    {
+      url: `${SITE_URL}/tools/kubernetes`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
     { url: SITE_URL, lastModified, changeFrequency: "monthly", priority: 1 },
     {
       url: `${SITE_URL}/ai-engineer`,

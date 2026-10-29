@@ -28,6 +28,9 @@ export function Navbar() {
           <Link href="/reading" className="no-underline transition-colors hover:text-accent">
             /reading
           </Link>
+          <Link href="/tools" className="no-underline transition-colors hover:text-accent">
+            /tools
+          </Link>
           <Link href="/lab" className="no-underline transition-colors hover:text-accent">
             /lab
           </Link>

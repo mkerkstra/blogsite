@@ -11,6 +11,7 @@ export const MOBILE_NAV_LINKS = [
   { href: "/now", label: "Now" },
   { href: "/reading", label: "Reading" },
   { href: "/lab", label: "Lab" },
+  { href: "/tools", label: "Tools" },
   { href: "/colophon", label: "Colophon" },
 ] as const;
 
